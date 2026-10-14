@@ -13,6 +13,12 @@ import { NotFoundPage } from '@/app/NotFoundPage';
 // download the operations portal.
 const PortalHome = lazy(() => import('@/experiences/portal/pages/PortalHome'));
 const OpsDashboard = lazy(() => import('@/experiences/ops/pages/OpsDashboard'));
+const OpsLogin = lazy(() => import('@/experiences/ops/pages/OpsLogin'));
+const ServicesPage = lazy(() => import('@/experiences/ops/catalog/pages/ServicesPage'));
+const ServiceEditorPage = lazy(() => import('@/experiences/ops/catalog/pages/ServiceEditorPage'));
+const ServiceAreasPage = lazy(() => import('@/experiences/ops/catalog/pages/ServiceAreasPage'));
+const StaffPage = lazy(() => import('@/experiences/ops/team/pages/StaffPage'));
+const StaffProfilePage = lazy(() => import('@/experiences/ops/team/pages/StaffProfilePage'));
 const FieldToday = lazy(() => import('@/experiences/field/pages/FieldToday'));
 const ControlHome = lazy(() => import('@/experiences/control/pages/ControlHome'));
 
@@ -21,11 +27,21 @@ const withSuspense = (node: ReactNode) => <Suspense fallback={<RouteLoading />}>
 // Reserved first segments are matched before the tenant slug catch-all.
 export const routes: RouteObject[] = [
   { path: '/', element: <Navigate to="/ops" replace /> },
+  { path: '/ops/login', element: withSuspense(<OpsLogin />), errorElement: <RouteError /> },
   {
     path: '/ops',
     element: <OpsLayout />,
     errorElement: <RouteError />,
-    children: [{ index: true, element: withSuspense(<OpsDashboard />) }],
+    children: [
+      { index: true, element: withSuspense(<OpsDashboard />) },
+      { path: 'services', element: withSuspense(<ServicesPage />) },
+      { path: 'services/new', element: withSuspense(<ServiceEditorPage />) },
+      { path: 'services/areas', element: withSuspense(<ServiceAreasPage />) },
+      { path: 'services/:id', element: withSuspense(<ServiceEditorPage />) },
+      { path: 'staff', element: withSuspense(<StaffPage />) },
+      { path: 'staff/new', element: withSuspense(<StaffProfilePage />) },
+      { path: 'staff/:id', element: withSuspense(<StaffProfilePage />) },
+    ],
   },
   {
     path: '/field',

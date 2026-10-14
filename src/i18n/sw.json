@@ -8,6 +8,7 @@
     "retry": "Jaribu tena",
     "cancel": "Ghairi",
     "save": "Hifadhi",
+    "saving": "Inahifadhi…",
     "continue": "Endelea",
     "back": "Rudi",
     "close": "Funga",
@@ -18,7 +19,24 @@
     "required": "Lazima",
     "sandbox": "Majaribio",
     "sample_data": "Data ya mfano",
-    "not_available": "—"
+    "not_available": "—",
+    "active": "Inatumika",
+    "inactive": "Haitumiki",
+    "all": "Zote",
+    "none": "Hakuna",
+    "clear": "Futa",
+    "clear_filters": "Futa vichujio",
+    "filters": "Vichujio",
+    "apply": "Tumia",
+    "remove": "Ondoa",
+    "delete": "Futa",
+    "deleting": "Inafuta…",
+    "actions": "Vitendo",
+    "reset": "Rudisha",
+    "unsaved_title": "Uondoke bila kuhifadhi?",
+    "unsaved_body": "Una mabadiliko ambayo hayajahifadhiwa. Ukiondoka sasa yatapotea.",
+    "discard": "Tupa mabadiliko",
+    "keep_editing": "Endelea kuhariri"
   },
   "nav": {
     "overview": "Muhtasari",
@@ -32,6 +50,8 @@
     "customers": "Wateja",
     "catalog": "Katalogi",
     "services_pricing": "Huduma na bei",
+    "services": "Huduma",
+    "service_areas": "Maeneo ya huduma",
     "team": "Timu",
     "staff": "Wafanyakazi",
     "money": "Fedha",
@@ -46,6 +66,42 @@
     "more": "Zaidi",
     "jobs": "Kazi",
     "tenants": "Kampuni"
+  },
+  "auth": {
+    "ops_subtitle": "Mfumo wa ofisi",
+    "sign_in_title": "Ingia",
+    "sign_in_body": "Weka namba yako ya simu ya kazi. Tutakutumia msimbo wa mara moja.",
+    "send_code": "Tuma msimbo",
+    "sending_code": "Inatuma msimbo…",
+    "change_number": "Tumia namba nyingine",
+    "enter_code_title": "Weka msimbo",
+    "enter_code_body": "Tumetuma msimbo wa tarakimu 6 kwa {{phone}}.",
+    "code_label": "Msimbo wa uthibitisho",
+    "verify": "Thibitisha",
+    "verifying": "Inathibitisha…",
+    "resend_code": "Tuma msimbo tena",
+    "sandbox_hint": "Mfumo wa ndani: namba za mfano huingia kwa msimbo 123456.",
+    "sign_out": "Toka",
+    "cleaner_title": "Huu ni mfumo wa ofisi",
+    "cleaner_body": "Akaunti yako ni ya msafishaji. Fungua programu ya wasafishaji kuona kazi zako.",
+    "go_to_field": "Fungua programu ya wasafishaji",
+    "no_access_title": "Bado huna kampuni",
+    "no_access_body": "Namba yako ya simu haijaunganishwa na kampuni yoyote kwenye Safi360. Mwambie mmiliki akuongeze chini ya Wafanyakazi.",
+    "errors": {
+      "rate_limited": "Majaribio mengi mno. Subiri dakika moja kisha jaribu tena.",
+      "expired": "Msimbo huo umeisha muda. Omba mpya.",
+      "invalid_code": "Msimbo huo si sahihi. Angalia SMS kisha jaribu tena.",
+      "generic": "Hatukuweza kukuingiza. Tafadhali jaribu tena."
+    }
+  },
+  "weekday": {
+    "0": "Jumapili",
+    "1": "Jumatatu",
+    "2": "Jumanne",
+    "3": "Jumatano",
+    "4": "Alhamisi",
+    "5": "Ijumaa",
+    "6": "Jumamosi"
   },
   "status": {
     "REQUEST_RECEIVED": "Ombi limepokelewa",
@@ -128,6 +184,13 @@
   },
   "validation": {
     "failed": "Tafadhali angalia sehemu zilizowekwa alama.",
+    "required": "Sehemu hii ni lazima.",
+    "too_long": "Ndefu mno.",
+    "invalid": "Thamani hii si sahihi.",
+    "out_of_range": "Thamani hii iko nje ya kiwango.",
+    "reason_required": "Tafadhali toa sababu (angalau herufi 3).",
+    "time_range": "Muda wa kumaliza lazima uwe baada ya muda wa kuanza.",
+    "date_range": "Tarehe ya mwisho lazima iwe sawa au baada ya tarehe ya kuanza.",
     "phone": { "invalid": "Weka namba sahihi ya simu ya Tanzania." },
     "money": {
       "integer": "Weka shilingi kamili, bila desimali.",
@@ -143,7 +206,22 @@
     "ticket_ref": { "format": "Namba za tiketi huonekana kama UBC-2026-00042." },
     "idempotency_key": { "format": "Ufunguo wa ombi si sahihi." },
     "otp": { "format": "Weka tarakimu 6 za msimbo." },
-    "body": { "invalid_json": "Ombi si sahihi." }
+    "body": { "invalid_json": "Ombi si sahihi." },
+    "items": { "empty": "Ongeza angalau huduma moja." },
+    "date": { "format": "Tumia muundo YYYY-MM-DD." },
+    "address": { "pin_incomplete": "Alama ya ramani inahitaji latitudo na longitudo zote." },
+    "discount": { "percent_range": "Punguzo la asilimia ni kati ya 0 na 100." },
+    "rule": {
+      "key_format": "Tumia herufi ndogo, namba na mstari wa chini.",
+      "duplicate_key": "Ufunguo huu tayari umetumika.",
+      "min_gt_max": "Kiwango cha chini hakiwezi kuzidi cha juu.",
+      "variants_empty": "Ongeza angalau aina moja.",
+      "rooms_empty": "Ongeza angalau aina moja ya chumba.",
+      "tiers_empty": "Ongeza angalau ngazi moja.",
+      "list_empty": "Ongeza angalau kipengele kimoja.",
+      "open_tier_not_last": "Ngazi ya mwisho pekee inaweza kuwa bila kikomo.",
+      "tiers_not_ascending": "Ngazi lazima ziende kutoka ndogo hadi kubwa."
+    }
   },
   "errors": {
     "generic_title": "Kuna hitilafu",
@@ -155,11 +233,302 @@
     "tenant_not_found": "Ukurasa wa kampuni hii haupo.",
     "tenant_suspended": "Ukurasa wa oda wa kampuni hii umesitishwa. Tafadhali wapigie moja kwa moja.",
     "rate_limited": "Majaribio mengi mno. Subiri kidogo kisha jaribu tena.",
-    "internal": "Kuna hitilafu upande wetu. Tafadhali jaribu tena."
+    "internal": "Kuna hitilafu upande wetu. Tafadhali jaribu tena.",
+    "duplicate": "Kitu chenye jina au namba hii tayari kipo.",
+    "in_use": "Kipengele hiki bado kinatumika na hakiwezi kuondolewa.",
+    "forbidden": "Nafasi yako hairuhusu kitendo hiki.",
+    "invalid_data": "Baadhi ya thamani haziruhusiwi. Angalia fomu kisha jaribu tena."
   },
   "empty": {
     "tickets_title": "Hakuna tiketi bado",
     "tickets_body": "Kila oda hupata tiketi, iwe inatoka tovuti, WhatsApp, simu au mteja aliyefika ofisini."
+  },
+  "quote": {
+    "line": {
+      "min_charge": "Nyongeza ya kiwango cha chini",
+      "travel": "Gharama ya usafiri",
+      "discount": "Punguzo",
+      "tax": "Kodi"
+    },
+    "summary": {
+      "title": "Muhtasari wa bei",
+      "empty": "Ongeza huduma kuona bei.",
+      "estimate": "Makadirio",
+      "requires_review": "Bei baada ya ukaguzi",
+      "from": "kuanzia {{amount}}",
+      "on_review": "Baada ya ukaguzi",
+      "tax_included": "Inajumuisha {{label}} {{rate}}%",
+      "total": "Jumla",
+      "deposit": "Amana ya kuthibitisha",
+      "balance": "Salio siku ya kazi",
+      "duration": "Muda unaokadiriwa",
+      "duration_value": "dakika {{minutes}} · wafanyakazi {{crew}}"
+    },
+    "error": {
+      "service_not_found": "Huduma hii haipo.",
+      "service_inactive": "Huduma hii haipatikani kwa sasa.",
+      "addon_not_found": "Nyongeza hii haipo.",
+      "addon_not_applicable": "Nyongeza hii haihusiani na huduma uliyochagua.",
+      "variant_required": "Chagua ukubwa au aina.",
+      "variant_unknown": "Ukubwa au aina hiyo haitolewi.",
+      "rooms_required": "Chagua angalau chumba kimoja.",
+      "room_unknown": "Aina hiyo ya chumba haitolewi.",
+      "area_required": "Weka eneo au chagua kiwango cha ukubwa.",
+      "area_range_unknown": "Kiwango hicho cha ukubwa hakitolewi.",
+      "qty_below_min": "Idadi iko chini ya kiwango cha chini cha huduma hii.",
+      "qty_above_max": "Idadi iko juu ya kiwango cha juu cha huduma hii.",
+      "catalog_invalid": "Huduma hii haijawekwa vizuri. Tafadhali wasiliana na kampuni."
+    }
+  },
+  "availability": {
+    "error": {
+      "range_invalid": "Tarehe ya mwisho iko kabla ya tarehe ya kuanza.",
+      "range_too_long": "Chagua kipindi kisichozidi siku 31.",
+      "duration_invalid": "Kazi hii haina muda uliowekwa.",
+      "crew_invalid": "Kazi hii haina idadi ya wafanyakazi iliyowekwa."
+    },
+    "weekly_title": "Saa za wiki",
+    "custom_hours": "Saa maalum za wiki",
+    "custom_hours_hint": "Ikizimwa: hufuata saa za kazi za kampuni.",
+    "start": "{{day}} kuanza",
+    "end": "{{day}} kumaliza",
+    "save_hours": "Hifadhi saa",
+    "hours_saved": "Saa za wiki zimehifadhiwa",
+    "save_failed": "Haikuwezekana kuhifadhi upatikanaji",
+    "leave_title": "Likizo na siku za mapumziko",
+    "add_leave": "Ongeza likizo",
+    "no_leave": "Hakuna likizo iliyorekodiwa. Oda zinaweza kupangwa siku yoyote ya kazi.",
+    "off": "Mapumziko",
+    "special_hours": "Anafanya kazi {{start}}–{{end}}",
+    "from": "Kuanzia",
+    "to": "Hadi",
+    "to_hint": "Acha wazi kwa siku moja.",
+    "reason": "Sababu",
+    "reason_placeholder": "mf. Likizo ya mwaka, mgonjwa, mafunzo",
+    "leave_added": "Likizo imeongezwa. Oda zilizo wazi siku hizo zitawekwa alama.",
+    "leave_removed": "Likizo imeondolewa"
+  },
+  "pricing_type": {
+    "FLAT": { "label": "Bei moja", "description": "Bei moja isiyobadilika kwa kazi nzima." },
+    "PER_UNIT": {
+      "label": "Kwa kipande",
+      "description": "Bei × idadi ya vipande (matanki, madirisha, mapazia)."
+    },
+    "PER_SEAT": { "label": "Kwa kiti", "description": "Sofa na viti: bei × viti, na kiwango cha chini." },
+    "PER_VARIANT": {
+      "label": "Kwa ukubwa au aina",
+      "description": "Mteja huchagua ukubwa (5×6, 6×6) wenye bei yake."
+    },
+    "PER_ROOM": { "label": "Kwa chumba", "description": "Bei kwa chumba cha kulala, bafu, jiko…" },
+    "PER_AREA": {
+      "label": "Kwa mita ya mraba",
+      "description": "Viwango vya m² kwa ngazi kwa ofisi na baada ya ujenzi."
+    },
+    "INSPECTION_REQUIRED": {
+      "label": "Bei baada ya ukaguzi",
+      "description": "Ziara ya mfanyakazi huweka bei. Oda huenda kwenye ukaguzi.",
+      "editor_hint": "Mteja anaweza kuweka oda, lakini hakuna bei inayotozwa hadi timu yako ikague na kutuma bei."
+    },
+    "CUSTOM_QUOTE": {
+      "label": "Bei maalum",
+      "description": "Kazi kubwa au za kipekee zenye bei ya kupangwa kwa mkono.",
+      "editor_hint": "Maombi huingia kwenye foleni ya ukaguzi; unatuma bei mwenyewe."
+    }
+  },
+  "catalog": {
+    "services_subtitle": "Wateja wanaweza kuweka oda ya nini, na kila kazi inagharimu kiasi gani.",
+    "add_service": "Ongeza huduma",
+    "new_service": "Huduma mpya",
+    "new_service_subtitle": "Chagua kwanza jinsi inavyotozwa; fomu itaonyesha tu kinachohitajika.",
+    "edit_service": "Hariri huduma",
+    "create_service": "Unda huduma",
+    "saving": "Inahifadhi huduma…",
+    "created": "{{name}} imeundwa. Wateja wanaweza kuiweka oda sasa.",
+    "saved": "{{name}} imehifadhiwa. Bei mpya zinatumia bei hii.",
+    "save_failed": "Haikuwezekana kuhifadhi huduma",
+    "archive": "Weka kumbukumbu",
+    "archiving": "Inaweka kumbukumbu…",
+    "archive_title": "Uweke huduma hii kumbukumbu?",
+    "archive_body": "Wateja hawataweza kuiweka oda tena. Tiketi zilizopo zinabaki na bei zake. Huwezi kutengua kutoka kwenye programu.",
+    "archived": "{{name}} imewekwa kumbukumbu",
+    "archive_failed": "Haikuwezekana kuweka huduma kumbukumbu",
+    "new_category": "Kundi jipya",
+    "category_saved": "Kundi limeongezwa",
+    "search_placeholder": "Tafuta huduma",
+    "price_on_review": "Bei baada ya ukaguzi",
+    "from_price": "kuanzia {{price}}",
+    "empty_title": "Hakuna huduma bado",
+    "empty_body": "Ongeza huduma unazotoa na bei zake. Wateja wanaona hizi hizi kwenye ukurasa wako wa oda.",
+    "no_match_title": "Hakuna huduma inayolingana",
+    "no_match_body": "Jaribu maneno mengine au futa vichujio.",
+    "addons_hint": "Nyongeza za hiari mteja anaweza kuongeza kwenye huduma hii (kuondoa madoa, kuondoa harufu…).",
+    "col": {
+      "service": "Huduma",
+      "category": "Kundi",
+      "pricing": "Utozaji",
+      "price": "Bei",
+      "crew": "Wafanyakazi",
+      "status": "Hali"
+    },
+    "section": {
+      "pricing_model": "Inatozwa vipi?",
+      "details": "Majina na maelezo",
+      "duration": "Muda na wafanyakazi",
+      "addons": "Nyongeza"
+    },
+    "field": {
+      "name_en": "Jina (Kiingereza)",
+      "name_sw": "Jina (Kiswahili)",
+      "description_en": "Maelezo (Kiingereza)",
+      "description_sw": "Maelezo (Kiswahili)",
+      "category": "Kundi",
+      "no_category": "Bila kundi",
+      "add_category": "Jipya",
+      "active": "Inapatikana kwa oda",
+      "active_hint": "Inaonekana kwenye ukurasa wa oda na menyu ya WhatsApp.",
+      "base_min": "Muda wa msingi (dakika)",
+      "per_unit_min": "Dakika za ziada kwa kipande",
+      "per_sqm_min": "Dakika za ziada kwa m²",
+      "per_room_min": "Dakika za ziada kwa chumba",
+      "crew_size": "Idadi ya wafanyakazi",
+      "recurrence_days": "Kumbusha tena baada ya (siku)",
+      "recurrence_hint": "mf. 90 kwa sofa, 30 kwa kufukiza. Acha wazi kama hakuna."
+    },
+    "rule": {
+      "flat_price": "Bei",
+      "unit_en": "Jina la kipande (Kiingereza)",
+      "unit_en_placeholder": "tank",
+      "unit_sw": "Jina la kipande (Kiswahili)",
+      "unit_sw_placeholder": "tanki",
+      "price_per_unit": "Bei kwa kipande",
+      "price_per_seat": "Bei kwa kiti",
+      "min_charge": "Kiwango cha chini",
+      "min_charge_hint": "Kazi ndogo hupandishwa hadi kiasi hiki.",
+      "min_qty": "Idadi ya chini",
+      "max_qty": "Idadi ya juu",
+      "min_seats": "Viti vya chini",
+      "variants": "Ukubwa au aina",
+      "add_variant": "Ongeza ukubwa au aina",
+      "rooms": "Aina za vyumba",
+      "add_room": "Ongeza aina ya chumba",
+      "option_label_en": "Jina (Kiingereza)",
+      "option_label_sw": "Jina (Kiswahili)",
+      "option_price": "Bei",
+      "option_key": "Ufunguo",
+      "tier_mode": "Ngazi zinatumikaje",
+      "tier_mode_hint": "Kundi: eneo lote hutozwa kwa kiwango cha ngazi linapoangukia. Hatua: kila ngazi hutoza sehemu yake tu.",
+      "tier_mode_bracket": "Kundi (eneo lote kwa kiwango kimoja)",
+      "tier_mode_marginal": "Hatua (kila sehemu kwa kiwango chake)",
+      "tiers": "Ngazi za viwango",
+      "tiers_hint": "Kutoka ndogo hadi kubwa. Acha 'hadi' ya mwisho wazi kwa 'na zaidi'.",
+      "tier_up_to": "Hadi (m²)",
+      "tier_open_hint": "Wazi = na zaidi",
+      "tier_price": "Bei kwa m²",
+      "add_tier": "Ongeza ngazi",
+      "ranges": "Viwango vya ukubwa kwa wateja",
+      "ranges_hint": "Wateja mara chache hujua m² halisi. Toa viwango; bei hutumia ukubwa unaokadiriwa na huwekwa alama ya makadirio.",
+      "range_min": "m² ya chini",
+      "range_max": "m² ya juu",
+      "range_assumed": "m² inayokadiriwa",
+      "add_range": "Ongeza kiwango",
+      "from_price": "Bei ya kuanzia (inaonyeshwa kama 'kuanzia')",
+      "from_price_hint": "Si lazima. Huwasaidia wateja kuamua kabla ya ziara."
+    },
+    "preview": {
+      "title": "Muonekano wa bei kwa mteja",
+      "hint": "Inabadilika unapoandika, kwa hesabu ile ile ya ukurasa wa oda.",
+      "customer_sees": "Mteja anachokiona",
+      "untitled": "Huduma bila jina",
+      "incomplete": "Kamilisha sehemu za bei kuona bei.",
+      "qty": "Idadi",
+      "seats": "Viti",
+      "variant": "Ukubwa au aina",
+      "area": "Eneo (m²)",
+      "addons": "Nyongeza"
+    },
+    "addon": {
+      "name_en": "Nyongeza (Kiingereza)",
+      "name_sw": "Nyongeza (Kiswahili)",
+      "price": "Bei",
+      "per_unit": "Kwa kipande / kiti",
+      "add": "Ongeza nyongeza"
+    }
+  },
+  "zones": {
+    "subtitle": "Unapofanya kazi na usafiri unagharimu kiasi gani. Anwani zilizo nje ya maeneo yote hupata simu badala ya bei.",
+    "add": "Ongeza eneo la huduma",
+    "edit": "Hariri eneo la huduma",
+    "polygon": "Eneo la ramani",
+    "within_km": "ndani ya km {{km}}",
+    "free": "Bila gharama ya usafiri",
+    "serviceable": "Linahudumiwa",
+    "callback_only": "Simu tu",
+    "delete": "Futa {{name}}",
+    "delete_title": "Ufute {{name}}?",
+    "delete_body": "Wateja wa maeneo haya watapewa simu badala ya bei hadi uongeze eneo tena.",
+    "deleted": "{{name}} limefutwa",
+    "saved": "{{name}} limehifadhiwa",
+    "no_base_hint": "Viwango vya umbali hupimwa kutoka ofisi yako, ambayo bado haijawekwa. Maeneo na alama za ramani bado zinafanya kazi.",
+    "empty_title": "Hakuna maeneo ya huduma bado",
+    "empty_body": "Ongeza mitaa unayohudumia na gharama ya usafiri kwa kila moja.",
+    "col": {
+      "name": "Eneo",
+      "areas": "Mitaa",
+      "band": "Kiwango cha umbali",
+      "fee": "Gharama ya usafiri"
+    },
+    "field": {
+      "name": "Jina la eneo",
+      "areas": "Mitaa na kata",
+      "areas_hint": "Moja kwa mstari au tenganisha kwa koma. Hulinganishwa na anwani mteja anayoandika.",
+      "fee": "Gharama ya usafiri",
+      "max_km": "Kiwango cha umbali (km)",
+      "max_km_hint": "Si lazima. Anwani zilizo ndani ya umbali huu kutoka ofisi yako huangukia eneo hili.",
+      "serviceable": "Linahudumiwa",
+      "serviceable_hint": "Ikizimwa: wateja hapa hupata simu, si bei."
+    }
+  },
+  "staff": {
+    "subtitle": "Wasafishaji na viongozi wa timu, wanachoweza kufanya na wanapofanya kazi.",
+    "add": "Ongeza msafishaji",
+    "create": "Ongeza msafishaji",
+    "profile": "Wasifu wa msafishaji",
+    "new_subtitle": "Hifadhi maelezo kwanza; upatikanaji na likizo vinafuata.",
+    "created": "{{name}} ameongezwa",
+    "saved": "{{name}} amehifadhiwa",
+    "save_failed": "Haikuwezekana kuhifadhi msafishaji",
+    "team_lead": "Kiongozi wa timu",
+    "skills_count_one": "Huduma {{count}}",
+    "skills_count_other": "Huduma {{count}}",
+    "skills_hint": "Wasafishaji wenye huduma zote za oda pekee ndio hupendekezwa kwa oda hiyo.",
+    "no_services": "Ongeza huduma kwanza, kisha chagua mtu huyu anachoweza kufanya.",
+    "empty_title": "Hakuna wasafishaji bado",
+    "empty_body": "Ongeza wasafishaji wako ili oda ziweze kupangwa na kugawiwa.",
+    "pay_type": {
+      "PER_JOB": "Kwa kazi",
+      "DAILY": "Kwa siku",
+      "MONTHLY": "Kwa mwezi"
+    },
+    "col": {
+      "name": "Jina",
+      "skills": "Ujuzi",
+      "home_zone": "Eneo la nyumbani",
+      "pay": "Malipo"
+    },
+    "section": {
+      "details": "Maelezo",
+      "skills": "Huduma mtu huyu anazoweza kufanya"
+    },
+    "field": {
+      "name": "Jina kamili",
+      "phone_hint": "Hutumika kuingia kwenye programu ya wasafishaji.",
+      "home_zone": "Eneo la nyumbani",
+      "pay_type": "Aina ya malipo",
+      "pay_rate": "Kiwango cha malipo",
+      "team_lead": "Kiongozi wa timu",
+      "team_lead_hint": "Hubeba simu ya timu na kuthibitisha picha.",
+      "active_hint": "Wasafishaji wasiotumika hawapendekezwi kamwe kwa oda mpya."
+    }
   },
   "portal": {
     "home_title": "Weka oda ya usafi",
@@ -169,6 +538,7 @@
     "dashboard_title": "Dashibodi",
     "dashboard_subtitle": "Habari za asubuhi. Haya ndiyo yanayokuhitaji leo, {{date}}.",
     "search_placeholder": "Tafuta tiketi, jina au simu",
+    "notifications": "Arifa",
     "foundation_notice": "Awamu ya msingi. Michakato itaanza Awamu ya 1."
   },
   "field": {

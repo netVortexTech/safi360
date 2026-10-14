@@ -41,7 +41,11 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
-        { allowConstantExport: true, allowExportNames: ['buttonVariants', 'badgeVariants', 'routes'] },
+        {
+          allowConstantExport: true,
+          // Providers export their companion hook from the same file.
+          allowExportNames: ['buttonVariants', 'badgeVariants', 'routes', 'useToast', 'useAuth'],
+        },
       ],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
