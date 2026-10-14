@@ -939,7 +939,7 @@ begin
     'zones', coalesce((
       select jsonb_agg(jsonb_build_object(
         'id', z.id, 'name', z.name, 'areas', to_jsonb(z.areas), 'serviceable', z.serviceable,
-        'travel_fee_tzs', z.travel_fee_tzs
+        'travel_fee_tzs', z.travel_fee_tzs, 'polygon', z.polygon, 'max_km', z.max_km, 'active', z.active
       ) order by z.sort)
       from public.service_zones z where z.tenant_id = t.id and z.active), '[]'::jsonb)
   );

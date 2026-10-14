@@ -12,6 +12,12 @@ import { NotFoundPage } from '@/app/NotFoundPage';
 // Each experience is a lazy chunk so the customer portal and the field PWA never
 // download the operations portal.
 const PortalHome = lazy(() => import('@/experiences/portal/pages/PortalHome'));
+const PortalServices = lazy(() => import('@/experiences/portal/pages/ServicesPage'));
+const PortalServiceDetail = lazy(() => import('@/experiences/portal/pages/ServiceDetailPage'));
+const PortalBook = lazy(() => import('@/experiences/portal/pages/BookPage'));
+const PortalBookingDone = lazy(() => import('@/experiences/portal/pages/BookingDonePage'));
+const PortalTrack = lazy(() => import('@/experiences/portal/pages/TrackPage'));
+const PortalTrackBooking = lazy(() => import('@/experiences/portal/pages/TrackBookingPage'));
 const OpsDashboard = lazy(() => import('@/experiences/ops/pages/OpsDashboard'));
 const OpsLogin = lazy(() => import('@/experiences/ops/pages/OpsLogin'));
 const ServicesPage = lazy(() => import('@/experiences/ops/catalog/pages/ServicesPage'));
@@ -59,7 +65,17 @@ export const routes: RouteObject[] = [
     path: '/:slug',
     element: <PortalLayout />,
     errorElement: <RouteError />,
-    children: [{ index: true, element: withSuspense(<PortalHome />) }],
+    children: [
+      { index: true, element: withSuspense(<PortalHome />) },
+      { path: 'services', element: withSuspense(<PortalServices />) },
+      { path: 'services/:id', element: withSuspense(<PortalServiceDetail />) },
+      { path: 'book', element: withSuspense(<PortalBook />) },
+      { path: 'book/done/:ticket', element: withSuspense(<PortalBookingDone />) },
+      { path: 'widget', element: withSuspense(<PortalBook />) },
+      { path: 'track', element: withSuspense(<PortalTrack />) },
+      { path: 'track/recover', element: withSuspense(<PortalTrack />) },
+      { path: 'track/:bookingId', element: withSuspense(<PortalTrackBooking />) },
+    ],
   },
   { path: '*', element: <NotFoundPage /> },
 ];
