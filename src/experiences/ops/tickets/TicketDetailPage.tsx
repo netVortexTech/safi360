@@ -142,6 +142,19 @@ export function TicketDetailPage() {
   const { data: payments } = useBookingPayments(id ?? '');
   const { data: quotes } = useBookingQuotes(id ?? '');
   const { data: auditLogs } = useBookingAudit(id ?? '');
+  const notifications = useQuery<Record<string, unknown>[]>({
+    queryKey: ['ops', 'ticket-notifications', id ?? ''],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('id, channel, template_key, status, scheduled_for, sent_at, delivered_at, read_at, failed_at, last_error, variables, created_at')
+        .eq('booking_id', id ?? '')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
   const transition = useTransitionBooking();
   const reschedule = useRescheduleBooking();
   const addNote = useAddNote();
@@ -547,17 +560,45 @@ export function TicketDetailPage() {
           </Card>
 
           {/* Notifications placeholder */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Send className="size-4" aria-hidden="true" />
-                {t('ops.notifications')}
-              </CardTitle>
-            </CardHeader>
-            <CardBody>
-              <p className="text-sm text-text-subtle">{t('ops.notifications_placeholder')}</p>
-            </CardBody>
-          </Card>
+          {ticket.status === 'COMPLETED' || ticket.status === 'CONFIRMED' ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Send className="size-4" aria-hidden="true" />
+                  {t('ops.notifications')}
+                </CardTitle>
+              </CardHeader>
+              <CardBody>
+                {notifications.isLoading ? <p className="text-sm text-text-muted">Loading notifications...</p> : null}
+                {(notifications.data ?? []).length ? (
+                  <ul className="space-y-2">
+                    {(notifications.data ?? []).map((row: Record<string, unknown>) => (
+                      <li key={String(row.id)} className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
+                        <div>
+                          <p className="font-medium">{String(row.template_key)}</p>
+                          <p className="text-xs text-text-subtle">{String(row.channel)} · {String(row.status)}</p>
+                        </div>
+                        {String(row.status) !== 'sent' && String(row.status) !== 'delivered' && String(row.status) !== 'read' ? (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => {
+                              void supabase.from('notifications').update({ status: 'queued', failed_at: null, last_error: null }).eq('id', String(row.id)).then(() => notifications.refetch());
+                            }}
+                          >
+                            Resend
+                          </Button>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-text-subtle">{t('ops.notifications_placeholder')}</p>
+                )}
+              </CardBody>
+            </Card>
+          ) : null}
+
         </div>
 
         {/* Right column: Timeline + Audit */}
