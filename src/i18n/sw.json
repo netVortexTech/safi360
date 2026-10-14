@@ -1,0 +1,182 @@
+{
+  "app": {
+    "name": "Safi360",
+    "tagline": "Bei wazi, bila kubishana"
+  },
+  "common": {
+    "loading": "Inapakia…",
+    "retry": "Jaribu tena",
+    "cancel": "Ghairi",
+    "save": "Hifadhi",
+    "continue": "Endelea",
+    "back": "Rudi",
+    "close": "Funga",
+    "copy": "Nakili",
+    "copied": "Imenakiliwa",
+    "search": "Tafuta",
+    "optional": "Si lazima",
+    "required": "Lazima",
+    "sandbox": "Majaribio",
+    "sample_data": "Data ya mfano",
+    "not_available": "—"
+  },
+  "nav": {
+    "overview": "Muhtasari",
+    "dashboard": "Dashibodi",
+    "bookings": "Oda",
+    "tickets": "Tiketi",
+    "create_booking": "Weka oda",
+    "calendar": "Kalenda",
+    "dispatch_board": "Ubao wa kazi",
+    "exceptions": "Matatizo",
+    "customers": "Wateja",
+    "catalog": "Katalogi",
+    "services_pricing": "Huduma na bei",
+    "team": "Timu",
+    "staff": "Wafanyakazi",
+    "money": "Fedha",
+    "payments": "Malipo",
+    "invoices_balances": "Ankara na salio",
+    "reports": "Ripoti",
+    "engagement": "Mawasiliano",
+    "reviews_complaints": "Maoni na malalamiko",
+    "reminders_recurring": "Vikumbusho na marudio",
+    "settings": "Mipangilio",
+    "home": "Nyumbani",
+    "more": "Zaidi",
+    "jobs": "Kazi",
+    "tenants": "Kampuni"
+  },
+  "status": {
+    "REQUEST_RECEIVED": "Ombi limepokelewa",
+    "AWAITING_REVIEW": "Inasubiri ukaguzi",
+    "AWAITING_CUSTOMER_APPROVAL": "Inasubiri idhini ya mteja",
+    "AWAITING_PAYMENT": "Inasubiri malipo",
+    "CONFIRMED": "Imethibitishwa",
+    "ASSIGNED": "Imepangiwa",
+    "EN_ROUTE": "Njiani",
+    "ARRIVED": "Amefika",
+    "IN_PROGRESS": "Inaendelea",
+    "COMPLETED": "Imekamilika",
+    "CLOSED": "Imefungwa",
+    "CANCELLED": "Imeghairiwa",
+    "QUOTE_REJECTED": "Bei imekataliwa",
+    "NO_SHOW": "Mteja hakupatikana",
+    "EXPIRED": "Muda umeisha"
+  },
+  "flag": {
+    "RESCHEDULED": "Imepangwa upya",
+    "NEEDS_REVIEW": "Inahitaji ukaguzi"
+  },
+  "payment_status": {
+    "PENDING": "Inasubiri PIN",
+    "SUCCESS": "Imefanikiwa",
+    "FAILED": "Imeshindikana",
+    "EXPIRED": "Muda umeisha",
+    "UNKNOWN": "Haijulikani — inakaguliwa",
+    "REFUNDED": "Imerejeshwa",
+    "NOT_REQUESTED": "Haijaombwa",
+    "MANUAL": "Mkono · Imerekodiwa na wafanyakazi"
+  },
+  "notification_status": {
+    "queued": "Inasubiri",
+    "sent": "Imetumwa",
+    "delivered": "Imefika",
+    "read": "Imesomwa",
+    "failed": "Imeshindikana",
+    "delivered_hint": "Inaonyesha 'Imefika' tu mtoa huduma akithibitisha."
+  },
+  "source": {
+    "website": "Tovuti",
+    "booking_widget": "Kiunganishi cha oda",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "phone": "Simu",
+    "walk_in": "Amefika ofisini",
+    "referral": "Rufaa",
+    "admin_created": "Imewekwa na wafanyakazi"
+  },
+  "role": {
+    "OWNER": "Mmiliki",
+    "MANAGER": "Meneja",
+    "DISPATCHER": "Mpangaji kazi",
+    "CLEANER": "Msafishaji"
+  },
+  "ticket": {
+    "label": "Tiketi",
+    "copy": "Nakili namba ya tiketi",
+    "copied": "Namba ya tiketi imenakiliwa"
+  },
+  "phone": {
+    "label": "Namba ya simu",
+    "hint": "Itaonekana kama {{formatted}}",
+    "errors": {
+      "empty": "Weka namba ya simu.",
+      "too_short": "Weka tarakimu 9 baada ya +255.",
+      "too_long": "Weka tarakimu 9 baada ya +255.",
+      "invalid_prefix": "Weka tarakimu 9 baada ya +255.",
+      "not_tanzanian": "Namba za Tanzania (+255) pekee."
+    }
+  },
+  "money": {
+    "currency": "TZS",
+    "errors": {
+      "integer": "Weka shilingi kamili, bila desimali.",
+      "nonnegative": "Kiasi hakiwezi kuwa hasi."
+    }
+  },
+  "validation": {
+    "failed": "Tafadhali angalia sehemu zilizowekwa alama.",
+    "phone": { "invalid": "Weka namba sahihi ya simu ya Tanzania." },
+    "money": {
+      "integer": "Weka shilingi kamili, bila desimali.",
+      "nonnegative": "Kiasi hakiwezi kuwa hasi.",
+      "too_large": "Kiasi ni kikubwa mno."
+    },
+    "slug": {
+      "too_short": "Fupi mno.",
+      "too_long": "Ndefu mno.",
+      "format": "Tumia herufi ndogo, namba na vistari."
+    },
+    "ticket_prefix": { "format": "Tumia herufi kubwa 2–5." },
+    "ticket_ref": { "format": "Namba za tiketi huonekana kama UBC-2026-00042." },
+    "idempotency_key": { "format": "Ufunguo wa ombi si sahihi." },
+    "otp": { "format": "Weka tarakimu 6 za msimbo." },
+    "body": { "invalid_json": "Ombi si sahihi." }
+  },
+  "errors": {
+    "generic_title": "Kuna hitilafu",
+    "generic_body": "Hatukuweza kupakia. Angalia mtandao wako kisha jaribu tena.",
+    "offline_title": "Hauko mtandaoni",
+    "offline_body": "Mabadiliko yako yamehifadhiwa kwenye simu na yatatumwa ukiunganishwa.",
+    "not_found_title": "Ukurasa haupo",
+    "not_found_body": "Kiungo kinaweza kuwa si sahihi au ukurasa umehamishwa.",
+    "tenant_not_found": "Ukurasa wa kampuni hii haupo.",
+    "tenant_suspended": "Ukurasa wa oda wa kampuni hii umesitishwa. Tafadhali wapigie moja kwa moja.",
+    "rate_limited": "Majaribio mengi mno. Subiri kidogo kisha jaribu tena.",
+    "internal": "Kuna hitilafu upande wetu. Tafadhali jaribu tena."
+  },
+  "empty": {
+    "tickets_title": "Hakuna tiketi bado",
+    "tickets_body": "Kila oda hupata tiketi, iwe inatoka tovuti, WhatsApp, simu au mteja aliyefika ofisini."
+  },
+  "portal": {
+    "home_title": "Weka oda ya usafi",
+    "coming_soon": "Oda za mtandaoni za {{tenant}} zinaandaliwa."
+  },
+  "ops": {
+    "dashboard_title": "Dashibodi",
+    "dashboard_subtitle": "Habari za asubuhi. Haya ndiyo yanayokuhitaji leo, {{date}}.",
+    "search_placeholder": "Tafuta tiketi, jina au simu",
+    "foundation_notice": "Awamu ya msingi. Michakato itaanza Awamu ya 1."
+  },
+  "field": {
+    "today_title": "Kazi za leo",
+    "foundation_notice": "Programu ya wasafishaji inaandaliwa."
+  },
+  "control": {
+    "title": "Kituo cha udhibiti",
+    "foundation_notice": "Usimamizi wa kampuni utakuja awamu ijayo."
+  }
+}

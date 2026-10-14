@@ -1,0 +1,182 @@
+{
+  "app": {
+    "name": "Safi360",
+    "tagline": "Clear prices, no haggling"
+  },
+  "common": {
+    "loading": "Loading…",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "continue": "Continue",
+    "back": "Back",
+    "close": "Close",
+    "copy": "Copy",
+    "copied": "Copied",
+    "search": "Search",
+    "optional": "Optional",
+    "required": "Required",
+    "sandbox": "Sandbox",
+    "sample_data": "Sample data",
+    "not_available": "—"
+  },
+  "nav": {
+    "overview": "Overview",
+    "dashboard": "Dashboard",
+    "bookings": "Bookings",
+    "tickets": "Tickets",
+    "create_booking": "Create booking",
+    "calendar": "Calendar",
+    "dispatch_board": "Dispatch board",
+    "exceptions": "Exceptions",
+    "customers": "Customers",
+    "catalog": "Catalog",
+    "services_pricing": "Services & pricing",
+    "team": "Team",
+    "staff": "Staff",
+    "money": "Money",
+    "payments": "Payments",
+    "invoices_balances": "Invoices & balances",
+    "reports": "Reports",
+    "engagement": "Engagement",
+    "reviews_complaints": "Reviews & complaints",
+    "reminders_recurring": "Reminders & recurring",
+    "settings": "Settings",
+    "home": "Home",
+    "more": "More",
+    "jobs": "Jobs",
+    "tenants": "Tenants"
+  },
+  "status": {
+    "REQUEST_RECEIVED": "Request received",
+    "AWAITING_REVIEW": "Awaiting review",
+    "AWAITING_CUSTOMER_APPROVAL": "Awaiting customer approval",
+    "AWAITING_PAYMENT": "Awaiting payment",
+    "CONFIRMED": "Confirmed",
+    "ASSIGNED": "Assigned",
+    "EN_ROUTE": "En route",
+    "ARRIVED": "Arrived",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CLOSED": "Closed",
+    "CANCELLED": "Cancelled",
+    "QUOTE_REJECTED": "Quote rejected",
+    "NO_SHOW": "No-show",
+    "EXPIRED": "Expired"
+  },
+  "flag": {
+    "RESCHEDULED": "Rescheduled",
+    "NEEDS_REVIEW": "Needs review"
+  },
+  "payment_status": {
+    "PENDING": "Waiting for PIN",
+    "SUCCESS": "Successful",
+    "FAILED": "Failed",
+    "EXPIRED": "Expired",
+    "UNKNOWN": "Unknown — checking",
+    "REFUNDED": "Refunded",
+    "NOT_REQUESTED": "Not requested",
+    "MANUAL": "Manual · Recorded by staff"
+  },
+  "notification_status": {
+    "queued": "Queued",
+    "sent": "Sent",
+    "delivered": "Delivered",
+    "read": "Read",
+    "failed": "Failed",
+    "delivered_hint": "Delivered only when the provider reports it."
+  },
+  "source": {
+    "website": "Website",
+    "booking_widget": "Booking widget",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "facebook": "Facebook",
+    "phone": "Phone",
+    "walk_in": "Walk-in",
+    "referral": "Referral",
+    "admin_created": "Staff-created"
+  },
+  "role": {
+    "OWNER": "Owner",
+    "MANAGER": "Manager",
+    "DISPATCHER": "Dispatcher",
+    "CLEANER": "Cleaner"
+  },
+  "ticket": {
+    "label": "Ticket",
+    "copy": "Copy ticket number",
+    "copied": "Ticket number copied"
+  },
+  "phone": {
+    "label": "Phone number",
+    "hint": "Shown as {{formatted}}",
+    "errors": {
+      "empty": "Enter a phone number.",
+      "too_short": "Enter 9 digits after +255.",
+      "too_long": "Enter 9 digits after +255.",
+      "invalid_prefix": "Enter 9 digits after +255.",
+      "not_tanzanian": "Only Tanzanian numbers (+255) are supported."
+    }
+  },
+  "money": {
+    "currency": "TZS",
+    "errors": {
+      "integer": "Enter whole shillings, no decimals.",
+      "nonnegative": "Amount cannot be negative."
+    }
+  },
+  "validation": {
+    "failed": "Please check the highlighted fields.",
+    "phone": { "invalid": "Enter a valid Tanzanian phone number." },
+    "money": {
+      "integer": "Enter whole shillings, no decimals.",
+      "nonnegative": "Amount cannot be negative.",
+      "too_large": "Amount is too large."
+    },
+    "slug": {
+      "too_short": "Too short.",
+      "too_long": "Too long.",
+      "format": "Use lowercase letters, numbers and hyphens."
+    },
+    "ticket_prefix": { "format": "Use 2–5 capital letters." },
+    "ticket_ref": { "format": "Ticket numbers look like UBC-2026-00042." },
+    "idempotency_key": { "format": "Invalid request key." },
+    "otp": { "format": "Enter the 6-digit code." },
+    "body": { "invalid_json": "Invalid request." }
+  },
+  "errors": {
+    "generic_title": "Something went wrong",
+    "generic_body": "We could not load this. Check your connection and try again.",
+    "offline_title": "You are offline",
+    "offline_body": "Your changes are saved on this phone and will sync when you reconnect.",
+    "not_found_title": "Page not found",
+    "not_found_body": "The link may be wrong or the page has moved.",
+    "tenant_not_found": "This company page does not exist.",
+    "tenant_suspended": "This company's booking page is paused. Please call them directly.",
+    "rate_limited": "Too many attempts. Please wait a moment and try again.",
+    "internal": "Something went wrong on our side. Please try again."
+  },
+  "empty": {
+    "tickets_title": "No tickets yet",
+    "tickets_body": "Every booking gets a ticket, whether it comes from your website, WhatsApp, a call or a walk-in."
+  },
+  "portal": {
+    "home_title": "Book a cleaning",
+    "coming_soon": "Online booking for {{tenant}} is being set up."
+  },
+  "ops": {
+    "dashboard_title": "Dashboard",
+    "dashboard_subtitle": "Good morning. Here is what needs you today, {{date}}.",
+    "search_placeholder": "Search ticket, name or phone",
+    "foundation_notice": "Foundation phase. Workflows arrive in Phase 1."
+  },
+  "field": {
+    "today_title": "Today's jobs",
+    "foundation_notice": "The cleaner app is being set up."
+  },
+  "control": {
+    "title": "Control center",
+    "foundation_notice": "Tenant management arrives in a later phase."
+  }
+}

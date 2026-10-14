@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Safi360 design tokens (ui-spec + Design system.png).
+  Values are space-separated RGB channels so Tailwind opacity modifiers work:
+  bg-primary/10 → rgb(14 124 123 / 0.1).
+  This file is the ONLY place hex/RGB literals are allowed.
+*/
+@layer base {
+  :root {
+    /* brand */
+    --primary: 14 124 123; /* #0E7C7B */
+    --primary-hover: 10 99 98; /* #0A6362 */
+    --primary-light: 230 244 243; /* #E6F4F3 */
+    --primary-foreground: 255 255 255;
+    --navy: 19 41 61; /* #13293D */
+    --navy-foreground: 255 255 255;
+    --amber: 242 169 59; /* #F2A93B — attention only */
+    --amber-foreground: 19 41 61;
+
+    /* tenant brand colour: overridden per tenant via inline style on the portal/field root.
+       Falls back to primary so the UI is always accessible. */
+    --brand: var(--primary);
+    --brand-foreground: var(--primary-foreground);
+
+    /* semantic */
+    --success: 22 163 74; /* #16A34A */
+    --success-tint: 220 252 231; /* #DCFCE7 */
+    --success-text: 22 101 52; /* #166534 */
+    --warning: 217 119 6; /* #D97706 */
+    --warning-tint: 254 243 199; /* #FEF3C7 */
+    --warning-text: 146 64 14; /* #92400E */
+    --error: 220 38 38; /* #DC2626 */
+    --error-tint: 254 226 226; /* #FEE2E2 */
+    --error-text: 153 27 27; /* #991B1B */
+    --info: 37 99 235; /* #2563EB */
+    --info-tint: 219 234 254; /* #DBEAFE */
+    --info-text: 30 64 175; /* #1E40AF */
+
+    /* neutrals */
+    --text: 15 23 42; /* #0F172A */
+    --text-muted: 51 65 85; /* #334155 */
+    --text-subtle: 100 116 139; /* #64748B — on white only */
+    --border: 203 213 225; /* #CBD5E1 */
+    --surface: 255 255 255;
+    --surface-muted: 241 245 249; /* #F1F5F9 */
+    --surface-page: 248 250 252; /* #F8FAFC */
+
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings:
+      'tnum' 1,
+      'cv11' 1;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-surface-page text-body text-text;
+    min-height: 100dvh;
+  }
+
+  /* Visible focus everywhere (ui-spec accessibility rule). */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-surface;
+  }
+
+  /* Money, phones and tickets always use tabular figures. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
