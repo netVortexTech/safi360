@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+
+# build
+dist/
+dist-ssr/
+dev-dist/
+*.local
+*.tsbuildinfo
+
+# env — never commit secrets
+.env
+.env.*
+!.env.example
+
+# test artefacts
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# supabase local state
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
+# editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# design references are tracked; derived scratch is not
+*.log
