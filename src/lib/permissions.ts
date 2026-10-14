@@ -41,7 +41,7 @@ const matrix: Record<Permission, readonly MemberRole[]> = {
   'customer.merge': MANAGEMENT,
   'catalog.edit': MANAGEMENT,
   'staff.manage': MANAGEMENT,
-  'payment.view': OFFICE,
+  'payment.view': MANAGEMENT,
   'payment.record_manual': MANAGEMENT,
   'payment.refund': OWNER_ONLY,
   'report.view': MANAGEMENT,

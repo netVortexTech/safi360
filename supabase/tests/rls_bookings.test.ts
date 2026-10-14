@@ -198,6 +198,39 @@ describe('booking tables — writes', () => {
     expect(del.ok).toBe(false);
   });
 
+  it('a dispatcher cannot read the payments ledger, but owners and managers can', async () => {
+    const nobody: Claims = { sub: SEED.ownerA, tenant_id: SEED.tenantA, tenant_role: 'DISPATCHER' };
+    const manager: Claims = { sub: SEED.ownerA, tenant_id: SEED.tenantA, tenant_role: 'MANAGER' };
+    const asDispatcher = await db.attempt('authenticated', nobody, `select * from public.payments`);
+    expect(asDispatcher.ok, asDispatcher.error).toBe(true);
+    expect(asDispatcher.rows).toEqual([]);
+    const asManager = await db.attempt(
+      'authenticated',
+      manager,
+      `select * from public.payments where tenant_id = $1`,
+      [SEED.tenantA],
+    );
+    expect(asManager.ok, asManager.error).toBe(true);
+    expect(asManager.rows.length).toBeGreaterThan(0);
+    const asOwner = await db.attempt(
+      'authenticated',
+      asOwnerA,
+      `select * from public.payments where tenant_id = $1`,
+      [SEED.tenantA],
+    );
+    expect(asOwner.ok, asOwner.error).toBe(true);
+    expect(asOwner.rows.length).toBeGreaterThan(0);
+    // The ticket money columns stay visible to dispatchers: that is what to collect.
+    const totals = await db.attempt<{ total_tzs: number; paid_tzs: number }>(
+      'authenticated',
+      nobody,
+      `select total_tzs, paid_tzs from public.bookings where id = $1`,
+      [mineA],
+    );
+    expect(totals.ok, totals.error).toBe(true);
+    expect(totals.rows).toHaveLength(1);
+  });
+
   it('customer OTP codes are invisible to every client role', async () => {
     for (const [role, claims] of [
       ['authenticated', asOwnerA],

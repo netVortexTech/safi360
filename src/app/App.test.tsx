@@ -1,8 +1,61 @@
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { vi } from 'vitest';
 import { AppProviders } from '@/app/providers';
 import { routes } from '@/app/App';
 import type { AuthState } from '@/lib/auth';
+
+// The ops dashboard reads live Supabase queries; stub the data hooks so the
+// route test renders the real dashboard UI without a backend.
+vi.mock('@/experiences/ops/tickets/hooks', () => {
+  const query = (data: unknown) => () => ({ data, isLoading: false, error: null, refetch: () => {} });
+  const mutation = () => () => ({ mutate: () => {}, isPending: false });
+  return {
+    ticketKeys: {
+      all: ['tickets'],
+      list: () => ['tickets', 'list'],
+      detail: (id: string) => ['tickets', 'detail', id],
+      events: (id: string) => ['tickets', 'events', id],
+      payments: (id: string) => ['tickets', 'payments', id],
+      quotes: (id: string) => ['tickets', 'quotes', id],
+      audit: (id: string) => ['tickets', 'audit', id],
+      dashboard: ['dashboard'],
+      calendar: (s: string, e: string) => ['calendar', s, e],
+      dispatch: (d: string) => ['dispatch', d],
+      exceptions: ['exceptions'],
+      sources: ['bookings-by-source'],
+    },
+    useTickets: query([]),
+    useTicket: query(null),
+    useJobEvents: query([]),
+    useBookingPayments: query([]),
+    useBookingQuotes: query([]),
+    useBookingAudit: query([]),
+    useDashboard: query({
+      kpis: {
+        todays_jobs: 0,
+        needs_action: 0,
+        booked_value_tzs: 0,
+        collected_tzs: 0,
+        pending_tzs: 0,
+        open_exceptions: 0,
+      },
+      needs_action: [],
+      recent_tickets: [],
+      by_source: [],
+    }),
+    useCalendarEvents: query([]),
+    useDispatchItems: query([]),
+    useExceptions: query([]),
+    useResolveException: mutation(),
+    useTransitionBooking: mutation(),
+    useRescheduleBooking: mutation(),
+    useAddNote: mutation(),
+    useAssignmentCandidates: query([]),
+    useCreateAssignment: mutation(),
+    useCancelAssignment: mutation(),
+  };
+});
 
 // Lazy experience chunks are transformed on first use; allow for a slow first load.
 const LAZY = { timeout: 20_000 };
@@ -39,8 +92,9 @@ describe('route shells', () => {
 
   it('serves the ops dashboard at /ops with the sidebar for an owner', async () => {
     renderAt('/ops', owner);
-    expect(await screen.findByTestId('foundation-notice', undefined, LAZY)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Dashboard' }, LAZY)).toBeInTheDocument();
     expect(screen.getAllByRole('navigation', { name: 'Main' }).length).toBeGreaterThan(0);
+    expect(screen.getByText('Needs your action')).toBeInTheDocument();
   }, 30_000);
 
   it('keeps cleaners out of the ops portal', async () => {

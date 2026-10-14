@@ -25,6 +25,14 @@ const ServiceEditorPage = lazy(() => import('@/experiences/ops/catalog/pages/Ser
 const ServiceAreasPage = lazy(() => import('@/experiences/ops/catalog/pages/ServiceAreasPage'));
 const StaffPage = lazy(() => import('@/experiences/ops/team/pages/StaffPage'));
 const StaffProfilePage = lazy(() => import('@/experiences/ops/team/pages/StaffProfilePage'));
+const TicketsPage = lazy(() => import('@/experiences/ops/tickets/TicketsPage'));
+const TicketDetailPage = lazy(() => import('@/experiences/ops/tickets/TicketDetailPage'));
+const CreateBookingPage = lazy(() => import('@/experiences/ops/tickets/CreateBookingPage'));
+const CustomersPage = lazy(() => import('@/experiences/ops/customers/CustomersPage'));
+const CustomerProfilePage = lazy(() => import('@/experiences/ops/customers/CustomerProfilePage'));
+const CalendarPage = lazy(() => import('@/experiences/ops/calendar/CalendarPage'));
+const DispatchPage = lazy(() => import('@/experiences/ops/dispatch/DispatchPage'));
+const ExceptionsPage = lazy(() => import('@/experiences/ops/exceptions/ExceptionsPage'));
 const FieldToday = lazy(() => import('@/experiences/field/pages/FieldToday'));
 const ControlHome = lazy(() => import('@/experiences/control/pages/ControlHome'));
 
@@ -47,6 +55,14 @@ export const routes: RouteObject[] = [
       { path: 'staff', element: withSuspense(<StaffPage />) },
       { path: 'staff/new', element: withSuspense(<StaffProfilePage />) },
       { path: 'staff/:id', element: withSuspense(<StaffProfilePage />) },
+      { path: 'tickets', element: withSuspense(<TicketsPage />) },
+      { path: 'tickets/:id', element: withSuspense(<TicketDetailPage />) },
+      { path: 'bookings/new', element: withSuspense(<CreateBookingPage />) },
+      { path: 'customers', element: withSuspense(<CustomersPage />) },
+      { path: 'customers/:id', element: withSuspense(<CustomerProfilePage />) },
+      { path: 'calendar', element: withSuspense(<CalendarPage />) },
+      { path: 'dispatch', element: withSuspense(<DispatchPage />) },
+      { path: 'exceptions', element: withSuspense(<ExceptionsPage />) },
     ],
   },
   {
