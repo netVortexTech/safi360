@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/booking-api';
 
 test.describe('experience shells', () => {
   test('ops portal asks for sign-in before anything else', async ({ page }) => {
@@ -18,11 +18,25 @@ test.describe('experience shells', () => {
   test('customer portal is Swahili by default', async ({ page }) => {
     await page.goto('/usafi-bora');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Weka oda ya usafi');
+    await expect(page.getByRole('navigation', { name: 'Main' })).toContainText('Fuatilia');
   });
 
   test('customer portal switches to English via ?lang=en', async ({ page }) => {
     await page.goto('/usafi-bora?lang=en');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Book a cleaning');
+    await expect(page.getByTestId('service-card').first()).toBeVisible();
+  });
+
+  test('an unknown company shows a clear not-found state', async ({ page }) => {
+    await page.route('**/rest/v1/rpc/portal_catalog', (route) =>
+      route.fulfill({
+        status: 404,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'tenant_not_found' }),
+      }),
+    );
+    await page.goto('/nobody?lang=en');
+    await expect(page.getByRole('alert')).toContainText(/does not exist/);
   });
 
   test('field app renders', async ({ page }) => {

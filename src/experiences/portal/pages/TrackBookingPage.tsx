@@ -234,7 +234,7 @@ export default function TrackBookingPage() {
             </div>
           )}
         </dl>
-        {quote && <PriceSummary quote={quote} locale={locale} />}
+        {quote && Array.isArray(quote.lines) && <PriceSummary quote={quote} locale={locale} />}
         {payments.length > 0 && (
           <ul className="text-sm text-text-muted">
             {payments.map((p) => (

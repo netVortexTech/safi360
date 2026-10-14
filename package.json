@@ -20,6 +20,7 @@
     "test:db": "vitest run --project db",
     "test:pricing": "vitest run --project unit --coverage supabase/functions/_shared/pricing supabase/functions/_shared/availability",
     "test:e2e": "playwright test",
+    "load:booking": "node scripts/load-create-booking.mjs",
     "supabase": "supabase",
     "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm test:db"
   },

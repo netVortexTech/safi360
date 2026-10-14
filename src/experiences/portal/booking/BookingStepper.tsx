@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -40,6 +41,7 @@ export function BookingStepper() {
   const [params, setParams] = useSearchParams();
   const [draft, dispatch, { restored }] = useBookingDraft(slug);
   const create = useCreateBooking();
+  const queryClient = useQueryClient();
   const [banner, setBanner] = useState<Banner>(null);
   const [changedQuote, setChangedQuote] = useState<QuoteResult | null>(null);
 
@@ -136,6 +138,8 @@ export function BookingStepper() {
     } catch (err) {
       if (isPortalApiError(err)) {
         if (err.code === 'slot_unavailable') {
+          // The cached week is stale by definition: fetch fresh slots before offering any.
+          void queryClient.invalidateQueries({ queryKey: ['portal', slug, 'availability'] });
           dispatch({ type: 'set_slot', slot: null });
           dispatch({ type: 'go', step: 'time' });
           setBanner({ kind: 'slot_taken' });

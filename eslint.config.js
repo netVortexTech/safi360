@@ -13,6 +13,7 @@ export default tseslint.config(
       'coverage',
       'playwright-report',
       'test-results',
+      'scripts/**', // plain Node scripts (load test); not part of a TS project
       '*.config.js',
       'eslint.config.js',
       'supabase/functions/**/*.ts', // Deno code is linted by `deno lint`, not ESLint
