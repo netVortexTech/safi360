@@ -25,6 +25,8 @@ export default function PaymentsPage() {
   const [search, setSearch] = useState('');
   const [manualOpen, setManualOpen] = useState(false);
   const [selected, setSelected] = useState<PaymentLedgerRow | null>(null);
+  const [smsText, setSmsText] = useState('');
+  const parsedSms = parseSms(smsText);
 
   const rows = useMemo(() => ledger.data ?? [], [ledger.data]);
   const filtered = useMemo(() => {
@@ -126,6 +128,18 @@ export default function PaymentsPage() {
           }}
         />
       ) : null}
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardBody className="space-y-3">
+            <h2 className="text-h3">SMS confirmation parser</h2>
+            <textarea value={smsText} onChange={(e) => setSmsText(e.target.value)} rows={6} className="w-full rounded-lg border border-border bg-surface p-3 text-sm" placeholder="Paste M-Pesa, Mixx, Airtel or HaloPesa confirmation" />
+            <p className="text-sm text-text-muted">Amount: {parsedSms.amountTzs ? formatTzs(parsedSms.amountTzs) : '-'}</p>
+            <p className="text-sm text-text-muted">Reference: {parsedSms.reference ?? '-'}</p>
+            <p className="text-sm text-text-muted">Phone: {parsedSms.phone ?? '-'}</p>
+          </CardBody>
+        </Card>
+      </section>
     </div>
   );
 }
@@ -159,4 +173,14 @@ function ManualPaymentDialog({ busy, error, onClose, onSubmit }: {
       </div>
     </div>
   );
+}
+
+
+function parseSms(text: string): { amountTzs: number | null; reference: string | null; phone: string | null } {
+  const amountMatch = text.match(/(?:TZS|TSh|Tsh|Tzs|KES|KSh)\s?([\d,]+)/i) || text.match(/([\d,]+)\s?(?:TZS|TSh|Tsh|Tzs|KES|KSh)/i);
+  const amountRaw = amountMatch?.[1];
+  const amount = amountRaw ? Number(amountRaw.replace(/,/g, '')) : null;
+  const refMatch = text.match(/\b[A-Z0-9]{8,15}\b/);
+  const phoneMatch = text.match(/\+255\d{9}/);
+  return { amountTzs: Number.isFinite(amount) ? amount : null, reference: refMatch ? refMatch[0] : null, phone: phoneMatch ? phoneMatch[0] : null };
 }
