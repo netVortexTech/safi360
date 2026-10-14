@@ -55,5 +55,14 @@ uri = "pg-functions://postgres/public/custom_access_token_hook"
 enabled = true
 policy = "per_worker"
 
+# Both functions share one import map; the CLI only auto-detects a deno.json inside each
+# function's own folder, so point at the shared one explicitly or hosted bundling fails on
+# the bare "@supabase/supabase-js" / "zod" specifiers.
+[functions.quote]
+import_map = "./functions/deno.json"
+
+[functions.availability]
+import_map = "./functions/deno.json"
+
 [analytics]
 enabled = false

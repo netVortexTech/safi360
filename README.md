@@ -63,13 +63,19 @@ own rather than alongside `pnpm check`; the two together exhaust memory on small
 No Docker needed; the pinned CLI runs through `pnpm supabase`.
 
 ```bash
-pnpm supabase login                              # opens the browser once
+pnpm supabase login                              # opens the browser once (real terminal only)
 pnpm supabase link --project-ref <ref>           # asks for the database password
-pnpm supabase config push                        # auth hook, phone test OTPs, redirect URLs
 pnpm supabase db push --include-seed             # migrations, then seed.sql
+pnpm supabase config push                        # auth hook, phone test OTPs, redirect URLs
 pnpm supabase functions deploy quote availability --use-api
 pnpm supabase projects api-keys --project-ref <ref>   # copy the anon key into .env.local
 ```
+
+Push migrations before config: the config enables the access-token hook that migration 5 creates.
+In a non-TTY shell (CI, an agent runner) `login` cannot open a browser; set `SUPABASE_ACCESS_TOKEN`
+to a personal access token instead and add `--yes` to `db push` and `config push` so the prompts
+do not auto-decline. The functions share `supabase/functions/deno.json` as their import map; the
+`[functions.*]` sections in `config.toml` point at it, which hosted bundling needs.
 
 The seeded owner `+255 754 000 001` then signs in with code `123456` (test OTP, no SMS provider
 needed). Never run `db push --include-seed` against a project with real customers.
