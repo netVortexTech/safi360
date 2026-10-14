@@ -33,6 +33,7 @@ const CustomerProfilePage = lazy(() => import('@/experiences/ops/customers/Custo
 const CalendarPage = lazy(() => import('@/experiences/ops/calendar/CalendarPage'));
 const DispatchPage = lazy(() => import('@/experiences/ops/dispatch/DispatchPage'));
 const ExceptionsPage = lazy(() => import('@/experiences/ops/exceptions/ExceptionsPage'));
+const PaymentsPage = lazy(() => import('@/experiences/ops/payments/PaymentsPage'));
 const FieldToday = lazy(() => import('@/experiences/field/pages/FieldToday'));
 const FieldLogin = lazy(() => import('@/experiences/field/pages/FieldLogin'));
 const FieldUpcoming = lazy(() => import('@/experiences/field/pages/FieldUpcoming'));
@@ -68,6 +69,8 @@ export const routes: RouteObject[] = [
       { path: 'calendar', element: withSuspense(<CalendarPage />) },
       { path: 'dispatch', element: withSuspense(<DispatchPage />) },
       { path: 'exceptions', element: withSuspense(<ExceptionsPage />) },
+      { path: 'payments', element: withSuspense(<PaymentsPage />) },
+      { path: 'invoices', element: withSuspense(<PaymentsPage />) },
     ],
   },
   { path: '/field/login', element: withSuspense(<FieldLogin />), errorElement: <RouteError /> },
