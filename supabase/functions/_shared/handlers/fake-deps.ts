@@ -1,7 +1,13 @@
 // In-memory PublicDeps for handler tests: a mutable catalog so "edit a service, quote
 // again" can be exercised without a database.
 import type { AvailabilityRule, BusyInterval, StaffMember } from '../availability/slots.ts';
-import { FIXTURE_ADDONS, FIXTURE_BASE, FIXTURE_SERVICES, FIXTURE_TENANT_ID, FIXTURE_ZONES } from '../pricing/fixtures.ts';
+import {
+  FIXTURE_ADDONS,
+  FIXTURE_BASE,
+  FIXTURE_SERVICES,
+  FIXTURE_TENANT_ID,
+  FIXTURE_ZONES,
+} from '../pricing/fixtures.ts';
 import type { Catalog } from '../pricing/quote.ts';
 import type { PublicDeps, PublicTenantInfo, StaffData } from './types.ts';
 

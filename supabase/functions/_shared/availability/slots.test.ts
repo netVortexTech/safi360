@@ -34,7 +34,13 @@ const rehema: StaffMember = { id: 'rehema', skills: [SOFA, CARPET], active: true
 const baraka: StaffMember = { id: 'baraka', skills: [FUMIGATION], active: true };
 const amina: StaffMember = { id: 'amina', skills: [SOFA], active: false };
 
-function weekly(staff_id: string, weekday: number, start: string | null, end: string | null, is_off = false): AvailabilityRule {
+function weekly(
+  staff_id: string,
+  weekday: number,
+  start: string | null,
+  end: string | null,
+  is_off = false,
+): AvailabilityRule {
   return { staff_id, weekday, date: null, date_to: null, start_time: start, end_time: end, is_off };
 }
 function leave(staff_id: string, date: string, date_to: string | null = null): AvailabilityRule {
@@ -91,7 +97,17 @@ describe('getSlots — working hours and lead time', () => {
   it('generates hourly starts that fit the duration inside tenant hours', () => {
     const slots = getSlots(request({ staff: [neema] }));
     // Fri 08:00–18:00 UTC+3, 120 min job → starts 08:00 … 16:00 (05:00Z … 13:00Z)
-    expect(starts(slots)).toEqual(['05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00']);
+    expect(starts(slots)).toEqual([
+      '05:00',
+      '06:00',
+      '07:00',
+      '08:00',
+      '09:00',
+      '10:00',
+      '11:00',
+      '12:00',
+      '13:00',
+    ]);
     expect(slots[0]).toMatchObject({ date: '2026-10-16', staff_ids: ['neema'], capacity: 1 });
   });
 
@@ -105,13 +121,20 @@ describe('getSlots — working hours and lead time', () => {
   });
 
   it('never offers a slot before now + lead', () => {
-    const todayAt0600 = request({ from: '2026-10-15', to: '2026-10-15', staff: [neema], now: new Date('2026-10-15T06:30:00Z') });
+    const todayAt0600 = request({
+      from: '2026-10-15',
+      to: '2026-10-15',
+      staff: [neema],
+      now: new Date('2026-10-15T06:30:00Z'),
+    });
     // 09:30 Dar + 120 min lead → first full-hour start 12:00 Dar (09:00Z)
     expect(starts(getSlots(todayAt0600))[0]).toBe('09:00');
   });
 
   it('uses a shorter step and clamps silly values', () => {
-    const slots = getSlots(request({ staff: [neema], slot_step_min: 30, travel_buffer_min: -5, min_lead_min: -10 }));
+    const slots = getSlots(
+      request({ staff: [neema], slot_step_min: 30, travel_buffer_min: -5, min_lead_min: -10 }),
+    );
     expect(starts(slots).slice(0, 3)).toEqual(['05:00', '05:30', '06:00']);
     const clamped = getSlots(request({ staff: [neema], slot_step_min: 1 }));
     expect(starts(clamped).slice(0, 2)).toEqual(['05:00', '05:15']);
@@ -150,14 +173,18 @@ describe('getSlots — availability rules', () => {
     const rules = [weekly('neema', 5, '10:00', '14:00'), weekly('neema', 6, '08:00', '12:00')];
     const fri = getSlots(request({ staff: [neema], availability: rules }));
     expect(starts(fri)).toEqual(['07:00', '08:00', '09:00']); // 10:00–14:00 Dar
-    const mon = getSlots(request({ from: '2026-10-19', to: '2026-10-19', staff: [neema], availability: rules }));
+    const mon = getSlots(
+      request({ from: '2026-10-19', to: '2026-10-19', staff: [neema], availability: rules }),
+    );
     expect(mon).toEqual([]);
   });
 
   it('a weekly off rule removes the day; a malformed weekly rule yields no window', () => {
     const off = getSlots(request({ staff: [neema], availability: [weekly('neema', 5, null, null, true)] }));
     expect(off).toEqual([]);
-    const malformed = getSlots(request({ staff: [neema], availability: [weekly('neema', 5, '14:00', '10:00')] }));
+    const malformed = getSlots(
+      request({ staff: [neema], availability: [weekly('neema', 5, '14:00', '10:00')] }),
+    );
     expect(malformed).toEqual([]);
     const partial = getSlots(request({ staff: [neema], availability: [weekly('neema', 5, '10:00', null)] }));
     expect(partial).toEqual([]);
@@ -168,15 +195,23 @@ describe('getSlots — availability rules', () => {
     expect(getSlots(request({ staff: [neema], availability: rules }))).toEqual([]);
     const single = [leave('neema', '2026-10-16')];
     expect(getSlots(request({ staff: [neema], availability: single }))).toEqual([]);
-    const after = getSlots(request({ from: '2026-10-19', to: '2026-10-19', staff: [neema], availability: rules }));
+    const after = getSlots(
+      request({ from: '2026-10-19', to: '2026-10-19', staff: [neema], availability: rules }),
+    );
     expect(after).toEqual([]); // Monday has no weekly rule
   });
 
   it('special dated hours override the weekly rule for that day', () => {
     const rules = [weekly('neema', 5, '08:00', '18:00'), special('neema', '2026-10-16', '08:00', '12:00')];
-    expect(starts(getSlots(request({ staff: [neema], availability: rules })))).toEqual(['05:00', '06:00', '07:00']);
+    expect(starts(getSlots(request({ staff: [neema], availability: rules })))).toEqual([
+      '05:00',
+      '06:00',
+      '07:00',
+    ]);
     const tenantDay = { start: 480, end: 1080 };
-    expect(staffWindows('neema', '2026-10-16', [special('neema', '2026-10-16', '12:00', '08:00')], tenantDay)).toEqual([]);
+    expect(
+      staffWindows('neema', '2026-10-16', [special('neema', '2026-10-16', '12:00', '08:00')], tenantDay),
+    ).toEqual([]);
     expect(staffWindows('neema', '2026-10-16', [], tenantDay)).toEqual([tenantDay]);
   });
 });
@@ -191,7 +226,10 @@ describe('getSlots — assignments and travel buffer', () => {
   });
 
   it('a slot is offered when another qualified cleaner is free', () => {
-    const jobs = [busy('neema', '2026-10-16', '08:00', '12:00'), busy('neema', '2026-10-16', '12:00', '18:00')];
+    const jobs = [
+      busy('neema', '2026-10-16', '08:00', '12:00'),
+      busy('neema', '2026-10-16', '12:00', '18:00'),
+    ];
     const slots = getSlots(request({ busy: jobs }));
     expect(slots.every((s) => s.staff_ids.every((id) => id !== 'neema'))).toBe(true);
     expect(slots[0]?.staff_ids).toEqual(['rehema']);

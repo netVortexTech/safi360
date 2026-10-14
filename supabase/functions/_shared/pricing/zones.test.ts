@@ -52,8 +52,24 @@ describe('pointInPolygon', () => {
 
   it('treats degenerate rings as outside', () => {
     expect(pointInPolygon({ lat: -6.5, lng: 39.5 }, { type: 'Polygon', coordinates: [] })).toBe(false);
-    expect(pointInPolygon({ lat: -6.5, lng: 39.5 }, { type: 'Polygon', coordinates: [[[39, -7], [40, -7]]] })).toBe(false);
-    const tinyHole: GeoJsonPolygon = { type: 'Polygon', coordinates: [square.coordinates[0]!, [[39.5, -6.5]]] };
+    expect(
+      pointInPolygon(
+        { lat: -6.5, lng: 39.5 },
+        {
+          type: 'Polygon',
+          coordinates: [
+            [
+              [39, -7],
+              [40, -7],
+            ],
+          ],
+        },
+      ),
+    ).toBe(false);
+    const tinyHole: GeoJsonPolygon = {
+      type: 'Polygon',
+      coordinates: [square.coordinates[0]!, [[39.5, -6.5]]],
+    };
     expect(pointInPolygon({ lat: -6.5, lng: 39.5 }, tinyHole)).toBe(true);
   });
 });
@@ -74,7 +90,9 @@ describe('resolveZone', () => {
 
   it('matches area names loosely and case-insensitively', () => {
     expect(resolveZone({ area: 'mbezi beach' }, FIXTURE_ZONES, FIXTURE_BASE)?.zone_id).toBe(ZONE_IDS.mbezi);
-    expect(resolveZone({ area: 'Near Temeke hospital' }, FIXTURE_ZONES, FIXTURE_BASE)?.zone_id).toBe(ZONE_IDS.kigamboni);
+    expect(resolveZone({ area: 'Near Temeke hospital' }, FIXTURE_ZONES, FIXTURE_BASE)?.zone_id).toBe(
+      ZONE_IDS.kigamboni,
+    );
     expect(resolveZone({ area: 'Kigam' }, FIXTURE_ZONES, FIXTURE_BASE)?.zone_id).toBe(ZONE_IDS.kigamboni);
     expect(resolveZone({ area: '' }, FIXTURE_ZONES, FIXTURE_BASE)).toBeNull();
     const blankArea: CatalogZone = { ...FIXTURE_ZONES[0]!, areas: [' '] };

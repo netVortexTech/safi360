@@ -18,13 +18,16 @@ export function supabaseDeps(admin: SupabaseClient, req: Request): PublicDeps {
   return {
     resolveTenant: (slug) => resolveTenantBySlug(admin, slug),
 
-    rateLimit: (tenantId, action: PublicAction) => enforceRateLimit(admin, RATE_LIMITS[action], tenantId, caller),
+    rateLimit: (tenantId, action: PublicAction) =>
+      enforceRateLimit(admin, RATE_LIMITS[action], tenantId, caller),
 
     async loadCatalog(tenantId): Promise<Catalog> {
       const [services, addons, zones] = await Promise.all([
         admin
           .from('services')
-          .select('id, name_sw, name_en, pricing_type, pricing_rule, duration_rule, crew_size, active, deleted_at')
+          .select(
+            'id, name_sw, name_en, pricing_type, pricing_rule, duration_rule, crew_size, active, deleted_at',
+          )
           .eq('tenant_id', tenantId)
           .is('deleted_at', null),
         admin
@@ -40,7 +43,10 @@ export function supabaseDeps(admin: SupabaseClient, req: Request): PublicDeps {
       return {
         services: unwrap<CatalogService[]>(services),
         addons: unwrap<CatalogAddon[]>(addons),
-        zones: unwrap<CatalogZone[]>(zones).map((z) => ({ ...z, max_km: z.max_km == null ? null : Number(z.max_km) })),
+        zones: unwrap<CatalogZone[]>(zones).map((z) => ({
+          ...z,
+          max_km: z.max_km == null ? null : Number(z.max_km),
+        })),
       };
     },
 

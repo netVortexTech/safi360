@@ -92,7 +92,12 @@ export const tenantSettings = z
     /** Tax display on quotes; 'none' until the tenant registers for VAT. */
     tax: taxSettings.default({ mode: 'none', rate_pct: 18, label: 'VAT' }),
     /** Earliest bookable start = now + lead. */
-    min_lead_minutes: z.number().int().min(0).max(7 * 24 * 60).default(120),
+    min_lead_minutes: z
+      .number()
+      .int()
+      .min(0)
+      .max(7 * 24 * 60)
+      .default(120),
     slot_step_min: z.union([z.literal(30), z.literal(60)]).default(60),
   })
   .strict();

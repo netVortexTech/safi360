@@ -65,7 +65,10 @@ export const PRICING_TYPES = [
 export type PricingType = (typeof PRICING_TYPES)[number];
 
 /** Types that cannot produce a number without a human: the booking routes to AWAITING_REVIEW. */
-export const REVIEW_PRICING_TYPES = ['INSPECTION_REQUIRED', 'CUSTOM_QUOTE'] as const satisfies readonly PricingType[];
+export const REVIEW_PRICING_TYPES = [
+  'INSPECTION_REQUIRED',
+  'CUSTOM_QUOTE',
+] as const satisfies readonly PricingType[];
 
 export const PAY_TYPES = ['PER_JOB', 'DAILY', 'MONTHLY'] as const;
 export type PayType = (typeof PAY_TYPES)[number];

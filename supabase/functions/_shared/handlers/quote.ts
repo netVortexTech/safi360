@@ -18,12 +18,19 @@ export function settingsOf(tenant: PublicTenantInfo): TenantSettings {
   return parsed.data;
 }
 
-export function pricingContext(tenant: PublicTenantInfo, settings: TenantSettings, now: Date): PricingContext {
+export function pricingContext(
+  tenant: PublicTenantInfo,
+  settings: TenantSettings,
+  now: Date,
+): PricingContext {
   return {
     deposit_pct: settings.deposit_pct,
     quote_expiry_hours: settings.quote_expiry_hours,
     tax: settings.tax,
-    base: tenant.base_lat != null && tenant.base_lng != null ? { lat: tenant.base_lat, lng: tenant.base_lng } : null,
+    base:
+      tenant.base_lat != null && tenant.base_lng != null
+        ? { lat: tenant.base_lat, lng: tenant.base_lng }
+        : null,
     now,
   };
 }

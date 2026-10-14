@@ -115,11 +115,19 @@ export const perAreaRule = z
     r.tiers.forEach((t, i) => {
       const isLast = i === r.tiers.length - 1;
       if (t.up_to_sqm == null && !isLast) {
-        ctx.addIssue({ code: 'custom', path: ['tiers', i, 'up_to_sqm'], message: 'validation.rule.open_tier_not_last' });
+        ctx.addIssue({
+          code: 'custom',
+          path: ['tiers', i, 'up_to_sqm'],
+          message: 'validation.rule.open_tier_not_last',
+        });
       }
       if (t.up_to_sqm != null) {
         if (t.up_to_sqm <= last) {
-          ctx.addIssue({ code: 'custom', path: ['tiers', i, 'up_to_sqm'], message: 'validation.rule.tiers_not_ascending' });
+          ctx.addIssue({
+            code: 'custom',
+            path: ['tiers', i, 'up_to_sqm'],
+            message: 'validation.rule.tiers_not_ascending',
+          });
         }
         last = t.up_to_sqm;
       }
@@ -138,10 +146,19 @@ export const reviewRule = z
 
 export const durationRule = z
   .object({
-    base_min: int.nonnegative().max(24 * 60).default(60),
-    per_unit_min: int.nonnegative().max(24 * 60).default(0),
+    base_min: int
+      .nonnegative()
+      .max(24 * 60)
+      .default(60),
+    per_unit_min: int
+      .nonnegative()
+      .max(24 * 60)
+      .default(0),
     per_sqm_min: z.number().nonnegative().max(60).default(0),
-    per_room_min: int.nonnegative().max(24 * 60).default(0),
+    per_room_min: int
+      .nonnegative()
+      .max(24 * 60)
+      .default(0),
   })
   .strict();
 export type DurationRule = z.infer<typeof durationRule>;
@@ -195,7 +212,11 @@ export function defaultPricingRule(type: PricingType): PricingRuleOf<typeof type
         ],
       };
     case 'PER_AREA':
-      return { unit: 'sqm', tiers: [{ up_to_sqm: null, price_tzs: 0 }], tier_mode: 'bracket' } satisfies PerAreaRule;
+      return {
+        unit: 'sqm',
+        tiers: [{ up_to_sqm: null, price_tzs: 0 }],
+        tier_mode: 'bracket',
+      } satisfies PerAreaRule;
     case 'FLAT':
       return { price_tzs: 0 } satisfies FlatRule;
     case 'INSPECTION_REQUIRED':
@@ -246,7 +267,10 @@ export const quoteAddressInput = z
     area: z.string().trim().max(120).optional(),
   })
   .strict()
-  .refine((a) => (a.lat == null) === (a.lng == null), { message: 'validation.address.pin_incomplete', path: ['lng'] });
+  .refine((a) => (a.lat == null) === (a.lng == null), {
+    message: 'validation.address.pin_incomplete',
+    path: ['lng'],
+  });
 export type QuoteAddressInput = z.infer<typeof quoteAddressInput>;
 
 /** Staff-applied discount (ops create booking). Public callers cannot send one. */
@@ -258,7 +282,10 @@ export const discountInput = z
     reason: z.string().trim().max(200).optional(),
   })
   .strict()
-  .refine((d) => d.kind !== 'percent' || d.value <= 100, { message: 'validation.discount.percent_range', path: ['value'] });
+  .refine((d) => d.kind !== 'percent' || d.value <= 100, {
+    message: 'validation.discount.percent_range',
+    path: ['value'],
+  });
 export type DiscountInput = z.infer<typeof discountInput>;
 
 export const taxSettings = z

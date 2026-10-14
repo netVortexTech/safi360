@@ -105,8 +105,10 @@ function priceItem(index: number, item: QuoteInput['items'][number], service: Ca
   switch (service.pricing_type) {
     case 'PER_UNIT': {
       const rule = parseRule('PER_UNIT');
-      if (rule.min_qty != null && item.qty < rule.min_qty) throw new QuoteError('qty_below_min', [...path, 'qty']);
-      if (rule.max_qty != null && item.qty > rule.max_qty) throw new QuoteError('qty_above_max', [...path, 'qty']);
+      if (rule.min_qty != null && item.qty < rule.min_qty)
+        throw new QuoteError('qty_below_min', [...path, 'qty']);
+      if (rule.max_qty != null && item.qty > rule.max_qty)
+        throw new QuoteError('qty_above_max', [...path, 'qty']);
       base = item.qty * rule.price_tzs;
       minCharge = rule.min_charge_tzs;
       durationMin += duration.per_unit_min * item.qty;
@@ -126,7 +128,8 @@ function priceItem(index: number, item: QuoteInput['items'][number], service: Ca
     }
     case 'PER_SEAT': {
       const rule = parseRule('PER_SEAT');
-      if (rule.min_seats != null && item.qty < rule.min_seats) throw new QuoteError('qty_below_min', [...path, 'qty']);
+      if (rule.min_seats != null && item.qty < rule.min_seats)
+        throw new QuoteError('qty_below_min', [...path, 'qty']);
       base = item.qty * rule.price_tzs;
       minCharge = rule.min_charge_tzs;
       durationMin += duration.per_unit_min * item.qty;
@@ -294,7 +297,8 @@ function priceAddons(
     const path = ['items', index, 'addons', addonIndex, 'addon_id'];
     const addon = addons.find((a) => a.id === chosen.addon_id);
     if (!addon || !addon.active) throw new QuoteError('addon_not_found', path);
-    if (addon.service_id != null && addon.service_id !== service.id) throw new QuoteError('addon_not_applicable', path);
+    if (addon.service_id != null && addon.service_id !== service.id)
+      throw new QuoteError('addon_not_applicable', path);
     const qty = addon.per_unit ? unitQty : chosen.qty;
     return line({
       kind: 'addon',
@@ -341,7 +345,8 @@ export function quote(input: QuoteInput, catalog: Catalog, ctx: PricingContext):
   input.items.forEach((item, index) => {
     const service = catalog.services.find((s) => s.id === item.service_id);
     if (!service) throw new QuoteError('service_not_found', ['items', index, 'service_id']);
-    if (!service.active || service.deleted_at) throw new QuoteError('service_inactive', ['items', index, 'service_id']);
+    if (!service.active || service.deleted_at)
+      throw new QuoteError('service_inactive', ['items', index, 'service_id']);
     const outcome = priceItem(index, item, service);
     lines.push(...outcome.lines, ...priceAddons(index, item, service, outcome.unitQty, catalog.addons));
     durationMin += outcome.durationMin;

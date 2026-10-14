@@ -9,7 +9,10 @@ const sofa5 = { service_id: SERVICE_IDS.sofa, qty: 5 };
 describe('handleQuote', () => {
   it('prices a valid request from the live catalog', async () => {
     const world = fakeWorld();
-    const res = await handleQuote({ slug: 'usafi-bora', items: [sofa5], address: { area: 'Mikocheni' } }, fakeDeps(world));
+    const res = await handleQuote(
+      { slug: 'usafi-bora', items: [sofa5], address: { area: 'Mikocheni' } },
+      fakeDeps(world),
+    );
     expect(res.status).toBe(200);
     const body = res.body as QuoteResponse;
     expect(body.tenant).toEqual({ slug: 'usafi-bora', name: 'Usafi Bora Cleaners' });
@@ -51,7 +54,10 @@ describe('handleQuote', () => {
 
   it('maps quote problems to 422 with the offending path', async () => {
     const res = await handleQuote(
-      { slug: 'usafi-bora', items: [{ service_id: SERVICE_IDS.carpet, qty: 1, addons: [{ addon_id: ADDON_IDS.stain }] }] },
+      {
+        slug: 'usafi-bora',
+        items: [{ service_id: SERVICE_IDS.carpet, qty: 1, addons: [{ addon_id: ADDON_IDS.stain }] }],
+      },
       fakeDeps(fakeWorld()),
     );
     expect(res.status).toBe(422);
@@ -63,8 +69,13 @@ describe('handleQuote', () => {
 
   it('unknown and suspended tenants, and rate limits', async () => {
     expect((await handleQuote({ slug: 'nobody', items: [sofa5] }, fakeDeps(fakeWorld()))).status).toBe(404);
-    expect((await handleQuote({ slug: 'pwani-fresh', items: [sofa5] }, fakeDeps(fakeWorld()))).status).toBe(403);
-    const limited = await handleQuote({ slug: 'usafi-bora', items: [sofa5] }, fakeDeps(fakeWorld({ rateLimited: true })));
+    expect((await handleQuote({ slug: 'pwani-fresh', items: [sofa5] }, fakeDeps(fakeWorld()))).status).toBe(
+      403,
+    );
+    const limited = await handleQuote(
+      { slug: 'usafi-bora', items: [sofa5] },
+      fakeDeps(fakeWorld({ rateLimited: true })),
+    );
     expect(limited.status).toBe(429);
     expect((limited.body as ApiError).retryable).toBe(true);
   });

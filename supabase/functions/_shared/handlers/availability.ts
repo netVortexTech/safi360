@@ -37,7 +37,8 @@ export async function handleAvailability(rawBody: unknown, deps: PublicDeps): Pr
       requires_review: priced.requires_review,
       out_of_area: priced.out_of_area,
     };
-    if (priced.out_of_area) return { status: 200, body: { ...base, slots: [] } satisfies AvailabilityResponse };
+    if (priced.out_of_area)
+      return { status: 200, body: { ...base, slots: [] } satisfies AvailabilityResponse };
 
     const data = await deps.loadStaff(tenant.id, input.from, input.to);
     const slots = getSlots({

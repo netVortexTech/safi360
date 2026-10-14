@@ -29,11 +29,10 @@ beforeAll(async () => {
     CLEANER_USER,
     DISPATCHER_USER,
   ]);
-  await db.sql(`insert into public.memberships (tenant_id, user_id, role) values ($1, $2, 'CLEANER'), ($1, $3, 'DISPATCHER')`, [
-    SEED.tenantA,
-    CLEANER_USER,
-    DISPATCHER_USER,
-  ]);
+  await db.sql(
+    `insert into public.memberships (tenant_id, user_id, role) values ($1, $2, 'CLEANER'), ($1, $3, 'DISPATCHER')`,
+    [SEED.tenantA, CLEANER_USER, DISPATCHER_USER],
+  );
   await db.sql(`update public.staff set user_id = $1 where id = $2`, [CLEANER_USER, NEEMA]);
   // Tenant B also needs availability + an assignment so every table has rows on both sides.
   await db.sql(
@@ -62,9 +61,12 @@ describe('catalog & staff isolation — reads', () => {
   });
 
   it.each(TABLES)('owner B cannot read tenant A rows in %s', async (table) => {
-    const r = await db.attempt('authenticated', asOwnerB, `select tenant_id from public.${table} where tenant_id = $1`, [
-      SEED.tenantA,
-    ]);
+    const r = await db.attempt(
+      'authenticated',
+      asOwnerB,
+      `select tenant_id from public.${table} where tenant_id = $1`,
+      [SEED.tenantA],
+    );
     expect(r.ok, r.error).toBe(true);
     expect(r.rows).toEqual([]);
   });
@@ -76,7 +78,11 @@ describe('catalog & staff isolation — reads', () => {
   });
 
   it.each(TABLES)('a super admin reads both tenants in %s', async (table) => {
-    const r = await db.attempt('authenticated', asSuperAdmin, `select distinct tenant_id from public.${table} order by 1`);
+    const r = await db.attempt(
+      'authenticated',
+      asSuperAdmin,
+      `select distinct tenant_id from public.${table} order by 1`,
+    );
     expect(r.ok, r.error).toBe(true);
     expect(r.rows.map((x) => x.tenant_id)).toEqual([SEED.tenantA, SEED.tenantB]);
   });
@@ -89,7 +95,11 @@ describe('catalog & staff isolation — reads', () => {
     const staff = await db.attempt('authenticated', cleaner, `select id from public.staff`);
     expect(staff.rows.length).toBe(5);
 
-    const mine = await db.attempt<{ staff_id: string }>('authenticated', cleaner, `select staff_id from public.assignments`);
+    const mine = await db.attempt<{ staff_id: string }>(
+      'authenticated',
+      cleaner,
+      `select staff_id from public.assignments`,
+    );
     expect(mine.ok, mine.error).toBe(true);
     expect(mine.rows.map((r) => r.staff_id)).toEqual([NEEMA]);
 
@@ -129,9 +139,12 @@ describe('catalog & staff isolation — writes', () => {
     );
     expect(upd.ok).toBe(true);
     expect(upd.rows).toEqual([]);
-    const del = await db.attempt('authenticated', asOwnerA, `delete from public.staff where tenant_id = $1 returning id`, [
-      SEED.tenantB,
-    ]);
+    const del = await db.attempt(
+      'authenticated',
+      asOwnerA,
+      `delete from public.staff where tenant_id = $1 returning id`,
+      [SEED.tenantB],
+    );
     expect(del.ok).toBe(true);
     expect(del.rows).toEqual([]);
   });
@@ -207,10 +220,12 @@ describe('catalog & staff isolation — writes', () => {
 
 describe('staff_availability constraints', () => {
   const insert = (cols: string, vals: string) =>
-    db.attempt('authenticated', asOwnerA, `insert into public.staff_availability (tenant_id, staff_id, ${cols}) values ($1, $2, ${vals})`, [
-      SEED.tenantA,
-      NEEMA,
-    ]);
+    db.attempt(
+      'authenticated',
+      asOwnerA,
+      `insert into public.staff_availability (tenant_id, staff_id, ${cols}) values ($1, $2, ${vals})`,
+      [SEED.tenantA, NEEMA],
+    );
 
   it('a row is weekly or dated, never both or neither', async () => {
     expect((await insert('weekday, date, is_off', `1, '2026-10-20', true`)).ok).toBe(false);
@@ -219,7 +234,9 @@ describe('staff_availability constraints', () => {
 
   it('working rows need an ordered time range; off rows carry none', async () => {
     expect((await insert('weekday, start_time, end_time', `1, '17:00', '09:00'`)).ok).toBe(false);
-    expect((await insert('weekday, is_off, start_time, end_time', `1, true, '09:00', '17:00'`)).ok).toBe(false);
+    expect((await insert('weekday, is_off, start_time, end_time', `1, true, '09:00', '17:00'`)).ok).toBe(
+      false,
+    );
     expect((await insert('date, date_to, is_off', `'2026-11-02', '2026-11-01', true`)).ok).toBe(false);
     expect((await insert('date, start_time, end_time', `'2026-11-02', '09:00', '13:00'`)).ok).toBe(true);
   });

@@ -56,7 +56,8 @@ export function resolveZone(
 ): ZoneResolution | null {
   if (!address) return null;
   const active = zones.filter((z) => z.active);
-  const pin: LatLng | null = address.lat != null && address.lng != null ? { lat: address.lat, lng: address.lng } : null;
+  const pin: LatLng | null =
+    address.lat != null && address.lng != null ? { lat: address.lat, lng: address.lng } : null;
 
   if (pin) {
     const byPolygon = active.find((z) => z.polygon && pointInPolygon(pin, z.polygon));

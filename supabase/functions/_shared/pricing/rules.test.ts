@@ -15,7 +15,10 @@ import {
   quoteItemInput,
 } from './rules.ts';
 
-function issues(result: { success: boolean; error?: { issues: { path: (string | number)[]; message: string }[] } }) {
+function issues(result: {
+  success: boolean;
+  error?: { issues: { path: (string | number)[]; message: string }[] };
+}) {
   return result.success ? [] : (result.error?.issues ?? []).map((i) => [i.path.join('.'), i.message]);
 }
 
@@ -37,7 +40,13 @@ describe('pricing rule schemas', () => {
   });
 
   it('PER_UNIT: min_qty may not exceed max_qty', () => {
-    const r = perUnitRule.safeParse({ unit_sw: 'tanki', unit_en: 'tank', price_tzs: 1000, min_qty: 5, max_qty: 2 });
+    const r = perUnitRule.safeParse({
+      unit_sw: 'tanki',
+      unit_en: 'tank',
+      price_tzs: 1000,
+      min_qty: 5,
+      max_qty: 2,
+    });
     expect(issues(r)).toEqual([['max_qty', 'validation.rule.min_gt_max']]);
   });
 
@@ -49,7 +58,9 @@ describe('pricing rule schemas', () => {
       ],
     });
     expect(issues(dup)).toEqual([['variants.1.key', 'validation.rule.duplicate_key']]);
-    const badKey = perVariantRule.safeParse({ variants: [{ key: 'Big One', label_sw: 'A', label_en: 'A', price_tzs: 1 }] });
+    const badKey = perVariantRule.safeParse({
+      variants: [{ key: 'Big One', label_sw: 'A', label_en: 'A', price_tzs: 1 }],
+    });
     expect(issues(badKey)).toEqual([['variants.0.key', 'validation.rule.key_format']]);
     expect(perVariantRule.safeParse({ variants: [] }).success).toBe(false);
   });
@@ -87,7 +98,12 @@ describe('pricing rule schemas', () => {
 
   it('rejects unknown keys so typos never silently change a price', () => {
     expect(parsePricingRule.bind(null, 'FLAT', { price_tzs: 1, prize: 2 })).toThrow();
-    expect(parseDurationRule(undefined)).toEqual({ base_min: 60, per_unit_min: 0, per_sqm_min: 0, per_room_min: 0 });
+    expect(parseDurationRule(undefined)).toEqual({
+      base_min: 60,
+      per_unit_min: 0,
+      per_sqm_min: 0,
+      per_room_min: 0,
+    });
   });
 });
 
@@ -102,6 +118,8 @@ describe('quote input schemas', () => {
 
   it('discounts: percent is capped at 100', () => {
     expect(discountInput.safeParse({ kind: 'percent', value: 120 }).success).toBe(false);
-    expect(discountInput.safeParse({ kind: 'fixed', value: 120000, reason: 'Repeat customer' }).success).toBe(true);
+    expect(discountInput.safeParse({ kind: 'fixed', value: 120000, reason: 'Repeat customer' }).success).toBe(
+      true,
+    );
   });
 });

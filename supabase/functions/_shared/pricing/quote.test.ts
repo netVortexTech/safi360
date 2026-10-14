@@ -26,11 +26,17 @@ function ctx(over: Partial<PricingContext> = {}): PricingContext {
   };
 }
 
-function item(partial: Partial<QuoteInput['items'][number]> & { service_id: string }): QuoteInput['items'][number] {
+function item(
+  partial: Partial<QuoteInput['items'][number]> & { service_id: string },
+): QuoteInput['items'][number] {
   return { qty: 1, addons: [], ...partial };
 }
 
-function run(items: QuoteInput['items'], over: Partial<PricingContext> = {}, catalog: Catalog = FIXTURE_CATALOG) {
+function run(
+  items: QuoteInput['items'],
+  over: Partial<PricingContext> = {},
+  catalog: Catalog = FIXTURE_CATALOG,
+) {
   return quote({ items }, catalog, ctx(over));
 }
 
@@ -138,7 +144,13 @@ describe('add-ons', () => {
     const perUnitGlobal = { ...FIXTURE_ADDONS[1]!, per_unit: true };
     const catalog: Catalog = { ...FIXTURE_CATALOG, addons: [perUnitGlobal, FIXTURE_ADDONS[3]!] };
     const rooms = run(
-      [item({ service_id: SERVICE_IDS.deepClean, rooms: { bedroom: 2, bathroom: 1 }, addons: [{ addon_id: ADDON_IDS.odour, qty: 1 }] })],
+      [
+        item({
+          service_id: SERVICE_IDS.deepClean,
+          rooms: { bedroom: 2, bathroom: 1 },
+          addons: [{ addon_id: ADDON_IDS.odour, qty: 1 }],
+        }),
+      ],
       {},
       catalog,
     );
@@ -146,24 +158,46 @@ describe('add-ons', () => {
     expect(addonLine).toMatchObject({ qty: 3, amount_tzs: 45000, unit: { sw: 'chumba', en: 'room' } });
 
     const area = run(
-      [item({ service_id: SERVICE_IDS.office, area_sqm: 120, addons: [{ addon_id: ADDON_IDS.odour, qty: 1 }] })],
+      [
+        item({
+          service_id: SERVICE_IDS.office,
+          area_sqm: 120,
+          addons: [{ addon_id: ADDON_IDS.odour, qty: 1 }],
+        }),
+      ],
       {},
       catalog,
     );
-    expect(area.lines.find((l) => l.kind === 'addon')).toMatchObject({ qty: 120, unit: { sw: 'm²', en: 'm²' } });
+    expect(area.lines.find((l) => l.kind === 'addon')).toMatchObject({
+      qty: 120,
+      unit: { sw: 'm²', en: 'm²' },
+    });
 
     const variant = run(
-      [item({ service_id: SERVICE_IDS.carpet, variant: '6x6', qty: 2, addons: [{ addon_id: ADDON_IDS.protection, qty: 1 }] })],
+      [
+        item({
+          service_id: SERVICE_IDS.carpet,
+          variant: '6x6',
+          qty: 2,
+          addons: [{ addon_id: ADDON_IDS.protection, qty: 1 }],
+        }),
+      ],
       {},
       catalog,
     );
-    expect(variant.lines.find((l) => l.kind === 'addon')).toMatchObject({ qty: 2, amount_tzs: 16000, unit: null });
+    expect(variant.lines.find((l) => l.kind === 'addon')).toMatchObject({
+      qty: 2,
+      amount_tzs: 16000,
+      unit: null,
+    });
   });
 });
 
 describe('PER_VARIANT (carpets, mattresses)', () => {
   it('prices the chosen variant × qty and applies a minimum charge', () => {
-    expect(amounts([item({ service_id: SERVICE_IDS.carpet, variant: '8x10', qty: 2 })])).toEqual([['service', 120000]]);
+    expect(amounts([item({ service_id: SERVICE_IDS.carpet, variant: '8x10', qty: 2 })])).toEqual([
+      ['service', 120000],
+    ]);
     expect(amounts([item({ service_id: SERVICE_IDS.mattress, variant: 'single' })])).toEqual([
       ['service', 30000],
       ['min_charge', 10000],
@@ -173,7 +207,11 @@ describe('PER_VARIANT (carpets, mattresses)', () => {
   });
 
   it('requires a known variant', () => {
-    expectError(() => run([item({ service_id: SERVICE_IDS.carpet })]), 'variant_required', ['items', 0, 'variant']);
+    expectError(() => run([item({ service_id: SERVICE_IDS.carpet })]), 'variant_required', [
+      'items',
+      0,
+      'variant',
+    ]);
     expectError(() => run([item({ service_id: SERVICE_IDS.carpet, variant: '9x9' })]), 'variant_unknown', [
       'items',
       0,
@@ -184,7 +222,9 @@ describe('PER_VARIANT (carpets, mattresses)', () => {
 
 describe('PER_ROOM (deep clean)', () => {
   it('emits one line per room type and sums them', () => {
-    const q = run([item({ service_id: SERVICE_IDS.deepClean, rooms: { bedroom: 3, bathroom: 2, kitchen: 1, dining: 0 } })]);
+    const q = run([
+      item({ service_id: SERVICE_IDS.deepClean, rooms: { bedroom: 3, bathroom: 2, kitchen: 1, dining: 0 } }),
+    ]);
     expect(q.lines.map((l) => [l.label?.en, l.qty, l.amount_tzs])).toEqual([
       ['Residential deep clean · Bedroom', 3, 90000],
       ['Residential deep clean · Bathroom', 2, 40000],
@@ -203,18 +243,21 @@ describe('PER_ROOM (deep clean)', () => {
   });
 
   it('requires at least one room and known room keys', () => {
-    expectError(() => run([item({ service_id: SERVICE_IDS.deepClean })]), 'rooms_required', ['items', 0, 'rooms']);
-    expectError(() => run([item({ service_id: SERVICE_IDS.deepClean, rooms: { bedroom: 0 } })]), 'rooms_required', [
+    expectError(() => run([item({ service_id: SERVICE_IDS.deepClean })]), 'rooms_required', [
       'items',
       0,
       'rooms',
     ]);
-    expectError(() => run([item({ service_id: SERVICE_IDS.deepClean, rooms: { garage: 1 } })]), 'room_unknown', [
-      'items',
-      0,
-      'rooms',
-      'garage',
-    ]);
+    expectError(
+      () => run([item({ service_id: SERVICE_IDS.deepClean, rooms: { bedroom: 0 } })]),
+      'rooms_required',
+      ['items', 0, 'rooms'],
+    );
+    expectError(
+      () => run([item({ service_id: SERVICE_IDS.deepClean, rooms: { garage: 1 } })]),
+      'room_unknown',
+      ['items', 0, 'rooms', 'garage'],
+    );
   });
 });
 
@@ -248,7 +291,12 @@ describe('PER_AREA', () => {
 
   it('exact area: office (marginal) and post-construction (bracket) with minimum charge', () => {
     const office = run([item({ service_id: SERVICE_IDS.office, area_sqm: 250 })]);
-    expect(office.lines[0]).toMatchObject({ qty: 250, unit_price_tzs: 1440, amount_tzs: 360000, estimate: false });
+    expect(office.lines[0]).toMatchObject({
+      qty: 250,
+      unit_price_tzs: 1440,
+      amount_tzs: 360000,
+      estimate: false,
+    });
     expect(office.has_estimate).toBe(false);
     expect(office.est_duration_min).toBe(270); // 60 + 200 → 260 → 270
 
@@ -271,12 +319,16 @@ describe('PER_AREA', () => {
   });
 
   it('requires an exact area or a known range', () => {
-    expectError(() => run([item({ service_id: SERVICE_IDS.office })]), 'area_required', ['items', 0, 'area_sqm']);
-    expectError(() => run([item({ service_id: SERVICE_IDS.office, area_range: 'huge' })]), 'area_range_unknown', [
+    expectError(() => run([item({ service_id: SERVICE_IDS.office })]), 'area_required', [
       'items',
       0,
-      'area_range',
+      'area_sqm',
     ]);
+    expectError(
+      () => run([item({ service_id: SERVICE_IDS.office, area_range: 'huge' })]),
+      'area_range_unknown',
+      ['items', 0, 'area_range'],
+    );
   });
 });
 
@@ -285,19 +337,28 @@ describe('PER_UNIT and FLAT', () => {
     const q = run([item({ service_id: SERVICE_IDS.waterTank, qty: 2 })]);
     expect(q.lines[0]).toMatchObject({ amount_tzs: 120000, unit: { sw: 'tanki', en: 'tank' } });
     expect(q.est_duration_min).toBe(240);
-    expectError(() => run([item({ service_id: SERVICE_IDS.waterTank, qty: 11 })]), 'qty_above_max', ['items', 0, 'qty']);
+    expectError(() => run([item({ service_id: SERVICE_IDS.waterTank, qty: 11 })]), 'qty_above_max', [
+      'items',
+      0,
+      'qty',
+    ]);
   });
 
   it('enforces a minimum quantity when the rule has one', () => {
     const catalog: Catalog = {
       ...FIXTURE_CATALOG,
-      services: [{ ...FIXTURE_SERVICES[7]!, pricing_rule: { unit_sw: 'tanki', unit_en: 'tank', price_tzs: 60000, min_qty: 2 } }],
+      services: [
+        {
+          ...FIXTURE_SERVICES[7]!,
+          pricing_rule: { unit_sw: 'tanki', unit_en: 'tank', price_tzs: 60000, min_qty: 2 },
+        },
+      ],
     };
-    expectError(() => run([item({ service_id: SERVICE_IDS.waterTank, qty: 1 })], {}, catalog), 'qty_below_min', [
-      'items',
-      0,
-      'qty',
-    ]);
+    expectError(
+      () => run([item({ service_id: SERVICE_IDS.waterTank, qty: 1 })], {}, catalog),
+      'qty_below_min',
+      ['items', 0, 'qty'],
+    );
   });
 
   it('flat price × qty', () => {
@@ -316,7 +377,10 @@ describe('review-priced types', () => {
   });
 
   it('CUSTOM_QUOTE has no from-price and flags the whole quote', () => {
-    const q = run([item({ service_id: SERVICE_IDS.commercial }), item({ service_id: SERVICE_IDS.sofa, qty: 4 })]);
+    const q = run([
+      item({ service_id: SERVICE_IDS.commercial }),
+      item({ service_id: SERVICE_IDS.sofa, qty: 4 }),
+    ]);
     expect(q.lines[0]).toMatchObject({ amount_tzs: null, unit_price_tzs: null, requires_review: true });
     expect(q.requires_review).toBe(true);
     expect(q.subtotal_tzs).toBe(60000);
@@ -327,11 +391,11 @@ describe('review-priced types', () => {
 
 describe('catalog guards', () => {
   it('rejects unknown, inactive and soft-deleted services', () => {
-    expectError(() => run([item({ service_id: '00000000-0000-4000-8000-000000000000' })]), 'service_not_found', [
-      'items',
-      0,
-      'service_id',
-    ]);
+    expectError(
+      () => run([item({ service_id: '00000000-0000-4000-8000-000000000000' })]),
+      'service_not_found',
+      ['items', 0, 'service_id'],
+    );
     expectError(() => run([item({ service_id: SERVICE_IDS.curtainsInactive })]), 'service_inactive', [
       'items',
       0,
@@ -354,7 +418,8 @@ describe('catalog guards', () => {
     );
     const badDuration: CatalogService = { ...FIXTURE_SERVICES[0]!, duration_rule: { base_min: -1 } };
     expectError(
-      () => run([item({ service_id: SERVICE_IDS.sofa })], {}, { ...FIXTURE_CATALOG, services: [badDuration] }),
+      () =>
+        run([item({ service_id: SERVICE_IDS.sofa })], {}, { ...FIXTURE_CATALOG, services: [badDuration] }),
       'catalog_invalid',
       ['items', 0, 'service_id'],
     );
@@ -374,7 +439,11 @@ describe('zones and travel fee', () => {
   it('a zone with a fee adds a travel line', () => {
     const q = quote({ items: [sofa5], address: { area: 'Mikocheni' } }, FIXTURE_CATALOG, ctx());
     expect(q.zone).toMatchObject({ zone_id: ZONE_IDS.kinondoni, travel_fee_tzs: 5000, matched_by: 'area' });
-    expect(q.lines.at(-1)).toMatchObject({ kind: 'travel', label_key: 'quote.line.travel', amount_tzs: 5000 });
+    expect(q.lines.at(-1)).toMatchObject({
+      kind: 'travel',
+      label_key: 'quote.line.travel',
+      amount_tzs: 5000,
+    });
     expect(q.total_tzs).toBe(80000);
     expect(q.deposit_tzs).toBe(24000);
   });
@@ -405,7 +474,10 @@ describe('discounts and tax', () => {
       ctx({ discount: { kind: 'percent', value: 10, code: 'KARIBU10' } }),
     );
     expect(q.discount_tzs).toBe(7500);
-    expect(q.lines.find((l) => l.kind === 'discount')).toMatchObject({ amount_tzs: -7500, label: { en: 'KARIBU10' } });
+    expect(q.lines.find((l) => l.kind === 'discount')).toMatchObject({
+      amount_tzs: -7500,
+      label: { en: 'KARIBU10' },
+    });
     expect(q.total_tzs).toBe(75000 + 5000 - 7500);
   });
 
@@ -420,7 +492,9 @@ describe('discounts and tax', () => {
   });
 
   it('ignores a discount when nothing is priced yet', () => {
-    const q = run([item({ service_id: SERVICE_IDS.commercial })], { discount: { kind: 'percent', value: 50 } });
+    const q = run([item({ service_id: SERVICE_IDS.commercial })], {
+      discount: { kind: 'percent', value: 50 },
+    });
     expect(q.discount_tzs).toBe(0);
   });
 
@@ -468,7 +542,9 @@ describe('fixture sanity', () => {
       const input = item({
         service_id: s.id,
         qty: 1,
-        ...(s.pricing_type === 'PER_VARIANT' ? { variant: s.id === SERVICE_IDS.carpet ? '5x6' : 'single' } : {}),
+        ...(s.pricing_type === 'PER_VARIANT'
+          ? { variant: s.id === SERVICE_IDS.carpet ? '5x6' : 'single' }
+          : {}),
         ...(s.pricing_type === 'PER_ROOM' ? { rooms: { bedroom: 1 } } : {}),
         ...(s.pricing_type === 'PER_AREA' ? { area_sqm: 100 } : {}),
       });

@@ -6,7 +6,12 @@ import { QuoteError } from '../pricing/types.ts';
 import { toFieldErrors, type ApiError } from '../schemas.ts';
 import type { HandlerResult } from './types.ts';
 
-export function errorResult(code: string, message: string, status: number, extra: Partial<ApiError> = {}): HandlerResult {
+export function errorResult(
+  code: string,
+  message: string,
+  status: number,
+  extra: Partial<ApiError> = {},
+): HandlerResult {
   const body: ApiError = { code, message, retryable: false, ...extra };
   return { status, body };
 }

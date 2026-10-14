@@ -165,7 +165,10 @@ export function getSlots(req: SlotRequest): Slot[] {
   const busyByStaff = new Map<string, { start: number; end: number }[]>();
   for (const b of req.busy) {
     const list = busyByStaff.get(b.staff_id) ?? [];
-    list.push({ start: Date.parse(b.starts_at) - buffer * 60_000, end: Date.parse(b.ends_at) + buffer * 60_000 });
+    list.push({
+      start: Date.parse(b.starts_at) - buffer * 60_000,
+      end: Date.parse(b.ends_at) + buffer * 60_000,
+    });
     busyByStaff.set(b.staff_id, list);
   }
 
@@ -173,7 +176,9 @@ export function getSlots(req: SlotRequest): Slot[] {
   for (let date = req.from; date <= req.to; date = addDays(date, 1)) {
     const tenantDay = dayWindow(req.working_hours, date);
     if (!tenantDay) continue;
-    const windows = new Map(qualified.map((s) => [s.id, staffWindows(s.id, date, req.availability, tenantDay)]));
+    const windows = new Map(
+      qualified.map((s) => [s.id, staffWindows(s.id, date, req.availability, tenantDay)]),
+    );
 
     for (let start = tenantDay.start; start + req.duration_min <= tenantDay.end; start += step) {
       const end = start + req.duration_min;
