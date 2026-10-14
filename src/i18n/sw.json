@@ -93,7 +93,8 @@
       "expired": "Msimbo huo umeisha muda. Omba mpya.",
       "invalid_code": "Msimbo huo si sahihi. Angalia SMS kisha jaribu tena.",
       "generic": "Hatukuweza kukuingiza. Tafadhali jaribu tena."
-    }
+    },
+    "field_sign_in_body": "Ingia kwa nambari ya simu ya mfanyakazi."
   },
   "weekday": {
     "0": "Jumapili",
@@ -192,10 +193,18 @@
     "reason_required": "Tafadhali toa sababu (angalau herufi 3).",
     "time_range": "Muda wa kumaliza lazima uwe baada ya muda wa kuanza.",
     "date_range": "Tarehe ya mwisho lazima iwe sawa au baada ya tarehe ya kuanza.",
-    "phone": { "invalid": "Weka namba sahihi ya simu ya Tanzania." },
-    "name": { "too_short": "Weka jina lako kamili." },
-    "email": { "invalid": "Weka barua pepe sahihi." },
-    "reason": { "required": "Tafadhali toa sababu." },
+    "phone": {
+      "invalid": "Weka namba sahihi ya simu ya Tanzania."
+    },
+    "name": {
+      "too_short": "Weka jina lako kamili."
+    },
+    "email": {
+      "invalid": "Weka barua pepe sahihi."
+    },
+    "reason": {
+      "required": "Tafadhali toa sababu."
+    },
     "money": {
       "integer": "Weka shilingi kamili, bila desimali.",
       "nonnegative": "Kiasi hakiwezi kuwa hasi.",
@@ -206,15 +215,33 @@
       "too_long": "Ndefu mno.",
       "format": "Tumia herufi ndogo, namba na vistari."
     },
-    "ticket_prefix": { "format": "Tumia herufi kubwa 2–5." },
-    "ticket_ref": { "format": "Namba za tiketi huonekana kama UBC-2026-00042." },
-    "idempotency_key": { "format": "Ufunguo wa ombi si sahihi." },
-    "otp": { "format": "Weka tarakimu 6 za msimbo." },
-    "body": { "invalid_json": "Ombi si sahihi." },
-    "items": { "empty": "Ongeza angalau huduma moja." },
-    "date": { "format": "Tumia muundo YYYY-MM-DD." },
-    "address": { "pin_incomplete": "Alama ya ramani inahitaji latitudo na longitudo zote." },
-    "discount": { "percent_range": "Punguzo la asilimia ni kati ya 0 na 100." },
+    "ticket_prefix": {
+      "format": "Tumia herufi kubwa 2–5."
+    },
+    "ticket_ref": {
+      "format": "Namba za tiketi huonekana kama UBC-2026-00042."
+    },
+    "idempotency_key": {
+      "format": "Ufunguo wa ombi si sahihi."
+    },
+    "otp": {
+      "format": "Weka tarakimu 6 za msimbo."
+    },
+    "body": {
+      "invalid_json": "Ombi si sahihi."
+    },
+    "items": {
+      "empty": "Ongeza angalau huduma moja."
+    },
+    "date": {
+      "format": "Tumia muundo YYYY-MM-DD."
+    },
+    "address": {
+      "pin_incomplete": "Alama ya ramani inahitaji latitudo na longitudo zote."
+    },
+    "discount": {
+      "percent_range": "Punguzo la asilimia ni kati ya 0 na 100."
+    },
     "rule": {
       "key_format": "Tumia herufi ndogo, namba na mstari wa chini.",
       "duplicate_key": "Ufunguo huu tayari umetumika.",
@@ -348,17 +375,26 @@
     "leave_removed": "Likizo imeondolewa"
   },
   "pricing_type": {
-    "FLAT": { "label": "Bei moja", "description": "Bei moja isiyobadilika kwa kazi nzima." },
+    "FLAT": {
+      "label": "Bei moja",
+      "description": "Bei moja isiyobadilika kwa kazi nzima."
+    },
     "PER_UNIT": {
       "label": "Kwa kipande",
       "description": "Bei × idadi ya vipande (matanki, madirisha, mapazia)."
     },
-    "PER_SEAT": { "label": "Kwa kiti", "description": "Sofa na viti: bei × viti, na kiwango cha chini." },
+    "PER_SEAT": {
+      "label": "Kwa kiti",
+      "description": "Sofa na viti: bei × viti, na kiwango cha chini."
+    },
     "PER_VARIANT": {
       "label": "Kwa ukubwa au aina",
       "description": "Mteja huchagua ukubwa (5×6, 6×6) wenye bei yake."
     },
-    "PER_ROOM": { "label": "Kwa chumba", "description": "Bei kwa chumba cha kulala, bafu, jiko…" },
+    "PER_ROOM": {
+      "label": "Kwa chumba",
+      "description": "Bei kwa chumba cha kulala, bafu, jiko…"
+    },
     "PER_AREA": {
       "label": "Kwa mita ya mraba",
       "description": "Viwango vya m² kwa ngazi kwa ofisi na baada ya ujenzi."
@@ -573,8 +609,17 @@
     "home_title": "Weka oda ya usafi",
     "coming_soon": "Oda za mtandaoni za {{tenant}} zinaandaliwa.",
     "greeting_default": "Bei wazi, namba ya tiketi kwa kila kazi, na taarifa unazoweza kufuatilia.",
-    "nav": { "home": "Nyumbani", "services": "Huduma", "book": "Weka oda", "track": "Fuatilia" },
-    "lang": { "sw": "Kiswahili", "en": "English", "switch": "Lugha" },
+    "nav": {
+      "home": "Nyumbani",
+      "services": "Huduma",
+      "book": "Weka oda",
+      "track": "Fuatilia"
+    },
+    "lang": {
+      "sw": "Kiswahili",
+      "en": "English",
+      "switch": "Lugha"
+    },
     "hero": {
       "book": "Weka oda ya usafi",
       "track": "Fuatilia oda yangu",
@@ -819,8 +864,13 @@
       "paid": "Imelipwa",
       "balance": "Salio"
     },
-    "widget": { "title": "Weka oda na {{tenant}}" },
-    "footer": { "powered_by": "Oda za mtandaoni na Safi360", "call": "Piga {{phone}}" }
+    "widget": {
+      "title": "Weka oda na {{tenant}}"
+    },
+    "footer": {
+      "powered_by": "Oda za mtandaoni na Safi360",
+      "call": "Piga {{phone}}"
+    }
   },
   "ops": {
     "dashboard_title": "Dashibodi",
@@ -889,7 +939,7 @@
     "realtime_disconnected": "Inaunganisha tena…",
     "realtime_stale_warning": "Muunganisho imekwisha. Data inaweza kuwa za zamani. Inaribu…",
     "no_dispatch_title": "Hakuna kazi leo",
-      "no_dispatch_body": "Oda zilizotajwa kwa tarehe hii zitakuja hapa.",
+    "no_dispatch_body": "Oda zilizotajwa kwa tarehe hii zitakuja hapa.",
     "select_booking_hint": "Chagua oda kuweka wasafishaji",
     "select_date": "Chagua tarehe",
     "assign_cleaner": "Weka msafishaji",
@@ -1035,7 +1085,26 @@
   },
   "field": {
     "today_title": "Kazi za leo",
-    "foundation_notice": "Programu ya wasafishaji inaandaliwa."
+    "foundation_notice": "Programu ya wasafishaji inaandaliwa.",
+    "upcoming_title": "Kazi zinazokuja",
+    "history_title": "Historia",
+    "alerts_title": "Taarifa",
+    "no_upcoming": "Hakuna kazi zinazokuja.",
+    "no_history": "Bado hakuna kazi zilizokamilika.",
+    "no_alerts": "Hakuna taarifa kwa sasa.",
+    "start_travel": "Anza safari",
+    "mark_arrived": "Nimefika",
+    "capture_before": "Piga picha kabla",
+    "start_cleaning": "Anza kusafisha",
+    "capture_after": "Piga picha baada",
+    "complete_job": "Kamilisha kazi",
+    "submit_review": "Imetumwa kwa ukaguzi",
+    "report_issue": "Ripoti tatizo",
+    "photos_required": "photos_required",
+    "nav_today": "Leo",
+    "nav_upcoming": "Zinazokuja",
+    "nav_history": "Historia",
+    "nav_alerts": "Taarifa"
   },
   "control": {
     "title": "Kituo cha udhibiti",

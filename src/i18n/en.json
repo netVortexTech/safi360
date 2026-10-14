@@ -93,7 +93,8 @@
       "expired": "That code has expired. Request a new one.",
       "invalid_code": "That code is not right. Check the SMS and try again.",
       "generic": "We could not sign you in. Please try again."
-    }
+    },
+    "field_sign_in_body": "Sign in with your cleaner phone number."
   },
   "weekday": {
     "0": "Sunday",
@@ -192,10 +193,18 @@
     "reason_required": "Please give a reason (at least 3 characters).",
     "time_range": "End time must be after start time.",
     "date_range": "End date must be on or after the start date.",
-    "phone": { "invalid": "Enter a valid Tanzanian phone number." },
-    "name": { "too_short": "Enter your full name." },
-    "email": { "invalid": "Enter a valid email address." },
-    "reason": { "required": "Please give a reason." },
+    "phone": {
+      "invalid": "Enter a valid Tanzanian phone number."
+    },
+    "name": {
+      "too_short": "Enter your full name."
+    },
+    "email": {
+      "invalid": "Enter a valid email address."
+    },
+    "reason": {
+      "required": "Please give a reason."
+    },
     "money": {
       "integer": "Enter whole shillings, no decimals.",
       "nonnegative": "Amount cannot be negative.",
@@ -206,15 +215,33 @@
       "too_long": "Too long.",
       "format": "Use lowercase letters, numbers and hyphens."
     },
-    "ticket_prefix": { "format": "Use 2–5 capital letters." },
-    "ticket_ref": { "format": "Ticket numbers look like UBC-2026-00042." },
-    "idempotency_key": { "format": "Invalid request key." },
-    "otp": { "format": "Enter the 6-digit code." },
-    "body": { "invalid_json": "Invalid request." },
-    "items": { "empty": "Add at least one service." },
-    "date": { "format": "Use the format YYYY-MM-DD." },
-    "address": { "pin_incomplete": "A map pin needs both latitude and longitude." },
-    "discount": { "percent_range": "A percentage discount is between 0 and 100." },
+    "ticket_prefix": {
+      "format": "Use 2–5 capital letters."
+    },
+    "ticket_ref": {
+      "format": "Ticket numbers look like UBC-2026-00042."
+    },
+    "idempotency_key": {
+      "format": "Invalid request key."
+    },
+    "otp": {
+      "format": "Enter the 6-digit code."
+    },
+    "body": {
+      "invalid_json": "Invalid request."
+    },
+    "items": {
+      "empty": "Add at least one service."
+    },
+    "date": {
+      "format": "Use the format YYYY-MM-DD."
+    },
+    "address": {
+      "pin_incomplete": "A map pin needs both latitude and longitude."
+    },
+    "discount": {
+      "percent_range": "A percentage discount is between 0 and 100."
+    },
     "rule": {
       "key_format": "Use lowercase letters, numbers and underscores.",
       "duplicate_key": "This key is already used.",
@@ -348,14 +375,26 @@
     "leave_removed": "Leave removed"
   },
   "pricing_type": {
-    "FLAT": { "label": "Flat price", "description": "One fixed price for the whole job." },
-    "PER_UNIT": { "label": "Per item", "description": "Price × number of items (tanks, windows, curtains)." },
-    "PER_SEAT": { "label": "Per seat", "description": "Sofas and chairs: price × seats, with a minimum." },
+    "FLAT": {
+      "label": "Flat price",
+      "description": "One fixed price for the whole job."
+    },
+    "PER_UNIT": {
+      "label": "Per item",
+      "description": "Price × number of items (tanks, windows, curtains)."
+    },
+    "PER_SEAT": {
+      "label": "Per seat",
+      "description": "Sofas and chairs: price × seats, with a minimum."
+    },
     "PER_VARIANT": {
       "label": "By size or type",
       "description": "Customer picks a size (5×6, 6×6) with its own price."
     },
-    "PER_ROOM": { "label": "Per room", "description": "Price per bedroom, bathroom, kitchen…" },
+    "PER_ROOM": {
+      "label": "Per room",
+      "description": "Price per bedroom, bathroom, kitchen…"
+    },
     "PER_AREA": {
       "label": "Per square metre",
       "description": "Tiered m² rates for offices and post-construction."
@@ -570,8 +609,17 @@
     "home_title": "Book a cleaning",
     "coming_soon": "Online booking for {{tenant}} is being set up.",
     "greeting_default": "Clear prices, a ticket number for every job, and updates you can track.",
-    "nav": { "home": "Home", "services": "Services", "book": "Book", "track": "Track" },
-    "lang": { "sw": "Kiswahili", "en": "English", "switch": "Language" },
+    "nav": {
+      "home": "Home",
+      "services": "Services",
+      "book": "Book",
+      "track": "Track"
+    },
+    "lang": {
+      "sw": "Kiswahili",
+      "en": "English",
+      "switch": "Language"
+    },
     "hero": {
       "book": "Book a cleaning",
       "track": "Track my booking",
@@ -816,8 +864,13 @@
       "paid": "Paid",
       "balance": "Balance"
     },
-    "widget": { "title": "Book with {{tenant}}" },
-    "footer": { "powered_by": "Online booking by Safi360", "call": "Call {{phone}}" }
+    "widget": {
+      "title": "Book with {{tenant}}"
+    },
+    "footer": {
+      "powered_by": "Online booking by Safi360",
+      "call": "Call {{phone}}"
+    }
   },
   "ops": {
     "dashboard_title": "Dashboard",
@@ -963,7 +1016,6 @@
     "quotes": "Quotes",
     "revised_quote": "Revised",
     "location": "Location",
-    "address_label": "Label",
     "open_in_maps": "Open in Maps",
     "no_address": "No address provided",
     "address_label_field": "Label",
@@ -1033,7 +1085,26 @@
   },
   "field": {
     "today_title": "Today's jobs",
-    "foundation_notice": "The cleaner app is being set up."
+    "foundation_notice": "The cleaner app is being set up.",
+    "upcoming_title": "Upcoming jobs",
+    "history_title": "History",
+    "alerts_title": "Alerts",
+    "no_upcoming": "No upcoming jobs.",
+    "no_history": "No completed jobs yet.",
+    "no_alerts": "No alerts right now.",
+    "start_travel": "Start travel",
+    "mark_arrived": "I have arrived",
+    "capture_before": "Take before photos",
+    "start_cleaning": "Start cleaning",
+    "capture_after": "Take after photos",
+    "complete_job": "Complete job",
+    "submit_review": "Submitted for review",
+    "report_issue": "Report an issue",
+    "photos_required": "photos_required",
+    "nav_today": "Today",
+    "nav_upcoming": "Upcoming",
+    "nav_history": "History",
+    "nav_alerts": "Alerts"
   },
   "control": {
     "title": "Control center",

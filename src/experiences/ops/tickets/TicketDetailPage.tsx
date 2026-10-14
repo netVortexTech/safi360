@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -43,6 +44,7 @@ import { Input } from '@/components/ui/input';
 import { Field } from '@/components/shared/Field';
 import { formatDay, formatDateTime, formatTime } from '@/lib/dates';
 import { formatTzs } from '@/lib/money';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
@@ -115,6 +117,28 @@ export function TicketDetailPage() {
 
   const { data: rawTicket, isLoading, error, refetch } = useTicket(id ?? '');
   const { data: events } = useJobEvents(id ?? '');
+  const completionEvidence = useQuery({
+    queryKey: ['ops', 'ticket-evidence', id ?? ''],
+    enabled: !!id && rawTicket?.status === 'COMPLETED',
+    queryFn: async () => {
+      const beforePaths = (events ?? []).flatMap((e) =>
+        Array.isArray((e.data ?? {}).evidence_before) ? ((e.data ?? {}) as { evidence_before: string[] }).evidence_before : [],
+      );
+      const afterPaths = (events ?? []).flatMap((e) =>
+        Array.isArray((e.data ?? {}).evidence_after) ? ((e.data ?? {}) as { evidence_after: string[] }).evidence_after : [],
+      );
+      const storage = supabase.storage.from('job-evidence');
+      const before = (await Promise.all(beforePaths.map(async (path) => {
+        const { data } = await storage.createSignedUrl(path, 3600);
+        return data?.signedUrl ? { path, url: data.signedUrl } : null;
+      }))).filter((item): item is { path: string; url: string } => !!item?.url);
+      const after = (await Promise.all(afterPaths.map(async (path) => {
+        const { data } = await storage.createSignedUrl(path, 3600);
+        return data?.signedUrl ? { path, url: data.signedUrl } : null;
+      }))).filter((item): item is { path: string; url: string } => !!item?.url);
+      return { before, after };
+    },
+  });
   const { data: payments } = useBookingPayments(id ?? '');
   const { data: quotes } = useBookingQuotes(id ?? '');
   const { data: auditLogs } = useBookingAudit(id ?? '');
@@ -467,7 +491,58 @@ export function TicketDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardBody>
-              <p className="text-sm text-text-subtle">{t('ops.evidence_placeholder')}</p>
+              {ticket.status === 'COMPLETED' && completionEvidence.data ? (
+                <div className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {[
+                      { label: 'Before', images: completionEvidence.data.before },
+                      { label: 'After', images: completionEvidence.data.after },
+                    ].map((group) => (
+                      <section key={group.label} className="space-y-2">
+                        <h3 className="text-sm font-semibold">{group.label} photos</h3>
+                        <div className="grid grid-cols-2 gap-2">
+                          {group.images.map((image) => (
+                            <a key={image.path} href={image.url} target="_blank" rel="noreferrer">
+                              <img src={image.url} alt={`${group.label} evidence`} className="aspect-square rounded-lg object-cover" />
+                            </a>
+                          ))}
+                        </div>
+                        {!group.images.length ? <p className="text-sm text-text-subtle">No photos uploaded.</p> : null}
+                      </section>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      loading={transition.isPending}
+                      onClick={() =>
+                        void transition.mutate(
+                          { booking_id: ticket.id, to: 'CLOSED', reason: 'Completion approved by office' },
+                          { onSuccess: () => { void refetch(); } },
+                        )
+                      }
+                    >
+                      Approve and close
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        void import('@/lib/supabase').then(({ supabase }) => {
+                          void supabase.rpc('open_exception', {
+                            p_booking_id: ticket.id,
+                            p_kind: 'NEEDS_REVIEW',
+                            p_details: { source: 'completion_review' },
+                            p_severity: 'normal',
+                          }).then(() => refetch());
+                        });
+                      }}
+                    >
+                      Flag needs review
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-text-subtle">{t('ops.evidence_placeholder')}</p>
+              )}
             </CardBody>
           </Card>
 

@@ -34,6 +34,11 @@ const CalendarPage = lazy(() => import('@/experiences/ops/calendar/CalendarPage'
 const DispatchPage = lazy(() => import('@/experiences/ops/dispatch/DispatchPage'));
 const ExceptionsPage = lazy(() => import('@/experiences/ops/exceptions/ExceptionsPage'));
 const FieldToday = lazy(() => import('@/experiences/field/pages/FieldToday'));
+const FieldLogin = lazy(() => import('@/experiences/field/pages/FieldLogin'));
+const FieldUpcoming = lazy(() => import('@/experiences/field/pages/FieldUpcoming'));
+const FieldHistory = lazy(() => import('@/experiences/field/pages/FieldHistory'));
+const FieldAlerts = lazy(() => import('@/experiences/field/pages/FieldAlerts'));
+const JobDetail = lazy(() => import('@/experiences/field/pages/JobDetail'));
 const ControlHome = lazy(() => import('@/experiences/control/pages/ControlHome'));
 
 const withSuspense = (node: ReactNode) => <Suspense fallback={<RouteLoading />}>{node}</Suspense>;
@@ -65,11 +70,18 @@ export const routes: RouteObject[] = [
       { path: 'exceptions', element: withSuspense(<ExceptionsPage />) },
     ],
   },
+  { path: '/field/login', element: withSuspense(<FieldLogin />), errorElement: <RouteError /> },
   {
     path: '/field',
     element: <FieldLayout />,
     errorElement: <RouteError />,
-    children: [{ index: true, element: withSuspense(<FieldToday />) }],
+    children: [
+      { index: true, element: withSuspense(<FieldToday />) },
+      { path: 'jobs/:id', element: withSuspense(<JobDetail />) },
+      { path: 'upcoming', element: withSuspense(<FieldUpcoming />) },
+      { path: 'history', element: withSuspense(<FieldHistory />) },
+      { path: 'alerts', element: withSuspense(<FieldAlerts />) },
+    ],
   },
   {
     path: '/control',
