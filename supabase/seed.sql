@@ -41,11 +41,15 @@ values
 on conflict (id) do nothing;
 
 -- Auth users (local only). Supabase Auth owns this table; we insert the minimum columns.
-insert into auth.users (id, instance_id, aud, role, phone, phone_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
+-- The empty-string token columns matter on a hosted project: GoTrue fails to sign a user in
+-- when any of them is NULL ("converting NULL to string is unsupported").
+insert into auth.users (id, instance_id, aud, role, phone, phone_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+                        confirmation_token, recovery_token, email_change, email_change_token_new, email_change_token_current,
+                        phone_change, phone_change_token, reauthentication_token, created_at, updated_at)
 values
-  ('aaaaaaaa-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '255754000001', now(), '{"provider":"phone","providers":["phone"]}', '{"name":"Bahati Mwakyusa"}', now(), now()),
-  ('aaaaaaaa-0000-4000-8000-000000000002', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '255754000002', now(), '{"provider":"phone","providers":["phone"]}', '{"name":"Zuhura Khamis"}', now(), now()),
-  ('aaaaaaaa-0000-4000-8000-000000000003', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '255754000003', now(), '{"provider":"phone","providers":["phone"]}', '{"name":"Safi360 Admin"}', now(), now())
+  ('aaaaaaaa-0000-4000-8000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '255754000001', now(), '{"provider":"phone","providers":["phone"]}', '{"name":"Bahati Mwakyusa"}', '', '', '', '', '', '', '', '', now(), now()),
+  ('aaaaaaaa-0000-4000-8000-000000000002', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '255754000002', now(), '{"provider":"phone","providers":["phone"]}', '{"name":"Zuhura Khamis"}', '', '', '', '', '', '', '', '', now(), now()),
+  ('aaaaaaaa-0000-4000-8000-000000000003', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '255754000003', now(), '{"provider":"phone","providers":["phone"]}', '{"name":"Safi360 Admin"}', '', '', '', '', '', '', '', '', now(), now())
 on conflict (id) do nothing;
 
 insert into public.profiles (id, phone_e164, name, locale, is_super_admin) values

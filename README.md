@@ -58,6 +58,22 @@ cleaners with weekly hours and leave. The same price list is the fixture the pri
 CI (`.github/workflows/ci.yml`) runs all of the above plus `pnpm build`. Run `pnpm test:e2e` on its
 own rather than alongside `pnpm check`; the two together exhaust memory on small machines.
 
+## Connect a hosted Supabase project
+
+No Docker needed; the pinned CLI runs through `pnpm supabase`.
+
+```bash
+pnpm supabase login                              # opens the browser once
+pnpm supabase link --project-ref <ref>           # asks for the database password
+pnpm supabase config push                        # auth hook, phone test OTPs, redirect URLs
+pnpm supabase db push --include-seed             # migrations, then seed.sql
+pnpm supabase functions deploy quote availability --use-api
+pnpm supabase projects api-keys --project-ref <ref>   # copy the anon key into .env.local
+```
+
+The seeded owner `+255 754 000 001` then signs in with code `123456` (test OTP, no SMS provider
+needed). Never run `db push --include-seed` against a project with real customers.
+
 ## Edge Functions
 
 `supabase/functions/quote` and `supabase/functions/availability` are public (anonymous) endpoints
