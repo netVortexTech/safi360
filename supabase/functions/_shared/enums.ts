@@ -51,15 +51,24 @@ export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number];
 export const MEMBER_ROLES = ['OWNER', 'MANAGER', 'DISPATCHER', 'CLEANER'] as const;
 export type MemberRole = (typeof MEMBER_ROLES)[number];
 
+/** Database enum order (0002 + 0006). The UI orders them differently; see pricing/rules.ts. */
 export const PRICING_TYPES = [
   'PER_UNIT',
+  'PER_SEAT',
   'PER_VARIANT',
   'PER_AREA',
   'PER_ROOM',
   'FLAT',
+  'INSPECTION_REQUIRED',
   'CUSTOM_QUOTE',
 ] as const;
 export type PricingType = (typeof PRICING_TYPES)[number];
+
+/** Types that cannot produce a number without a human: the booking routes to AWAITING_REVIEW. */
+export const REVIEW_PRICING_TYPES = ['INSPECTION_REQUIRED', 'CUSTOM_QUOTE'] as const satisfies readonly PricingType[];
+
+export const PAY_TYPES = ['PER_JOB', 'DAILY', 'MONTHLY'] as const;
+export type PayType = (typeof PAY_TYPES)[number];
 
 export const TENANT_STATUSES = ['TRIAL', 'ACTIVE', 'PAST_DUE', 'SUSPENDED'] as const;
 export type TenantStatus = (typeof TENANT_STATUSES)[number];

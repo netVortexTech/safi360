@@ -10,6 +10,7 @@ export interface RateLimitRule {
 
 export const RATE_LIMITS = {
   quote: { action: 'quote', limit: 60, windowSeconds: 60 },
+  availability: { action: 'availability', limit: 60, windowSeconds: 60 },
   create_booking: { action: 'create_booking', limit: 10, windowSeconds: 600 },
   track_request_code: { action: 'track_request_code', limit: 5, windowSeconds: 600 },
   track_verify_code: { action: 'track_verify_code', limit: 10, windowSeconds: 600 },

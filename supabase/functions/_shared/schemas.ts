@@ -3,6 +3,7 @@
 // touching the database. Error messages are i18n keys, resolved by each consumer.
 import { z } from 'zod';
 import { BOOKING_SOURCES, MEMBER_ROLES } from './enums.ts';
+import { quoteAddressInput, quoteItemInput, taxSettings } from './pricing/rules.ts';
 
 export const E164_TZ_REGEX = /^\+255[1-9]\d{8}$/;
 
@@ -88,9 +89,38 @@ export const tenantSettings = z
     working_hours: workingHours.default({}),
     languages: z.array(locale).min(1).default(['sw', 'en']),
     default_locale: locale.default('sw'),
+    /** Tax display on quotes; 'none' until the tenant registers for VAT. */
+    tax: taxSettings.default({ mode: 'none', rate_pct: 18, label: 'VAT' }),
+    /** Earliest bookable start = now + lead. */
+    min_lead_minutes: z.number().int().min(0).max(7 * 24 * 60).default(120),
+    slot_step_min: z.union([z.literal(30), z.literal(60)]).default(60),
   })
   .strict();
 export type TenantSettings = z.infer<typeof tenantSettings>;
+
+// ---- Public quote & availability requests (Edge Functions) -----------------------
+
+export const dateKey = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'validation.date.format' });
+
+export const quoteRequest = z
+  .object({
+    slug: tenantSlug,
+    items: z.array(quoteItemInput).min(1, { message: 'validation.items.empty' }).max(20),
+    address: quoteAddressInput.nullish(),
+  })
+  .strict();
+export type QuoteRequest = z.infer<typeof quoteRequest>;
+
+export const availabilityRequest = z
+  .object({
+    slug: tenantSlug,
+    items: z.array(quoteItemInput).min(1, { message: 'validation.items.empty' }).max(20),
+    from: dateKey,
+    to: dateKey,
+    address: quoteAddressInput.nullish(),
+  })
+  .strict();
+export type AvailabilityRequest = z.infer<typeof availabilityRequest>;
 
 // ---- Edge Function envelopes ----------------------------------------------------
 

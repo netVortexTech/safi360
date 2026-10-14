@@ -17,7 +17,12 @@ export default tseslint.config(
       'eslint.config.js',
       'supabase/functions/**/*.ts', // Deno code is linted by `deno lint`, not ESLint
       '!supabase/functions/_shared/schemas.ts',
+      '!supabase/functions/_shared/schemas.test.ts',
       '!supabase/functions/_shared/enums.ts',
+      // Pure, runtime-agnostic modules shared with the client are linted like app code.
+      '!supabase/functions/_shared/pricing/**',
+      '!supabase/functions/_shared/availability/**',
+      '!supabase/functions/_shared/handlers/**',
     ],
   },
   js.configs.recommended,

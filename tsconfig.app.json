@@ -32,6 +32,9 @@
     "src",
     "supabase/functions/_shared/schemas.ts",
     "supabase/functions/_shared/schemas.test.ts",
-    "supabase/functions/_shared/enums.ts"
+    "supabase/functions/_shared/enums.ts",
+    "supabase/functions/_shared/pricing",
+    "supabase/functions/_shared/availability",
+    "supabase/functions/_shared/handlers"
   ]
 }

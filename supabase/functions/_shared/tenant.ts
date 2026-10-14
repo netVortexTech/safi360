@@ -10,6 +10,8 @@ export interface PublicTenant {
   status: 'TRIAL' | 'ACTIVE' | 'PAST_DUE' | 'SUSPENDED';
   branding: Record<string, unknown>;
   settings: Record<string, unknown>;
+  base_lat: number | null;
+  base_lng: number | null;
 }
 
 export class TenantNotFound extends Error {
@@ -29,7 +31,7 @@ export async function resolveTenantBySlug(admin: SupabaseClient, rawSlug: string
   const slug = tenantSlug.parse(rawSlug);
   const { data, error } = await admin
     .from('tenants')
-    .select('id, slug, name, status, branding, settings')
+    .select('id, slug, name, status, branding, settings, base_lat, base_lng')
     .eq('slug', slug)
     .is('deleted_at', null)
     .maybeSingle();
