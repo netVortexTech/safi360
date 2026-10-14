@@ -36,39 +36,60 @@ supabase status                 # copy the anon key into .env.local
 ```
 
 Seeded logins (local only, OTP `123456`): owner of _Usafi Bora Cleaners_ `+255 754 000 001`,
-owner of _Pwani Fresh Cleaning_ `+255 754 000 002`, super admin `+255 754 000 003`.
+owner of _Pwani Fresh Cleaning_ `+255 754 000 002`, super admin `+255 754 000 003`. Sign in at
+`/ops/login`; the ops portal requires an OWNER, MANAGER or DISPATCHER membership.
+
+Usafi Bora is seeded with a full catalog (sofa, carpets, mattresses, deep clean, post-construction,
+office, fumigation, water tanks, mould treatment, commercial), add-ons, four service areas and four
+cleaners with weekly hours and leave. The same price list is the fixture the pricing tests run on.
 
 ## Test
 
-| Command          | What it covers                                                               |
-| ---------------- | ---------------------------------------------------------------------------- |
-| `pnpm typecheck` | TypeScript strict, both app and tooling projects                             |
-| `pnpm lint`      | ESLint (type-aware) incl. the "no hex colours in components" rule            |
-| `pnpm test`      | Vitest + Testing Library: lib helpers, shared components, i18n key parity    |
-| `pnpm test:db`   | Migrations, enum parity, RLS isolation, ticket allocator, auth hook (PGlite) |
-| `pnpm test:e2e`  | Playwright smoke across the four shells (desktop + mobile)                   |
-| `pnpm check`     | typecheck + lint + test + test:db                                            |
+| Command             | What it covers                                                               |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `pnpm typecheck`    | TypeScript strict, both app and tooling projects                             |
+| `pnpm lint`         | ESLint (type-aware) incl. the "no hex colours in components" rule            |
+| `pnpm test`         | Vitest + Testing Library: lib helpers, shared components, i18n key parity    |
+| `pnpm test:db`      | Migrations, enum parity, RLS isolation, ticket allocator, auth hook (PGlite) |
+| `pnpm test:pricing` | Pricing + availability engines with a 100% coverage gate                     |
+| `pnpm test:e2e`     | Playwright smoke across the four shells (desktop + mobile)                   |
+| `pnpm check`        | typecheck + lint + test + test:db                                            |
 
-CI (`.github/workflows/ci.yml`) runs all of the above plus `pnpm build`.
+CI (`.github/workflows/ci.yml`) runs all of the above plus `pnpm build`. Run `pnpm test:e2e` on its
+own rather than alongside `pnpm check`; the two together exhaust memory on small machines.
+
+## Edge Functions
+
+`supabase/functions/quote` and `supabase/functions/availability` are public (anonymous) endpoints
+resolved by tenant slug, zod-validated and rate limited per IP. All logic lives in
+`supabase/functions/_shared/handlers` with injected dependencies, so it is unit-tested under Vitest
+without Deno. The catalog is read fresh on every call: a price saved in the ops portal is what the next
+quote returns.
 
 ## Layout
 
 ```
 src/
   app/            router, providers, layouts per experience, route error/loading
-  experiences/    portal · ops · field · control (pages + feature hooks)
-  components/ui   primitives themed with Safi360 tokens (shadcn-style)
+  experiences/    portal · ops (catalog, team, login) · field · control
+  components/ui   primitives themed with Safi360 tokens (shadcn-style), dialog, switch, toast
   components/shared  StatusBadge, PaymentStatus, NotificationStatus, SourceChip, TicketChip,
-                     EmptyState, ErrorState, PageHeader, PhoneInput, AmountInput, SandboxBadge
-  lib/            supabase client, env, phone (E.164), money (integer TZS), dates (Dar es Salaam),
-                  permissions, idempotency, brand colour
+                     EmptyState, ErrorState, PageHeader, PhoneInput, AmountInput, CodeInput,
+                     DataView (table↔cards), PriceSummary, ConfirmDialog, UnsavedChangesGuard, SandboxBadge
+  lib/            supabase client, auth (session + claims), env, phone (E.164), money (integer TZS),
+                  dates (Dar es Salaam), permissions, idempotency, brand colour, error mapping
   i18n/           sw.json · en.json (every user-facing string; parity-tested)
   styles/         globals.css — the only file allowed to contain colour literals
 supabase/
   migrations/     one file per change, never edited after it is applied
-  functions/_shared/  enums + zod schemas shared with the client (@shared alias), http/tenant/rate-limit/log helpers
-  tests/          PGlite harness + SQL-level tests
-  seed.sql        sample tenants and users
+  functions/quote, functions/availability  public Edge Functions (Deno entrypoints only)
+  functions/_shared/
+    enums.ts, schemas.ts   shared with the client through the @shared alias
+    pricing/               pure quote engine (8 pricing types, zones, add-ons, deposit, tax) + fixtures
+    availability/          pure slot generator (hours × skills × availability × assignments × buffer)
+    handlers/              request handlers with injected deps (+ in-memory fakes for tests)
+  tests/          PGlite harness + SQL-level tests (isolation, constraints, seed ↔ fixture parity)
+  seed.sql        two tenants, users, and the Usafi Bora catalog, zones, staff and availability
 ```
 
 ## Conventions
