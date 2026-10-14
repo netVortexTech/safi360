@@ -1,0 +1,59 @@
+# Supabase local development configuration (CLI-compatible).
+# Run `supabase start` when Docker is available; `pnpm test:db` does not need it.
+
+project_id = "safi360"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "app"]
+extra_search_path = ["public", "app"]
+max_rows = 500
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+
+[studio]
+enabled = true
+port = 54323
+
+[storage]
+enabled = true
+file_size_limit = "10MiB"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:5173"
+additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = false
+
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+# Local dev: use the test OTP map below instead of a real SMS provider.
+[auth.sms.test_otp]
+"255754000001" = "123456"
+"255754000002" = "123456"
+"255754000003" = "123456"
+
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+
+[analytics]
+enabled = false
