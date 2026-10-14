@@ -133,7 +133,10 @@ SUPABASE_URL=https://<ref>.supabase.co SUPABASE_ANON_KEY=<anon> pnpm load:bookin
 ```
 
 50 concurrent `create_booking` calls with distinct keys must yield 50 distinct, gap-free tickets;
-50 with one key must yield one ticket. Needs `OTP_PROVIDER=mock` on the functions.
+50 with one key must yield one ticket. Needs `OTP_PROVIDER=mock` on the functions, and
+`LOAD_TEST_SECRET` set both as a function secret and in the script's environment: the public
+limit is 10 creates per IP per 10 minutes, so outside production that header swaps the IP key
+for a per-request one. It is ignored when `APP_ENV=production`.
 
 ### End-to-end tests
 

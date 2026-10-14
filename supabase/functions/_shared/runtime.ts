@@ -18,6 +18,7 @@ function readEnv(): FunctionEnv {
     PAYMENT_PROVIDER: Deno.env.get('PAYMENT_PROVIDER'),
     MOCK_PAYMENT_SECRET: Deno.env.get('MOCK_PAYMENT_SECRET'),
     SUPABASE_SERVICE_ROLE_KEY: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
+    LOAD_TEST_SECRET: Deno.env.get('LOAD_TEST_SECRET'),
   };
 }
 

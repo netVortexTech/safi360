@@ -14,7 +14,10 @@
 const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 const anon = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY;
 const slug = process.env.LOAD_SLUG ?? 'usafi-bora';
-const phone = process.env.LOAD_PHONE ?? '+255715990001';
+// A fresh phone per run keeps the per-phone OTP limit out of the way.
+const phone = process.env.LOAD_PHONE ?? `+25571${String(Math.floor(Math.random() * 1e7)).padStart(7, '0')}`;
+// Matches the LOAD_TEST_SECRET function secret (sandbox only): bypasses the per-IP limit.
+const loadSecret = process.env.LOAD_TEST_SECRET;
 const concurrency = Number(process.env.LOAD_N ?? 50);
 const MOULD = '55550000-0000-4000-8000-000000000009';
 
@@ -27,7 +30,12 @@ async function call(name, body) {
   const started = performance.now();
   const res = await fetch(`${url}/functions/v1/${name}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', apikey: anon, Authorization: `Bearer ${anon}` },
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: anon,
+      Authorization: `Bearer ${anon}`,
+      ...(loadSecret ? { 'x-load-test': loadSecret } : {}),
+    },
     body: JSON.stringify(body),
   });
   const json = await res.json().catch(() => null);

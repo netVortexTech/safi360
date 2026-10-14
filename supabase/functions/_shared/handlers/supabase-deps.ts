@@ -159,6 +159,8 @@ export interface FunctionEnv {
   PAYMENT_PROVIDER?: string | undefined;
   MOCK_PAYMENT_SECRET?: string | undefined;
   SUPABASE_SERVICE_ROLE_KEY?: string | undefined;
+  /** Sandbox only: requests carrying `x-load-test: <secret>` get a per-request rate-limit key. */
+  LOAD_TEST_SECRET?: string | undefined;
 }
 
 const BOOKING_COLUMNS =
@@ -185,6 +187,15 @@ export function bookingDeps(admin: SupabaseClient, req: Request, env: FunctionEn
     env: { sandbox, tokenSecret },
     sms: smsProviderFromEnv(env),
     payments: paymentProviderFromEnv(env),
+
+    // The load test (scripts/load-create-booking.mjs) fires 50 creates from one machine;
+    // outside production a matching secret header swaps the IP key for a random one.
+    ...(sandbox && env.LOAD_TEST_SECRET && req.headers.get('x-load-test') === env.LOAD_TEST_SECRET
+      ? {
+          rateLimit: (tenantId: string, action: PublicAction) =>
+            enforceRateLimit(admin, RATE_LIMITS[action], tenantId, `load:${crypto.randomUUID()}`),
+        }
+      : {}),
 
     rateLimitPhone: (tenantId, action, phone) =>
       enforceRateLimit(admin, RATE_LIMITS[action], tenantId, `phone:${phone}`),
