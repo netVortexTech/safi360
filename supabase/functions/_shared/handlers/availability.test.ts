@@ -15,6 +15,7 @@ function world() {
         staffMember(REHEMA, [SERVICE_IDS.sofa]),
       ],
       availability: [weeklyRule(REHEMA, 5, '08:00', '12:00'), leaveRule(NEEMA, '2026-10-17')],
+      reserved: [],
       busy: [busyAt(NEEMA, '2026-10-16T06:00:00Z', '2026-10-16T09:00:00Z')],
     },
   });

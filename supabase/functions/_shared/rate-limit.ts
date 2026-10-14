@@ -12,10 +12,19 @@ export const RATE_LIMITS = {
   quote: { action: 'quote', limit: 60, windowSeconds: 60 },
   availability: { action: 'availability', limit: 60, windowSeconds: 60 },
   create_booking: { action: 'create_booking', limit: 10, windowSeconds: 600 },
+  /** Per phone: codes requested. Per ip: see otp_send_ip. */
+  otp_send: { action: 'otp_send', limit: 3, windowSeconds: 600 },
+  otp_send_ip: { action: 'otp_send_ip', limit: 10, windowSeconds: 600 },
+  otp_verify: { action: 'otp_verify', limit: 10, windowSeconds: 600 },
   track_request_code: { action: 'track_request_code', limit: 5, windowSeconds: 600 },
   track_verify_code: { action: 'track_verify_code', limit: 10, windowSeconds: 600 },
+  tracking_view: { action: 'tracking_view', limit: 60, windowSeconds: 60 },
+  customer_action: { action: 'customer_action', limit: 20, windowSeconds: 600 },
   payment_start: { action: 'payment_start', limit: 10, windowSeconds: 600 },
+  payment_callback: { action: 'payment_callback', limit: 60, windowSeconds: 60 },
 } as const satisfies Record<string, RateLimitRule>;
+
+export type RateLimitAction = keyof typeof RATE_LIMITS;
 
 /** Throws Error('rate_limited') when the caller exceeds the rule. */
 export async function enforceRateLimit(

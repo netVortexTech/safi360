@@ -83,6 +83,70 @@ function starts(slots: ReturnType<typeof getSlots>): string[] {
   return slots.map((s) => s.start.slice(11, 16));
 }
 
+describe('reserved crew from unassigned bookings', () => {
+  // Neema + Rehema can clean sofas on Fri 16 Oct; both follow tenant hours.
+  const twoStaff = { staff: [neema, rehema] };
+
+  it('reduces capacity by the overlapping unassigned crew, padded by the travel buffer', () => {
+    const plain = getSlots(request(twoStaff));
+    expect(plain.find((s) => s.start.slice(11, 16) === '07:00')?.capacity).toBe(2);
+    const slots = getSlots(
+      request({
+        ...twoStaff,
+        reserved: [
+          {
+            starts_at: darInstant('2026-10-16', toMinutes('10:00')).toISOString(),
+            ends_at: darInstant('2026-10-16', toMinutes('12:00')).toISOString(),
+            crew_size: 1,
+          },
+        ],
+      }),
+    );
+    const capacityAt = (hhmm: string) => slots.find((s) => s.start.slice(11, 16) === hhmm)?.capacity;
+    // 10:00–12:00 Dar + 45 min buffer blocks 09:15–12:45 Dar for one of the two.
+    expect(capacityAt('05:00')).toBe(1); // 08:00–10:00 Dar reaches into the padded window
+    expect(capacityAt('06:00')).toBe(1); // 09:00 Dar
+    expect(capacityAt('09:00')).toBe(1); // 12:00 Dar, starts before 12:45
+    expect(capacityAt('10:00')).toBe(2); // 13:00 Dar, clear of the buffer
+    expect(capacityAt('13:00')).toBe(2); // 16:00–18:00 Dar, the last slot of the day
+    expect(slots.every((s) => s.staff_ids.length === 2)).toBe(true);
+  });
+
+  it('removes the slot entirely when reserved crew leaves fewer than crew_size', () => {
+    const slots = getSlots(
+      request({
+        ...twoStaff,
+        crew_size: 2,
+        reserved: [
+          {
+            starts_at: darInstant('2026-10-16', toMinutes('10:00')).toISOString(),
+            ends_at: darInstant('2026-10-16', toMinutes('12:00')).toISOString(),
+            crew_size: 1,
+          },
+        ],
+      }),
+    );
+    expect(starts(slots)).not.toContain('06:00');
+    expect(starts(slots)).toContain('10:00');
+  });
+
+  it('ignores reservations with no crew left (fully assigned bookings)', () => {
+    const slots = getSlots(
+      request({
+        ...twoStaff,
+        reserved: [
+          {
+            starts_at: darInstant('2026-10-16', toMinutes('10:00')).toISOString(),
+            ends_at: darInstant('2026-10-16', toMinutes('12:00')).toISOString(),
+            crew_size: 0,
+          },
+        ],
+      }),
+    );
+    expect(slots.find((s) => s.start.slice(11, 16) === '06:00')?.capacity).toBe(2);
+  });
+});
+
 describe('time helpers', () => {
   it('convert Dar wall-clock to UTC instants and back', () => {
     expect(darInstant('2026-10-16', 9 * 60).toISOString()).toBe('2026-10-16T06:00:00.000Z');

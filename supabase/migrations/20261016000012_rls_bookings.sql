@@ -28,6 +28,8 @@ from anon, authenticated;
 -- that must go through functions.
 revoke insert, update, delete on table public.bookings, public.booking_items, public.job_events from service_role;
 revoke update, delete on table public.payments from service_role;
+-- payment_start records the provider's reference after the intent is created; status stays locked.
+grant update (provider_ref, raw) on table public.payments to service_role;
 
 alter table public.customers           enable row level security;
 alter table public.customer_addresses  enable row level security;

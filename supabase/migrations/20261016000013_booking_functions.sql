@@ -847,6 +847,39 @@ revoke all on function public.apply_payment_result(uuid, public.payment_status, 
 grant execute on function public.apply_payment_result(uuid, public.payment_status, text, jsonb, jsonb) to service_role;
 
 -- ---------------------------------------------------------------------------
+-- 9b. customer_otp_claim — spend one attempt on the latest live code, atomically, so
+--     parallel guesses can never exceed max_attempts. Returns the row (with the new
+--     attempt count) or nothing when there is no live code.
+-- ---------------------------------------------------------------------------
+create or replace function public.customer_otp_claim(p_tenant_id uuid, p_phone text, p_purpose text)
+returns setof public.customer_otp_codes
+language plpgsql
+security definer
+set search_path = public, app, pg_temp
+as $$
+begin
+  if not app.is_service_role() then
+    raise exception 'permission denied for customer_otp_claim' using errcode = '42501';
+  end if;
+  return query
+    update public.customer_otp_codes c
+    set attempts = c.attempts + 1
+    where c.id = (
+      select o.id from public.customer_otp_codes o
+      where o.tenant_id = p_tenant_id and o.phone_e164 = p_phone and o.purpose = p_purpose and o.consumed_at is null
+      order by o.created_at desc
+      limit 1
+    )
+      and c.expires_at > now()
+      and c.attempts < c.max_attempts
+    returning c.*;
+end;
+$$;
+
+revoke all on function public.customer_otp_claim(uuid, text, text) from public, anon, authenticated;
+grant execute on function public.customer_otp_claim(uuid, text, text) to service_role;
+
+-- ---------------------------------------------------------------------------
 -- 10. portal_catalog — what an anonymous visitor may know about a company: identity,
 --     branding, public settings, the active catalog and the names of served areas.
 --     Never phone numbers of customers or staff, never internal notes.

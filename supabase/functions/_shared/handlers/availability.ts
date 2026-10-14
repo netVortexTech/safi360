@@ -55,6 +55,7 @@ export async function handleAvailability(rawBody: unknown, deps: PublicDeps): Pr
       staff: data.staff,
       availability: data.availability,
       busy: data.busy,
+      reserved: data.reserved,
     });
     // Public callers never learn who is free, only that someone is.
     const publicSlots = slots.map((s) => ({ ...s, staff_ids: [] }));

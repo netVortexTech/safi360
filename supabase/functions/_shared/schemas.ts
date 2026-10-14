@@ -127,6 +127,148 @@ export const availabilityRequest = z
   .strict();
 export type AvailabilityRequest = z.infer<typeof availabilityRequest>;
 
+// ---- Customer OTP, booking creation, tracking, actions, payments -------------------
+
+export const otpPurpose = z.enum(['booking', 'tracking']);
+
+export const otpSendRequest = z
+  .object({
+    slug: tenantSlug,
+    phone: phoneE164,
+    purpose: otpPurpose,
+    locale: locale.default('sw'),
+  })
+  .strict();
+export type OtpSendRequest = z.infer<typeof otpSendRequest>;
+
+export const otpVerifyRequest = z
+  .object({
+    slug: tenantSlug,
+    phone: phoneE164,
+    purpose: otpPurpose,
+    code: otpCode,
+  })
+  .strict();
+export type OtpVerifyRequest = z.infer<typeof otpVerifyRequest>;
+
+/** Where the cleaners go. Typed fields are optional; a pin or an area is enough to price. */
+export const bookingAddressInput = z
+  .object({
+    label: z.string().trim().max(60).optional(),
+    region: z.string().trim().max(80).optional(),
+    district: z.string().trim().max(80).optional(),
+    ward: z.string().trim().max(80).optional(),
+    street: z.string().trim().max(160).optional(),
+    landmark: z.string().trim().max(200).optional(),
+    area: z.string().trim().max(120).optional(),
+    lat: z.number().min(-90).max(90).optional(),
+    lng: z.number().min(-180).max(180).optional(),
+  })
+  .strict()
+  .refine((a) => (a.lat == null) === (a.lng == null), {
+    message: 'validation.address.pin_incomplete',
+    path: ['lng'],
+  });
+export type BookingAddressInput = z.infer<typeof bookingAddressInput>;
+
+export const paymentMode = z.enum(['DEPOSIT', 'ON_COMPLETION']);
+
+export const createBookingRequest = z
+  .object({
+    slug: tenantSlug,
+    idempotency_key: idempotencyKey,
+    /** From otp_verify (purpose booking): proves the customer owns the phone. */
+    verify_token: z.string().min(16).max(2000),
+    customer: z
+      .object({
+        name: z.string().trim().min(2, { message: 'validation.name.too_short' }).max(120),
+        email: z.string().trim().email({ message: 'validation.email.invalid' }).max(254).optional(),
+      })
+      .strict(),
+    address: bookingAddressInput.nullish(),
+    items: z.array(quoteItemInput).min(1, { message: 'validation.items.empty' }).max(20),
+    /** ISO instant of the chosen slot; optional only when the quote needs an inspection. */
+    slot: z
+      .object({ start: z.string().datetime({ offset: true }) })
+      .strict()
+      .nullish(),
+    payment_mode: paymentMode.default('ON_COMPLETION'),
+    source: bookingSource.default('website'),
+    locale: locale.default('sw'),
+    notes: z.string().trim().max(1000).optional(),
+    /** The total the customer saw; a different server price is reported, not silently charged. */
+    expected_total_tzs: tzsAmount.optional(),
+  })
+  .strict();
+export type CreateBookingRequest = z.infer<typeof createBookingRequest>;
+
+export const trackingStartRequest = z
+  .object({
+    slug: tenantSlug,
+    phone: phoneE164,
+    ticket_ref: ticketRef.optional(),
+    locale: locale.default('sw'),
+  })
+  .strict();
+export type TrackingStartRequest = z.infer<typeof trackingStartRequest>;
+
+export const trackingVerifyRequest = z
+  .object({
+    slug: tenantSlug,
+    phone: phoneE164,
+    code: otpCode,
+    ticket_ref: ticketRef.optional(),
+  })
+  .strict();
+export type TrackingVerifyRequest = z.infer<typeof trackingVerifyRequest>;
+
+export const trackingViewRequest = z
+  .object({
+    slug: tenantSlug,
+    token: z.string().min(16).max(2000),
+    booking_id: z.string().uuid(),
+  })
+  .strict();
+export type TrackingViewRequest = z.infer<typeof trackingViewRequest>;
+
+export const customerActionKind = z.enum(['approve_quote', 'reject_quote', 'cancel', 'request_reschedule']);
+
+export const customerActionRequest = z
+  .object({
+    slug: tenantSlug,
+    token: z.string().min(16).max(2000),
+    booking_id: z.string().uuid(),
+    action: customerActionKind,
+    reason: z.string().trim().max(300).optional(),
+    /** request_reschedule: the customer's preferred new start (ISO) and a note. */
+    preferred_start: z.string().datetime({ offset: true }).optional(),
+    note: z.string().trim().max(500).optional(),
+  })
+  .strict();
+export type CustomerActionRequest = z.infer<typeof customerActionRequest>;
+
+export const paymentStartRequest = z
+  .object({
+    slug: tenantSlug,
+    token: z.string().min(16).max(2000),
+    booking_id: z.string().uuid(),
+    kind: z.enum(['DEPOSIT', 'BALANCE']).default('DEPOSIT'),
+    idempotency_key: idempotencyKey,
+  })
+  .strict();
+export type PaymentStartRequest = z.infer<typeof paymentStartRequest>;
+
+/** Mock provider callback: the outcome the tester picked plus the signed token from payment_start. */
+export const mockPaymentCallback = z
+  .object({
+    provider: z.literal('MOCK'),
+    provider_ref: z.string().min(8).max(120),
+    outcome: z.enum(['SUCCESS', 'FAILED', 'EXPIRED', 'UNKNOWN']),
+    signature: z.string().min(16).max(200),
+  })
+  .strict();
+export type MockPaymentCallback = z.infer<typeof mockPaymentCallback>;
+
 // ---- Edge Function envelopes ----------------------------------------------------
 
 /** Standard error body returned by every Edge Function. field_errors map to form fields. */

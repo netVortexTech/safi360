@@ -39,6 +39,17 @@ export interface BusyInterval {
   ends_at: string;
 }
 
+/**
+ * Crew a live booking still needs that no assignment covers yet (crew_size minus active
+ * assignments). Assigned staff already appear in `busy`; this is the unassigned remainder,
+ * so capacity is reduced without counting anyone twice.
+ */
+export interface ReservedCrew {
+  starts_at: string; // ISO instant
+  ends_at: string;
+  crew_size: number;
+}
+
 export interface SlotRequest {
   from: string; // "YYYY-MM-DD" inclusive, Dar date
   to: string; // inclusive
@@ -55,6 +66,8 @@ export interface SlotRequest {
   staff: StaffMember[];
   availability: AvailabilityRule[];
   busy: BusyInterval[];
+  /** Unassigned crew reserved by other live bookings; padded by the travel buffer like `busy`. */
+  reserved?: ReservedCrew[];
   /** Guard against runaway ranges; default 31 days. */
   max_days?: number;
 }
@@ -171,6 +184,13 @@ export function getSlots(req: SlotRequest): Slot[] {
     });
     busyByStaff.set(b.staff_id, list);
   }
+  const reserved = (req.reserved ?? [])
+    .filter((r) => r.crew_size > 0)
+    .map((r) => ({
+      start: Date.parse(r.starts_at) - buffer * 60_000,
+      end: Date.parse(r.ends_at) + buffer * 60_000,
+      crew: r.crew_size,
+    }));
 
   const slots: Slot[] = [];
   for (let date = req.from; date <= req.to; date = addDays(date, 1)) {
@@ -194,13 +214,19 @@ export function getSlots(req: SlotRequest): Slot[] {
         return !busy.some((b) => overlaps(startAt.getTime(), endAt.getTime(), b.start, b.end));
       });
 
-      if (free.length >= req.crew_size) {
+      // Unassigned bookings in this window claim crew out of the free pool first.
+      const claimed = reserved
+        .filter((r) => overlaps(startAt.getTime(), endAt.getTime(), r.start, r.end))
+        .reduce((sum, r) => sum + r.crew, 0);
+      const capacity = free.length - claimed;
+
+      if (capacity >= req.crew_size) {
         slots.push({
           start: startAt.toISOString(),
           end: endAt.toISOString(),
           date,
           staff_ids: free.map((s) => s.id),
-          capacity: free.length,
+          capacity,
         });
       }
     }

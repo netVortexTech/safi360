@@ -64,5 +64,34 @@ import_map = "./functions/deno.json"
 [functions.availability]
 import_map = "./functions/deno.json"
 
+[functions.create_booking]
+import_map = "./functions/deno.json"
+
+[functions.otp_send]
+import_map = "./functions/deno.json"
+
+[functions.otp_verify]
+import_map = "./functions/deno.json"
+
+[functions.tracking_start]
+import_map = "./functions/deno.json"
+
+[functions.tracking_verify]
+import_map = "./functions/deno.json"
+
+[functions.tracking_view]
+import_map = "./functions/deno.json"
+
+[functions.customer_action]
+import_map = "./functions/deno.json"
+
+[functions.payment_start]
+import_map = "./functions/deno.json"
+
+# Provider webhooks carry their own signature; no Supabase JWT on the request.
+[functions.payment_callback]
+import_map = "./functions/deno.json"
+verify_jwt = false
+
 [analytics]
 enabled = false
