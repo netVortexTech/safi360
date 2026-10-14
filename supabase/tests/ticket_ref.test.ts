@@ -6,8 +6,13 @@ beforeAll(async () => {
 });
 afterAll(() => db.close());
 
+// seed.sql books one ticket for Usafi Bora through create_booking_tx (UBC-2026-00001).
 describe('app.next_ticket_ref', () => {
   it('allocates {PREFIX}-{YYYY}-{00001} sequentially per tenant', async () => {
+    const seeded = await db.sql<{ ticket_ref: string }>(
+      `select ticket_ref from public.bookings where id = 'bbbb0000-0000-4000-8000-000000000001'`,
+    );
+    expect(seeded[0]?.ticket_ref).toBe('UBC-2026-00001');
     const a1 = await db.sql<{ ref: string }>(
       `select app.next_ticket_ref($1, '2026-10-14T07:00:00Z') as ref`,
       [SEED.tenantA],
@@ -20,8 +25,8 @@ describe('app.next_ticket_ref', () => {
       `select app.next_ticket_ref($1, '2026-10-14T07:00:00Z') as ref`,
       [SEED.tenantB],
     );
-    expect(a1[0]?.ref).toBe('UBC-2026-00001');
-    expect(a2[0]?.ref).toBe('UBC-2026-00002');
+    expect(a1[0]?.ref).toBe('UBC-2026-00002');
+    expect(a2[0]?.ref).toBe('UBC-2026-00003');
     expect(b1[0]?.ref).toBe('PFC-2026-00001');
   });
 
@@ -35,7 +40,7 @@ describe('app.next_ticket_ref', () => {
       `select app.next_ticket_ref($1, '2026-12-31T20:00:00Z') as ref`,
       [SEED.tenantA],
     );
-    expect(r2[0]?.ref).toBe('UBC-2026-00003');
+    expect(r2[0]?.ref).toBe('UBC-2026-00004');
   });
 
   it('never reuses a number after a rolled-back allocation', async () => {
@@ -49,7 +54,7 @@ describe('app.next_ticket_ref', () => {
     const r = await db.sql<{ ref: string }>(`select app.next_ticket_ref($1, '2026-10-14T07:00:00Z') as ref`, [
       SEED.tenantA,
     ]);
-    expect(r[0]?.ref).toBe('UBC-2026-00004');
+    expect(r[0]?.ref).toBe('UBC-2026-00005');
   });
 
   it('refuses unknown or deleted tenants', async () => {

@@ -20,7 +20,12 @@ beforeAll(async () => {
 afterAll(() => db.close());
 
 const TENANT_TABLES = ['tenants', 'memberships', 'tenant_integrations', 'audit_logs'] as const;
-const HIDDEN_TABLES = ['tenant_counters', 'tenant_integration_secrets', 'rate_limits'] as const;
+const HIDDEN_TABLES = [
+  'tenant_counters',
+  'tenant_integration_secrets',
+  'rate_limits',
+  'customer_otp_codes',
+] as const;
 
 function tenantColumn(table: string): string {
   return table === 'tenants' ? 'id' : 'tenant_id';

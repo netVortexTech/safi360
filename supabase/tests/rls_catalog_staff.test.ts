@@ -1,4 +1,4 @@
-import { asOwnerA, asOwnerB, asSuperAdmin, SEED, TestDb, type Claims } from './harness.ts';
+import { asOwnerA, asOwnerB, asSuperAdmin, mustCreateBooking, SEED, TestDb, type Claims } from './harness.ts';
 
 const TABLES = [
   'service_categories',
@@ -39,17 +39,38 @@ beforeAll(async () => {
     `insert into public.staff_availability (tenant_id, staff_id, weekday, start_time, end_time) values ($1, $2, 1, '08:00', '17:00')`,
     [SEED.tenantB, '88880000-0000-4000-8000-000000000101'],
   );
+  // Assignments need real bookings since 0011; create them through the write path.
+  const bookingB = await mustCreateBooking(db, {
+    tenant: SEED.tenantB,
+    phone: '+255754200010',
+    name: 'Mwajuma Ali',
+    serviceId: '55550000-0000-4000-8000-000000000101',
+    address: { area: 'Stone Town' },
+    start: '2026-10-16T06:00:00Z',
+    end: '2026-10-16T08:00:00Z',
+  });
   await db.sql(
     `insert into public.assignments (tenant_id, booking_id, staff_id, starts_at, ends_at)
-     values ($1, 'bbbb0000-0000-4000-8000-000000000101', $2, '2026-10-16T06:00:00Z', '2026-10-16T08:00:00Z')`,
-    [SEED.tenantB, '88880000-0000-4000-8000-000000000101'],
+     values ($1, $2, $3, '2026-10-16T06:00:00Z', '2026-10-16T08:00:00Z')`,
+    [SEED.tenantB, bookingB.booking_id, '88880000-0000-4000-8000-000000000101'],
   );
+  for (const [key, start, end] of [
+    ['bookingA2', '2026-10-17T06:00:00Z', '2026-10-17T08:00:00Z'],
+    ['bookingA3', '2026-10-18T06:00:00Z', '2026-10-18T08:00:00Z'],
+    ['bookingA4', '2026-10-19T06:00:00Z', '2026-10-19T08:00:00Z'],
+    ['bookingA5', '2026-10-21T06:00:00Z', '2026-10-21T08:00:00Z'],
+  ] as const) {
+    const b = await mustCreateBooking(db, { phone: `+25571500${key.slice(-1)}000`, start, end });
+    bookings[key] = b.booking_id;
+  }
   await db.sql(
     `insert into public.assignments (tenant_id, booking_id, staff_id, starts_at, ends_at)
-     values ($1, 'bbbb0000-0000-4000-8000-000000000002', $2, '2026-10-17T06:00:00Z', '2026-10-17T08:00:00Z')`,
-    [SEED.tenantA, REHEMA],
+     values ($1, $2, $3, '2026-10-17T06:00:00Z', '2026-10-17T08:00:00Z')`,
+    [SEED.tenantA, bookings.bookingA2, REHEMA],
   );
 });
+
+const bookings: Record<string, string> = {};
 afterAll(() => db.close());
 
 describe('catalog & staff isolation — reads', () => {
@@ -105,6 +126,18 @@ describe('catalog & staff isolation — reads', () => {
 
     const office = await db.attempt('authenticated', dispatcher, `select staff_id from public.assignments`);
     expect(office.rows).toHaveLength(2);
+  });
+
+  it("composite foreign key refuses an assignment on another tenant's booking", async () => {
+    const r = await db.attempt(
+      'authenticated',
+      asOwnerB,
+      `insert into public.assignments (tenant_id, booking_id, staff_id, starts_at, ends_at)
+       values ($1, $2, $3, '2026-10-17T06:00:00Z', '2026-10-17T08:00:00Z')`,
+      [SEED.tenantB, bookings.bookingA2, '88880000-0000-4000-8000-000000000101'],
+    );
+    expect(r.ok).toBe(false);
+    expect(r.error).toMatch(/foreign key/i);
   });
 });
 
@@ -184,16 +217,16 @@ describe('catalog & staff isolation — writes', () => {
       'authenticated',
       dispatcher,
       `insert into public.assignments (tenant_id, booking_id, staff_id, starts_at, ends_at)
-       values ($1, 'bbbb0000-0000-4000-8000-000000000003', $2, '2026-10-18T06:00:00Z', '2026-10-18T08:00:00Z') returning id`,
-      [SEED.tenantA, REHEMA],
+       values ($1, $3, $2, '2026-10-18T06:00:00Z', '2026-10-18T08:00:00Z') returning id`,
+      [SEED.tenantA, REHEMA, bookings.bookingA3],
     );
     expect(d.ok, d.error).toBe(true);
     const c = await db.attempt(
       'authenticated',
       cleaner,
       `insert into public.assignments (tenant_id, booking_id, staff_id, starts_at, ends_at)
-       values ($1, 'bbbb0000-0000-4000-8000-000000000004', $2, '2026-10-18T06:00:00Z', '2026-10-18T08:00:00Z')`,
-      [SEED.tenantA, NEEMA],
+       values ($1, $3, $2, '2026-10-19T06:00:00Z', '2026-10-19T08:00:00Z')`,
+      [SEED.tenantA, NEEMA, bookings.bookingA4],
     );
     expect(c.ok).toBe(false);
   });
@@ -246,8 +279,8 @@ describe('staff_availability constraints', () => {
       'authenticated',
       asOwnerA,
       `insert into public.assignments (tenant_id, booking_id, staff_id, starts_at, ends_at)
-       values ($1, 'bbbb0000-0000-4000-8000-000000000005', $2, '2026-10-18T08:00:00Z', '2026-10-18T06:00:00Z')`,
-      [SEED.tenantA, NEEMA],
+       values ($1, $3, $2, '2026-10-21T08:00:00Z', '2026-10-21T06:00:00Z')`,
+      [SEED.tenantA, NEEMA, bookings.bookingA5],
     );
     expect(r.ok).toBe(false);
   });

@@ -187,11 +187,37 @@ insert into public.staff_availability (tenant_id, staff_id, date, start_time, en
 select '11111111-1111-4111-8111-111111111111', '88880000-0000-4000-8000-000000000002', '2026-10-17', '08:00', '12:00', false, 'Nusu siku'
 where not exists (select 1 from public.staff_availability where staff_id = '88880000-0000-4000-8000-000000000002' and date = '2026-10-17');
 
--- One existing assignment (booking rows arrive with the bookings migration; the id is a placeholder).
+-- One real booking through the write path (idempotent: the key returns the same ticket on
+-- re-seed): Asha Mwakyusa, sofa 3 seats, Fri 16 Oct 09:00–12:00 Dar, Neema assigned.
+select public.create_booking_tx(jsonb_build_object(
+  'tenant_id', '11111111-1111-4111-8111-111111111111',
+  'booking_id', 'bbbb0000-0000-4000-8000-000000000001',
+  'idempotency_key', 'booking_bbbb0000-0000-4000-8000-000000000001',
+  'source', 'phone', 'locale', 'sw', 'created_by', 'aaaaaaaa-0000-4000-8000-000000000001',
+  'customer', jsonb_build_object('phone_e164', '+255754123456', 'name', 'Asha Mwakyusa', 'phone_verified', true),
+  'address', jsonb_build_object('area', 'Mbezi Beach', 'street', 'Mbezi Beach Road', 'landmark', 'Near the mosque',
+                                'zone_id', '77770000-0000-4000-8000-000000000001'),
+  'quote', jsonb_build_object('currency', 'TZS', 'subtotal_tzs', 45000, 'travel_fee_tzs', 0, 'discount_tzs', 0,
+                              'tax_tzs', 0, 'total_tzs', 45000, 'deposit_tzs', 13500, 'balance_tzs', 31500,
+                              'requires_review', false, 'has_estimate', false, 'est_duration_min', 90, 'crew_size', 1,
+                              'zone', jsonb_build_object('zone_id', '77770000-0000-4000-8000-000000000001', 'name', 'Mbezi & Kimara',
+                                                         'travel_fee_tzs', 0, 'serviceable', true, 'matched_by', 'area'),
+                              'out_of_area', false, 'lines', '[]'::jsonb),
+  'items', jsonb_build_array(jsonb_build_object('service_id', '55550000-0000-4000-8000-000000000001',
+                                                'label_sw', 'Usafi wa sofa', 'label_en', 'Sofa cleaning',
+                                                'input', jsonb_build_object('service_id', '55550000-0000-4000-8000-000000000001', 'qty', 3),
+                                                'qty', 3, 'amount_tzs', 45000, 'requires_review', false)),
+  'schedule', jsonb_build_object('start', '2026-10-16T06:00:00Z', 'end', '2026-10-16T09:00:00Z', 'capacity', 3),
+  'payment_mode', 'ON_COMPLETION'
+));
+
 insert into public.assignments (id, tenant_id, booking_id, staff_id, starts_at, ends_at, is_lead) values
   ('99990000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111', 'bbbb0000-0000-4000-8000-000000000001',
    '88880000-0000-4000-8000-000000000001', '2026-10-16T06:00:00Z', '2026-10-16T09:00:00Z', true)
 on conflict (id) do nothing;
+
+select public.transition_booking('bbbb0000-0000-4000-8000-000000000001', 'ASSIGNED', null,
+                                 '{"actor":"staff:aaaaaaaa-0000-4000-8000-000000000001","actor_role":"OWNER","customer_visible":true}'::jsonb);
 
 -- Second tenant gets a small catalog and one cleaner so isolation is visible.
 insert into public.service_categories (id, tenant_id, name_sw, name_en, sort) values
