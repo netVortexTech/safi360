@@ -70,6 +70,7 @@ interface TicketItem {
 interface TicketAssignment {
   staff: { display_name: string } | null;
   is_lead: boolean;
+  cancelled_at: string | null;
 }
 
 interface TicketAddress {
@@ -200,7 +201,7 @@ export function TicketDetailPage() {
   const ticket = rawTicket as unknown as TicketDetail;
   const customer = ticket.customer;
   const items = ticket.items ?? [];
-  const assignments = ticket.assignments ?? [];
+  const assignments = (ticket.assignments ?? []).filter((a) => a.cancelled_at == null);
   const address = ticket.address_snapshot;
 
   const canManage = can(role, 'booking.cancel');

@@ -132,6 +132,7 @@ export interface DispatchItem {
   scheduled_end: string;
   crew_size: number;
   assignee_ids: string[];
+  assignees: { assignment_id: string; staff_id: string; name: string }[];
   address_snapshot: Record<string, unknown>;
   source: BookingSource;
 }

@@ -56,7 +56,7 @@ function buildTicketQuery(filters: Partial<TicketFilters>) {
       customer:customers!inner(name, phone_e164),
       quote:quotes(id, status, total_tzs, deposit_tzs, requires_review, has_estimate, revised_from_id, expires_at, sent_at, decided_at, created_at),
       items:booking_items(id, service_id, label_en, label_sw, qty, amount_tzs, requires_review),
-      assignments(id, staff_id, is_lead, staff:staff(display_name))
+      assignments(id, staff_id, is_lead, cancelled_at, staff:staff(display_name))
     `,
     )
     .order('created_at', { ascending: false });
@@ -90,7 +90,9 @@ function mapTicketRow(row: Record<string, unknown>): TicketRow {
   const customer = row.customer as { name: string; phone_e164: string } | null;
   const quote = row.quote as Record<string, unknown> | null;
   const items = (row.items as Record<string, unknown>[]) ?? [];
-  const assignments = (row.assignments as Record<string, unknown>[]) ?? [];
+  const assignments = ((row.assignments as Record<string, unknown>[]) ?? []).filter(
+    (a) => a.cancelled_at == null,
+  );
 
   return {
     id: row.id as string,
@@ -170,7 +172,7 @@ export function useTicket(id: string) {
           quote:quotes(id, status, total_tzs, deposit_tzs, requires_review, has_estimate, revised_from_id, expires_at, sent_at, decided_at, created_at),
           quotes:quotes(id, status, total_tzs, deposit_tzs, requires_review, has_estimate, revised_from_id, expires_at, sent_at, decided_at, created_at),
           items:booking_items(id, service_id, label_en, label_sw, input, qty, amount_tzs, requires_review),
-          assignments(id, staff_id, is_lead, starts_at, ends_at, staff:staff(display_name, phone_e164))
+          assignments(id, staff_id, is_lead, starts_at, ends_at, cancelled_at, staff:staff(display_name, phone_e164))
         `,
         )
         .eq('id', id)
@@ -298,7 +300,7 @@ export function useDashboard() {
             created_at, updated_at,
             customer:customers!inner(name, phone_e164),
             items:booking_items(id, service_id, label_en, label_sw, qty, amount_tzs),
-            assignments(id, staff_id, staff:staff(display_name))
+            assignments(id, staff_id, cancelled_at, staff:staff(display_name))
           `,
           )
           .order('created_at', { ascending: false })
@@ -449,7 +451,7 @@ export function useCalendarEvents(startDate: string, endDate: string) {
           address_snapshot, source,
           customer:customers!inner(name),
           items:booking_items(label_en, label_sw),
-          assignments(id, staff_id, is_lead, staff:staff(display_name))
+          assignments(id, staff_id, is_lead, cancelled_at, staff:staff(display_name))
         `,
         )
         .not('scheduled_start', 'is', null)
@@ -461,7 +463,9 @@ export function useCalendarEvents(startDate: string, endDate: string) {
       return ((data ?? []) as Record<string, unknown>[]).map((row) => {
         const customer = row.customer as { name: string };
         const items = (row.items as Record<string, unknown>[]) ?? [];
-        const assignments = (row.assignments as Record<string, unknown>[]) ?? [];
+        const assignments = ((row.assignments as Record<string, unknown>[]) ?? []).filter(
+          (a) => a.cancelled_at == null,
+        );
         return {
           id: row.id as string,
           booking_id: row.id as string,
@@ -505,7 +509,7 @@ export function useDispatchItems(date: string) {
           scheduled_start, scheduled_end, crew_size,
           address_snapshot, source,
           customer:customers!inner(name),
-          assignments(id, staff_id, staff:staff(display_name))
+          assignments(id, staff_id, cancelled_at, staff:staff(display_name))
         `,
         )
         .not('scheduled_start', 'is', null)
@@ -516,7 +520,14 @@ export function useDispatchItems(date: string) {
 
       return ((data ?? []) as Record<string, unknown>[]).map((row) => {
         const customer = row.customer as { name: string };
-        const assignments = (row.assignments as Record<string, unknown>[]) ?? [];
+        const assignments = ((row.assignments as Record<string, unknown>[]) ?? []).filter(
+          (a) => a.cancelled_at == null,
+        );
+        const assignees = assignments.map((a) => ({
+          assignment_id: a.id as string,
+          staff_id: a.staff_id as string,
+          name: (a.staff as { display_name: string } | null)?.display_name ?? (a.staff_id as string),
+        }));
         return {
           booking_id: row.id as string,
           ticket_ref: row.ticket_ref as string,
@@ -526,7 +537,8 @@ export function useDispatchItems(date: string) {
           scheduled_end: row.scheduled_end as string,
           crew_size: row.crew_size as number,
           address_snapshot: row.address_snapshot as Record<string, unknown>,
-          assignee_ids: assignments.map((a) => a.staff_id as string),
+          assignee_ids: assignees.map((a) => a.staff_id),
+          assignees,
           source: row.source as DispatchItem['source'],
         };
       });

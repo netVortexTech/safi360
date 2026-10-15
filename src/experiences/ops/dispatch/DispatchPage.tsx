@@ -15,6 +15,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   useAssignmentCandidates,
+  useCancelAssignment,
   useCreateAssignment,
   useDispatchItems,
   useTransitionBooking,
@@ -215,6 +216,7 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
   );
 
   const createAssignment = useCreateAssignment();
+  const cancelAssignment = useCancelAssignment();
   const transition = useTransitionBooking();
 
   const handleAssign = () => {
@@ -251,25 +253,24 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
         </div>
 
         {/* Current assignments */}
-        {item.assignee_ids.length > 0 && (
+        {item.assignees.length > 0 && (
           <div>
             <h4 className="mb-2 text-sm font-medium">{t('ops.current_assignments')}</h4>
             <ul className="space-y-1">
-              {item.assignee_ids.map((staffId) => (
+              {item.assignees.map((assignee) => (
                 <li
-                  key={staffId}
+                  key={assignee.assignment_id}
                   className="flex items-center justify-between rounded-lg border border-border p-2 text-sm"
                 >
                   <span className="flex items-center gap-2">
                     <UserCheck className="size-4 text-success" aria-hidden="true" />
-                    {staffId.slice(0, 8)}
+                    {assignee.name}
                   </span>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      // Cancel assignment
-                    }}
+                    loading={cancelAssignment.isPending}
+                    onClick={() => cancelAssignment.mutate(assignee.assignment_id)}
                   >
                     {t('common.remove')}
                   </Button>
