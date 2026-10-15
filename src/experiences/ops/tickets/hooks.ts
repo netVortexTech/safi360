@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-floating-promises, @typescript-eslint/no-unnecessary-type-assertion */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { darDayRange } from '@/lib/dates';
 import type {
   AuditLogRow,
   BookingBySource,
@@ -492,8 +493,9 @@ export function useDispatchItems(date: string) {
   return useQuery({
     queryKey: ticketKeys.dispatch(date),
     queryFn: async () => {
-      const start = `${date}T00:00:00.000Z`;
-      const end = `${date}T23:59:59.999Z`;
+      // Day bounds in Dar es Salaam wall-clock time, not UTC midnight: a job at
+      // 01:00 EAT belongs to that Dar date (22:00Z the previous day).
+      const { start, end } = darDayRange(date);
       const { data, error } = await supabase
         .from('bookings')
         .select(
@@ -507,7 +509,7 @@ export function useDispatchItems(date: string) {
         )
         .not('scheduled_start', 'is', null)
         .gte('scheduled_start', start)
-        .lte('scheduled_start', end)
+        .lt('scheduled_start', end)
         .order('scheduled_start', { ascending: true });
       if (error) throw error;
 

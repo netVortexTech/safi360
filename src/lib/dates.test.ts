@@ -1,4 +1,5 @@
 import {
+  darDayRange,
   darYear,
   dayKey,
   formatDateTime,
@@ -30,6 +31,21 @@ describe('dates in Africa/Dar_es_Salaam', () => {
   });
   it('builds a UTC instant from Dar wall-clock', () => {
     expect(fromDarLocal('2026-10-17', '09:00').toISOString()).toBe(instant);
+  });
+  it('covers the full Dar day for range queries', () => {
+    // 2026-10-17 in Dar runs 2026-10-16T21:00Z → 2026-10-17T21:00Z
+    expect(darDayRange('2026-10-17')).toEqual({
+      start: '2026-10-16T21:00:00.000Z',
+      end: '2026-10-17T21:00:00.000Z',
+    });
+  });
+  it('keeps early-morning jobs on their Dar date', () => {
+    // 01:30 EAT on the 17th is 22:30Z on the 16th — inside the 17th's range,
+    // outside the UTC-midnight window the dispatch board used before.
+    const { start, end } = darDayRange('2026-10-17');
+    const job = new Date('2026-10-16T22:30:00.000Z').toISOString();
+    expect(job >= start && job < end).toBe(true);
+    expect(job >= '2026-10-17T00:00:00.000Z').toBe(false);
   });
   it('resolves the ticket year in Dar time', () => {
     // 23:00 UTC on 31 Dec 2025 is already 2026 in Dar

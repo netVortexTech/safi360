@@ -74,6 +74,17 @@ export function fromDarLocal(dateKey: string, time: string): Date {
   return fromZonedTime(`${dateKey}T${time}:00`, TZ);
 }
 
+/**
+ * UTC half-open bounds `[start, end)` of a Dar es Salaam calendar day, for
+ * `scheduled_start` range queries. Dar es Salaam is UTC+3 with no DST, so the
+ * day always spans exactly 24h starting at 21:00Z the previous day.
+ */
+export function darDayRange(dateKey: string): { start: string; end: string } {
+  const start = fromDarLocal(dateKey, '00:00');
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
 /** Current wall-clock Date in Dar es Salaam (for "today" comparisons). */
 export function nowInDar(): Date {
   return toZonedTime(new Date(), TZ);
