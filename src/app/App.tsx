@@ -34,6 +34,8 @@ const CalendarPage = lazy(() => import('@/experiences/ops/calendar/CalendarPage'
 const DispatchPage = lazy(() => import('@/experiences/ops/dispatch/DispatchPage'));
 const ExceptionsPage = lazy(() => import('@/experiences/ops/exceptions/ExceptionsPage'));
 const PaymentsPage = lazy(() => import('@/experiences/ops/payments/PaymentsPage'));
+const InvoicesPage = lazy(() => import('@/experiences/ops/invoices/InvoicesPage'));
+const InvoiceDetailPage = lazy(() => import('@/experiences/ops/invoices/InvoiceDetailPage'));
 const FieldToday = lazy(() => import('@/experiences/field/pages/FieldToday'));
 const FieldLogin = lazy(() => import('@/experiences/field/pages/FieldLogin'));
 const FieldUpcoming = lazy(() => import('@/experiences/field/pages/FieldUpcoming'));
@@ -89,7 +91,8 @@ export const routes: RouteObject[] = [
       { path: 'dispatch', element: withSuspense(<DispatchPage />) },
       { path: 'exceptions', element: withSuspense(<ExceptionsPage />) },
       { path: 'payments', element: withSuspense(<PaymentsPage />) },
-      { path: 'invoices', element: withSuspense(<PaymentsPage />) },
+      { path: 'invoices', element: withSuspense(<InvoicesPage />) },
+      { path: 'invoices/:id', element: withSuspense(<InvoiceDetailPage />) },
       { path: 'reports', element: withSuspense(<OpsReports />) },
       { path: 'settings', element: withSuspense(<OpsSettings />) },
       { path: 'settings/profile', element: withSuspense(<OpsSettingsProfile />) },
