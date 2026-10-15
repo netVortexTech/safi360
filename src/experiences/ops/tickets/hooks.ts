@@ -18,6 +18,7 @@ import type {
   TicketRow,
 } from './types';
 import { emptyTicketFilters } from './types';
+import { asError } from '@/lib/errors';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -143,7 +144,7 @@ export function useTickets(filters: Partial<TicketFilters> = {}) {
     queryKey: ticketKeys.list(filters),
     queryFn: async () => {
       const { data, error } = await buildTicketQuery(filters);
-      if (error) throw error;
+      if (error) throw asError(error);
       return (data as Record<string, unknown>[]).map(mapTicketRow);
     },
     staleTime: 30_000,
@@ -177,7 +178,7 @@ export function useTicket(id: string) {
         )
         .eq('id', id)
         .single();
-      if (error) throw error;
+      if (error) throw asError(error);
       return data as unknown as Record<string, unknown>;
     },
     staleTime: 30_000,
@@ -198,7 +199,7 @@ export function useJobEvents(bookingId: string) {
         .select('*')
         .eq('booking_id', bookingId)
         .order('created_at', { ascending: true });
-      if (error) throw error;
+      if (error) throw asError(error);
       return data as unknown as JobEventRow[];
     },
     staleTime: 30_000,
@@ -219,7 +220,7 @@ export function useBookingPayments(bookingId: string) {
         .select('*')
         .eq('booking_id', bookingId)
         .order('created_at', { ascending: false });
-      if (error) throw error;
+      if (error) throw asError(error);
       return data as unknown as PaymentRow[];
     },
     staleTime: 30_000,
@@ -240,7 +241,7 @@ export function useBookingQuotes(bookingId: string) {
         .select('*')
         .eq('booking_id', bookingId)
         .order('created_at', { ascending: false });
-      if (error) throw error;
+      if (error) throw asError(error);
       return data as unknown as QuoteRow[];
     },
     staleTime: 30_000,
@@ -263,7 +264,7 @@ export function useBookingAudit(bookingId: string) {
         .eq('entity_id', bookingId)
         .order('created_at', { ascending: false })
         .limit(100);
-      if (error) throw error;
+      if (error) throw asError(error);
       return data as unknown as AuditLogRow[];
     },
     staleTime: 30_000,
@@ -458,7 +459,7 @@ export function useCalendarEvents(startDate: string, endDate: string) {
         .gte('scheduled_start', startDate)
         .lte('scheduled_start', endDate)
         .order('scheduled_start', { ascending: true });
-      if (error) throw error;
+      if (error) throw asError(error);
 
       return ((data ?? []) as Record<string, unknown>[]).map((row) => {
         const customer = row.customer as { name: string };
@@ -516,7 +517,7 @@ export function useDispatchItems(date: string) {
         .gte('scheduled_start', start)
         .lt('scheduled_start', end)
         .order('scheduled_start', { ascending: true });
-      if (error) throw error;
+      if (error) throw asError(error);
 
       return ((data ?? []) as Record<string, unknown>[]).map((row) => {
         const customer = row.customer as { name: string };
@@ -566,7 +567,7 @@ export function useExceptions() {
         )
         .order('created_at', { ascending: false })
         .limit(100);
-      if (error) throw error;
+      if (error) throw asError(error);
 
       return ((data ?? []) as Record<string, unknown>[]).map((row): ExceptionRow => {
         const booking = row.booking as {
@@ -624,7 +625,7 @@ export function useResolveException() {
           resolved_at: new Date().toISOString(),
         })
         .eq('id', vars.id);
-      if (error) throw error;
+      if (error) throw asError(error);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ticketKeys.exceptions });
@@ -655,7 +656,7 @@ export function useAddJobEvent() {
         p_data: vars.data ?? {},
         p_meta: actorMeta,
       });
-      if (error) throw error;
+      if (error) throw asError(error);
     },
   });
 }
@@ -686,7 +687,7 @@ export function useQueueNotification() {
         locale: vars.locale,
         variables: vars.variables,
       });
-      if (error) throw error;
+      if (error) throw asError(error);
     },
   });
 }
@@ -711,7 +712,7 @@ export function useTransitionBooking() {
         p_reason: vars.reason ?? null,
         p_meta: { ...actorMeta, ...vars.meta },
       });
-      if (error) throw error;
+      if (error) throw asError(error);
       return data as { booking_id: string; status: string; changed: boolean };
     },
     onSuccess: (_data, vars) => {
@@ -747,7 +748,7 @@ export function useRescheduleBooking() {
         p_reason: vars.reason ?? null,
         p_meta: { ...actorMeta, ...vars.meta },
       });
-      if (error) throw error;
+      if (error) throw asError(error);
       return data as { booking_id: string; scheduled_start: string; scheduled_end: string };
     },
     onSuccess: (_data, vars) => {
@@ -773,7 +774,7 @@ export function useAddNote() {
         p_data: { note: vars.note },
         p_meta: {},
       });
-      if (error) throw error;
+      if (error) throw asError(error);
       return data;
     },
     onSuccess: (_data, vars) => {
@@ -892,7 +893,7 @@ export function useCreateAssignment() {
         })
         .select()
         .single();
-      if (error) throw error;
+      if (error) throw asError(error);
       return data;
     },
     onSuccess: () => {
@@ -914,7 +915,7 @@ export function useCancelAssignment() {
         .from('assignments')
         .update({ cancelled_at: new Date().toISOString() })
         .eq('id', assignmentId);
-      if (error) throw error;
+      if (error) throw asError(error);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ticketKeys.all });

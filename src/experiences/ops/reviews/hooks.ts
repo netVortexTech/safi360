@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { asError } from '@/lib/errors';
 
 export type FeedbackKind = 'COMMENT' | 'COMPLAINT';
 export type FeedbackStatus = 'OPEN' | 'ACKNOWLEDGED' | 'RESOLVED' | 'DISMISSED';
@@ -35,7 +36,7 @@ export function useFeedbackList() {
         )
         .order('created_at', { ascending: false })
         .limit(200);
-      if (error) throw error;
+      if (error) throw asError(error);
       return ((data ?? []) as Record<string, unknown>[]).map((row) => {
         const booking = row.booking as { ticket_ref: string; customer: { name: string } } | null;
         return {
@@ -69,7 +70,7 @@ export function useUpdateFeedback() {
           responded_at: vars.response ? new Date().toISOString() : null,
         })
         .eq('id', vars.id);
-      if (error) throw error;
+      if (error) throw asError(error);
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: feedbackKeys.all });

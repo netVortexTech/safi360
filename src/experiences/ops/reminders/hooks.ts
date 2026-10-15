@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { asError } from '@/lib/errors';
 
 export interface QueuedReminder {
   id: string;
@@ -31,7 +32,7 @@ export function useQueuedReminders() {
         .in('status', ['queued', 'sent'])
         .order('scheduled_for', { ascending: true })
         .limit(200);
-      if (error) throw error;
+      if (error) throw asError(error);
       return ((data ?? []) as Record<string, unknown>[]).map((row) => {
         const booking = (row.booking ?? null) as { ticket_ref: string; customer: { name: string } } | null;
         const variables = (row.variables ?? {}) as Record<string, unknown>;

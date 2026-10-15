@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useActorMeta } from '@/lib/actor-meta';
 import type { PaymentStatus } from '@shared/enums';
+import { asError } from '@/lib/errors';
 
 export type PaymentLedgerRow = {
   id: string;
@@ -38,7 +39,7 @@ export function usePaymentsLedger() {
         )
         .order('created_at', { ascending: false })
         .limit(200);
-      if (error) throw error;
+      if (error) throw asError(error);
       const rows = (data ?? []) as Array<Record<string, unknown>>;
       return rows.map((row) => ({
         id: String(row.id),
@@ -76,7 +77,7 @@ export function useRecordManualPayment() {
         p_reason: vars.reason,
         p_meta: actorMeta,
       });
-      if (error) throw error;
+      if (error) throw asError(error);
       return data as string;
     },
     onSuccess: () => {
