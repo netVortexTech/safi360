@@ -1,0 +1,43 @@
+name: Lighthouse
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: lighthouse ci (portal)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+        env:
+          VITE_SUPABASE_URL: http://127.0.0.1:54321
+          VITE_SUPABASE_ANON_KEY: ci-placeholder
+          VITE_APP_ENV: staging
+      - name: Serve preview
+        run: |
+          pnpm exec vite preview --port 4173 --strictPort &
+          npx wait-on http://127.0.0.1:4173
+      - name: Audit portal pages
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            http://127.0.0.1:4173/demo/
+            http://127.0.0.1:4173/demo/services
+            http://127.0.0.1:4173/demo/track
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          runs: 2
+          configPath: ./lighthouserc.json

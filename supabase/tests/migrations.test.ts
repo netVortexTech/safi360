@@ -53,7 +53,13 @@ describe('migrations', () => {
   });
 
   it('every tenant table has a NOT NULL tenant_id', async () => {
-    const platformOnly = new Set(['plans', 'profiles', 'tenants']); // tenants is keyed by id
+    const platformOnly = new Set([
+      'plans',
+      'profiles',
+      'tenants', // tenants is keyed by id
+      'impersonation_sessions', // super-admin tool; references the tenant as target_tenant_id
+      'system_health', // platform-wide metrics, no tenant scope
+    ]);
     const nullableAllowed = new Set(['audit_logs']); // platform-level actions have no tenant
     const tables = await db.sql<{ relname: string }>(
       `select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace

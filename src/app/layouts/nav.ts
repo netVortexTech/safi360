@@ -72,3 +72,39 @@ export const OPS_BOTTOM_NAV: NavItem[] = [
   { key: 'calendar', to: '/ops/calendar', icon: Calendar },
   { key: 'customers', to: '/ops/customers', icon: Users },
 ];
+
+import {
+  Building2,
+  FileClock,
+  HeartPulse,
+  LifeBuoy,
+  ShieldCheck,
+} from 'lucide-react';
+
+/** Control center sidebar groups. */
+export const CONTROL_NAV: NavGroup[] = [
+  { key: 'overview', items: [{ key: 'overview', to: '/control', icon: LayoutDashboard }] },
+  {
+    key: 'tenants',
+    items: [
+      { key: 'companies', to: '/control/companies', icon: Building2 },
+      { key: 'create_company', to: '/control/companies/new', icon: Plus },
+    ],
+  },
+  {
+    key: 'billing',
+    items: [
+      { key: 'subscriptions', to: '/control/subscriptions', icon: CreditCard },
+      { key: 'plans_limits', to: '/control/plans', icon: Tag },
+    ],
+  },
+  {
+    key: 'platform',
+    items: [
+      { key: 'system_health', to: '/control/health', icon: HeartPulse },
+      { key: 'support_requests', to: '/control/support', icon: LifeBuoy },
+      { key: 'audit_log', to: '/control/audit', icon: FileClock },
+      { key: 'impersonation', to: '/control/impersonation', icon: ShieldCheck },
+    ],
+  },
+];

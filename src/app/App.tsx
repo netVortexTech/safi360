@@ -41,6 +41,25 @@ const FieldHistory = lazy(() => import('@/experiences/field/pages/FieldHistory')
 const FieldAlerts = lazy(() => import('@/experiences/field/pages/FieldAlerts'));
 const JobDetail = lazy(() => import('@/experiences/field/pages/JobDetail'));
 const ControlHome = lazy(() => import('@/experiences/control/pages/ControlHome'));
+const ControlLogin = lazy(() => import('@/experiences/control/pages/ControlLogin'));
+const PrivacyPage = lazy(() => import('@/experiences/portal/pages/PrivacyPage'));
+const ControlCompanies = lazy(() => import('@/experiences/control/pages/ControlCompanies'));
+const ControlCompanyDetail = lazy(() => import('@/experiences/control/pages/ControlCompanyDetail'));
+const ControlCreateCompany = lazy(() => import('@/experiences/control/pages/ControlCreateCompany'));
+const ControlSubscriptions = lazy(() => import('@/experiences/control/pages/ControlSubscriptions'));
+const ControlPlans = lazy(() => import('@/experiences/control/pages/ControlPlans'));
+const ControlHealth = lazy(() => import('@/experiences/control/pages/ControlHealth'));
+const ControlSupport = lazy(() => import('@/experiences/control/pages/ControlSupport'));
+const ControlAudit = lazy(() => import('@/experiences/control/pages/ControlAudit'));
+const ControlImpersonation = lazy(() => import('@/experiences/control/pages/ControlImpersonation'));
+const OpsReports = lazy(() => import('@/experiences/ops/reports/ReportsPage'));
+const OpsSettings = lazy(() => import('@/experiences/ops/settings/SettingsPage'));
+const OpsSettingsProfile = lazy(() => import('@/experiences/ops/settings/ProfileSettings'));
+const OpsSettingsBranding = lazy(() => import('@/experiences/ops/settings/BrandingSettings'));
+const OpsSettingsChannels = lazy(() => import('@/experiences/ops/settings/ChannelSettings'));
+const OpsSettingsTemplates = lazy(() => import('@/experiences/ops/settings/TemplateSettings'));
+const OpsSettingsTeam = lazy(() => import('@/experiences/ops/settings/TeamSettings'));
+const OpsSettingsOnboarding = lazy(() => import('@/experiences/ops/settings/OnboardingSettings'));
 
 const withSuspense = (node: ReactNode) => <Suspense fallback={<RouteLoading />}>{node}</Suspense>;
 
@@ -71,6 +90,14 @@ export const routes: RouteObject[] = [
       { path: 'exceptions', element: withSuspense(<ExceptionsPage />) },
       { path: 'payments', element: withSuspense(<PaymentsPage />) },
       { path: 'invoices', element: withSuspense(<PaymentsPage />) },
+      { path: 'reports', element: withSuspense(<OpsReports />) },
+      { path: 'settings', element: withSuspense(<OpsSettings />) },
+      { path: 'settings/profile', element: withSuspense(<OpsSettingsProfile />) },
+      { path: 'settings/branding', element: withSuspense(<OpsSettingsBranding />) },
+      { path: 'settings/channels', element: withSuspense(<OpsSettingsChannels />) },
+      { path: 'settings/templates', element: withSuspense(<OpsSettingsTemplates />) },
+      { path: 'settings/team', element: withSuspense(<OpsSettingsTeam />) },
+      { path: 'settings/onboarding', element: withSuspense(<OpsSettingsOnboarding />) },
     ],
   },
   { path: '/field/login', element: withSuspense(<FieldLogin />), errorElement: <RouteError /> },
@@ -86,11 +113,23 @@ export const routes: RouteObject[] = [
       { path: 'alerts', element: withSuspense(<FieldAlerts />) },
     ],
   },
+  { path: '/control/login', element: withSuspense(<ControlLogin />), errorElement: <RouteError /> },
   {
     path: '/control',
     element: <ControlLayout />,
     errorElement: <RouteError />,
-    children: [{ index: true, element: withSuspense(<ControlHome />) }],
+    children: [
+      { index: true, element: withSuspense(<ControlHome />) },
+      { path: 'companies', element: withSuspense(<ControlCompanies />) },
+      { path: 'companies/new', element: withSuspense(<ControlCreateCompany />) },
+      { path: 'companies/:id', element: withSuspense(<ControlCompanyDetail />) },
+      { path: 'subscriptions', element: withSuspense(<ControlSubscriptions />) },
+      { path: 'plans', element: withSuspense(<ControlPlans />) },
+      { path: 'health', element: withSuspense(<ControlHealth />) },
+      { path: 'support', element: withSuspense(<ControlSupport />) },
+      { path: 'audit', element: withSuspense(<ControlAudit />) },
+      { path: 'impersonation', element: withSuspense(<ControlImpersonation />) },
+    ],
   },
   {
     path: '/:slug',
@@ -106,6 +145,7 @@ export const routes: RouteObject[] = [
       { path: 'track', element: withSuspense(<PortalTrack />) },
       { path: 'track/recover', element: withSuspense(<PortalTrack />) },
       { path: 'track/:bookingId', element: withSuspense(<PortalTrackBooking />) },
+      { path: 'privacy', element: withSuspense(<PrivacyPage />) },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
