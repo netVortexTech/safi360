@@ -63,41 +63,42 @@ export const fieldQueryKeys = {
 };
 
 function mapJobs(rows: unknown[]): FieldJob[] {
-  return rows.map((row) => {
-    const r = row as Record<string, unknown>;
-    const booking = (r.booking ?? {}) as Record<string, unknown>;
-    const customer = (booking.customer ?? {}) as Record<string, unknown>;
-    const items = (booking.items ?? []) as Record<string, unknown>[];
-    const name = String(customer.name ?? '').trim();
-    const services: FieldJobService[] = items
-      .map((item) => ({
-        service_id: String(item.service_id ?? ''),
-        label_en: String(item.label_en ?? ''),
-        label_sw: String(item.label_sw ?? ''),
-        qty: Number(item.qty ?? 1),
-      }))
-      .filter((item) => item.service_id || item.label_en || item.label_sw);
-    return {
-      assignment_id: String(r.id ?? ''),
-      staff_id: String(r.staff_id ?? ''),
-      is_lead: r.is_lead === true,
-      booking_id: String(booking.id ?? ''),
-      ticket_ref: String(booking.ticket_ref ?? ''),
-      status: (booking.status as BookingStatus) ?? 'CONFIRMED',
-      flags: (booking.flags as BookingFlag[] | null) ?? [],
-      customer_first_name: name ? name.split(/\s+/)[0] || name : 'Customer',
-      customer_phone: typeof customer.phone_e164 === 'string' ? customer.phone_e164 : null,
-      customer_note: typeof booking.notes_customer === 'string' ? booking.notes_customer : null,
-      instructions: typeof booking.notes_internal === 'string' ? booking.notes_internal : null,
-      address: (booking.address_snapshot ?? {}) as FieldJob['address'],
-      services,
-      scheduled_start: String(booking.scheduled_start ?? r.starts_at ?? ''),
-      scheduled_end: String(booking.scheduled_end ?? r.ends_at ?? ''),
-      duration_min: Number(booking.duration_min ?? 120),
-      crew_size: Number(booking.crew_size ?? 1),
-      completed_at: typeof booking.completed_at === 'string' ? booking.completed_at : null,
-    };
-  })
+  return rows
+    .map((row) => {
+      const r = row as Record<string, unknown>;
+      const booking = (r.booking ?? {}) as Record<string, unknown>;
+      const customer = (booking.customer ?? {}) as Record<string, unknown>;
+      const items = (booking.items ?? []) as Record<string, unknown>[];
+      const name = String(customer.name ?? '').trim();
+      const services: FieldJobService[] = items
+        .map((item) => ({
+          service_id: String(item.service_id ?? ''),
+          label_en: String(item.label_en ?? ''),
+          label_sw: String(item.label_sw ?? ''),
+          qty: Number(item.qty ?? 1),
+        }))
+        .filter((item) => item.service_id || item.label_en || item.label_sw);
+      return {
+        assignment_id: String(r.id ?? ''),
+        staff_id: String(r.staff_id ?? ''),
+        is_lead: r.is_lead === true,
+        booking_id: String(booking.id ?? ''),
+        ticket_ref: String(booking.ticket_ref ?? ''),
+        status: (booking.status as BookingStatus) ?? 'CONFIRMED',
+        flags: (booking.flags as BookingFlag[] | null) ?? [],
+        customer_first_name: name ? name.split(/\s+/)[0] || name : 'Customer',
+        customer_phone: typeof customer.phone_e164 === 'string' ? customer.phone_e164 : null,
+        customer_note: typeof booking.notes_customer === 'string' ? booking.notes_customer : null,
+        instructions: typeof booking.notes_internal === 'string' ? booking.notes_internal : null,
+        address: (booking.address_snapshot ?? {}) as FieldJob['address'],
+        services,
+        scheduled_start: String(booking.scheduled_start ?? r.starts_at ?? ''),
+        scheduled_end: String(booking.scheduled_end ?? r.ends_at ?? ''),
+        duration_min: Number(booking.duration_min ?? 120),
+        crew_size: Number(booking.crew_size ?? 1),
+        completed_at: typeof booking.completed_at === 'string' ? booking.completed_at : null,
+      };
+    })
     .filter((job) => job.booking_id && job.scheduled_start)
     .sort((a, b) => a.scheduled_start.localeCompare(b.scheduled_start));
 }
@@ -140,7 +141,9 @@ export function useFieldEvents(id: string) {
     queryFn: async (): Promise<FieldJobEvent[]> => {
       const { data, error } = await supabase
         .from('job_events')
-        .select('id, kind, from_status, to_status, actor_kind, actor_label, customer_visible, message_key, data, created_at')
+        .select(
+          'id, kind, from_status, to_status, actor_kind, actor_label, customer_visible, message_key, data, created_at',
+        )
         .eq('booking_id', id)
         .order('created_at', { ascending: true });
       if (error) throw error;
@@ -206,7 +209,12 @@ export function useOpenFieldException() {
 export function useAddFieldJobEvent() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (vars: { booking_id: string; kind: string; customer_visible?: boolean; data?: Record<string, unknown> }) => {
+    mutationFn: async (vars: {
+      booking_id: string;
+      kind: string;
+      customer_visible?: boolean;
+      data?: Record<string, unknown>;
+    }) => {
       const { data, error } = await supabase.rpc('add_job_event', {
         p_booking_id: vars.booking_id,
         p_kind: vars.kind,

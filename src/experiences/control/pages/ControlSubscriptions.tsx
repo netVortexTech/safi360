@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';import { useAuth } from '@/lib/auth';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { formatTzs } from '@/lib/money';
 import { formatDay } from '@/lib/dates';
@@ -89,8 +90,20 @@ function SubscriptionsBody(props: {
 }) {
   const { t } = useTranslation();
   const {
-    search, setSearch, statusFilter, setStatusFilter, planFilter, setPlanFilter,
-    changeTarget, setChangeTarget, newPlanId, setNewPlanId, sentIds, setSentIds, locale, queryClient,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    planFilter,
+    setPlanFilter,
+    changeTarget,
+    setChangeTarget,
+    newPlanId,
+    setNewPlanId,
+    sentIds,
+    setSentIds,
+    locale,
+    queryClient,
   } = props;
 
   const tenantsQuery = useQuery<TenantRow[]>({
@@ -156,16 +169,28 @@ function SubscriptionsBody(props: {
               onChange={(e) => setSearch(e.target.value)}
               aria-label={t('control.subscriptions.search_placeholder')}
             />
-            <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label={t('control.subscriptions.status')}>
+            <Select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              aria-label={t('control.subscriptions.status')}
+            >
               <option value="">{t('control.subscriptions.all_statuses')}</option>
               {['active', 'trialing', 'suspended', 'cancelled'].map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </Select>
-            <Select value={planFilter} onChange={(e) => setPlanFilter(e.target.value)} aria-label={t('control.subscriptions.plan')}>
+            <Select
+              value={planFilter}
+              onChange={(e) => setPlanFilter(e.target.value)}
+              aria-label={t('control.subscriptions.plan')}
+            >
               <option value="">{t('control.subscriptions.all_plans')}</option>
               {(plansQuery.data ?? []).map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
               ))}
             </Select>
           </div>
@@ -181,7 +206,10 @@ function SubscriptionsBody(props: {
             />
           ) : null}
           {!loading && !queryError && filtered.length === 0 ? (
-            <EmptyState title={t('control.subscriptions.empty')} description={t('control.subscriptions.empty_hint')} />
+            <EmptyState
+              title={t('control.subscriptions.empty')}
+              description={t('control.subscriptions.empty_hint')}
+            />
           ) : null}
           {!loading && !queryError && filtered.length > 0 ? (
             <Table>
@@ -192,7 +220,9 @@ function SubscriptionsBody(props: {
                   <TH>{t('control.subscriptions.status')}</TH>
                   <TH>{t('control.subscriptions.amount')}</TH>
                   <TH>{t('control.subscriptions.trial_ends')}</TH>
-                  <TH><span className="sr-only">{t('control.subscriptions.actions')}</span></TH>
+                  <TH>
+                    <span className="sr-only">{t('control.subscriptions.actions')}</span>
+                  </TH>
                 </TR>
               </THead>
               <TBody>
@@ -203,7 +233,15 @@ function SubscriptionsBody(props: {
                       <TD className="font-medium">{row.name}</TD>
                       <TD>{plan?.name ?? '-'}</TD>
                       <TD>
-                        <Badge tone={row.status === 'active' ? 'success' : row.status === 'trialing' ? 'info' : 'warning'}>
+                        <Badge
+                          tone={
+                            row.status === 'active'
+                              ? 'success'
+                              : row.status === 'trialing'
+                                ? 'info'
+                                : 'warning'
+                          }
+                        >
                           {row.status}
                         </Badge>
                       </TD>
@@ -243,7 +281,12 @@ function SubscriptionsBody(props: {
         </CardBody>
       </Card>
 
-      <Dialog open={changeTarget !== null} onOpenChange={(open) => { if (!open) setChangeTarget(null); }}>
+      <Dialog
+        open={changeTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setChangeTarget(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('control.subscriptions.change_plan')}</DialogTitle>
@@ -253,7 +296,9 @@ function SubscriptionsBody(props: {
             <Select id="change-plan" value={newPlanId} onChange={(e) => setNewPlanId(e.target.value)}>
               <option value="">{t('control.subscriptions.select_plan')}</option>
               {(plansQuery.data ?? []).map((p) => (
-                <option key={p.id} value={p.id}>{p.name} — {formatTzs(p.price_tzs)}</option>
+                <option key={p.id} value={p.id}>
+                  {p.name} — {formatTzs(p.price_tzs)}
+                </option>
               ))}
             </Select>
           </Field>

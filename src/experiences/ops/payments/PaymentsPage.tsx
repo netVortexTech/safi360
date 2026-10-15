@@ -34,7 +34,13 @@ export default function PaymentsPage() {
     return rows.filter((row) => {
       if (providerFilter && row.provider !== providerFilter) return false;
       if (statusFilter && row.status !== statusFilter) return false;
-      if (needle && !`${row.booking_ticket_ref} ${row.customer_name} ${row.provider_ref ?? ''}`.toLowerCase().includes(needle)) return false;
+      if (
+        needle &&
+        !`${row.booking_ticket_ref} ${row.customer_name} ${row.provider_ref ?? ''}`
+          .toLowerCase()
+          .includes(needle)
+      )
+        return false;
       return true;
     });
   }, [rows, providerFilter, search, statusFilter]);
@@ -44,22 +50,50 @@ export default function PaymentsPage() {
   const failed = rows.filter((r) => r.status === 'FAILED').length;
 
   if (!canView) {
-    return <div className="rounded-xl border border-error/30 bg-error/5 p-6 text-error">Payment ledger is management only.</div>;
+    return (
+      <div className="rounded-xl border border-error/30 bg-error/5 p-6 text-error">
+        Payment ledger is management only.
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <PageHeader title="Payments" subtitle="Ledger, reconciliation and receipts" />
       <div className="grid gap-3 md:grid-cols-4">
-        <Card><CardBody><p className="text-caption text-text-subtle">Collected</p><p className="mt-1 text-h2 tabular">{formatTzs(collected)}</p></CardBody></Card>
-        <Card><CardBody><p className="text-caption text-text-subtle">Pending</p><p className="mt-1 text-h2 tabular">{formatTzs(pending)}</p></CardBody></Card>
-        <Card><CardBody><p className="text-caption text-text-subtle">Failed attempts</p><p className="mt-1 text-h2 tabular">{failed}</p></CardBody></Card>
-        <Card><CardBody><p className="text-caption text-text-subtle">Rows</p><p className="mt-1 text-h2 tabular">{rows.length}</p></CardBody></Card>
+        <Card>
+          <CardBody>
+            <p className="text-caption text-text-subtle">Collected</p>
+            <p className="tabular mt-1 text-h2">{formatTzs(collected)}</p>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <p className="text-caption text-text-subtle">Pending</p>
+            <p className="tabular mt-1 text-h2">{formatTzs(pending)}</p>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <p className="text-caption text-text-subtle">Failed attempts</p>
+            <p className="tabular mt-1 text-h2">{failed}</p>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <p className="text-caption text-text-subtle">Rows</p>
+            <p className="tabular mt-1 text-h2">{rows.length}</p>
+          </CardBody>
+        </Card>
       </div>
       <Card>
         <CardBody className="space-y-4">
           <div className="flex flex-col gap-3 md:flex-row">
-            <Input placeholder="Search ticket, customer or reference" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input
+              placeholder="Search ticket, customer or reference"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <Select value={providerFilter} onChange={(e) => setProviderFilter(e.target.value)}>
               <option value="">All providers</option>
               <option value="MOCK">Mock</option>
@@ -69,7 +103,11 @@ export default function PaymentsPage() {
             </Select>
             <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="">All statuses</option>
-              {['PENDING', 'SUCCESS', 'FAILED', 'EXPIRED', 'UNKNOWN', 'REFUNDED'].map((status) => <option key={status} value={status}>{status}</option>)}
+              {['PENDING', 'SUCCESS', 'FAILED', 'EXPIRED', 'UNKNOWN', 'REFUNDED'].map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
             </Select>
             {canManual ? <Button onClick={() => setManualOpen(true)}>Record manual payment</Button> : null}
           </div>
@@ -93,10 +131,16 @@ export default function PaymentsPage() {
                     <td className="py-2 font-medium">{row.booking_ticket_ref}</td>
                     <td className="py-2">{row.customer_name || '-'}</td>
                     <td className="py-2">{row.provider}</td>
-                    <td className="py-2 tabular">{formatTzs(row.amount_tzs)}</td>
-                    <td className="py-2"><PaymentStatus status={row.status} /></td>
+                    <td className="tabular py-2">{formatTzs(row.amount_tzs)}</td>
+                    <td className="py-2">
+                      <PaymentStatus status={row.status} />
+                    </td>
                     <td className="py-2 text-xs text-text-subtle">{formatDay(row.created_at, 'en')}</td>
-                    <td className="py-2"><Button variant="ghost" size="sm" onClick={() => setSelected(row)}>Detail</Button></td>
+                    <td className="py-2">
+                      <Button variant="ghost" size="sm" onClick={() => setSelected(row)}>
+                        Detail
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -107,13 +151,18 @@ export default function PaymentsPage() {
 
       {selected ? (
         <div className="fixed inset-0 z-50 bg-black/50 p-4" onClick={() => setSelected(null)}>
-          <div className="mx-auto mt-10 max-w-lg rounded-xl bg-surface p-5" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="mx-auto mt-10 max-w-lg rounded-xl bg-surface p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-h2">Payment detail</h2>
             <p className="mt-2 text-sm">Reference: {selected.provider_ref ?? '-'}</p>
             <p className="mt-1 text-sm">Status: {selected.status}</p>
             <p className="mt-1 text-sm">Amount: {formatTzs(selected.amount_tzs)}</p>
             <p className="mt-1 text-sm">Raw: {JSON.stringify(selected.raw)}</p>
-            <Button className="mt-4" onClick={() => setSelected(null)}>Close</Button>
+            <Button className="mt-4" onClick={() => setSelected(null)}>
+              Close
+            </Button>
           </div>
         </div>
       ) : null}
@@ -133,8 +182,16 @@ export default function PaymentsPage() {
         <Card>
           <CardBody className="space-y-3">
             <h2 className="text-h3">SMS confirmation parser</h2>
-            <textarea value={smsText} onChange={(e) => setSmsText(e.target.value)} rows={6} className="w-full rounded-lg border border-border bg-surface p-3 text-sm" placeholder="Paste M-Pesa, Mixx, Airtel or HaloPesa confirmation" />
-            <p className="text-sm text-text-muted">Amount: {parsedSms.amountTzs ? formatTzs(parsedSms.amountTzs) : '-'}</p>
+            <textarea
+              value={smsText}
+              onChange={(e) => setSmsText(e.target.value)}
+              rows={6}
+              className="w-full rounded-lg border border-border bg-surface p-3 text-sm"
+              placeholder="Paste M-Pesa, Mixx, Airtel or HaloPesa confirmation"
+            />
+            <p className="text-sm text-text-muted">
+              Amount: {parsedSms.amountTzs ? formatTzs(parsedSms.amountTzs) : '-'}
+            </p>
             <p className="text-sm text-text-muted">Reference: {parsedSms.reference ?? '-'}</p>
             <p className="text-sm text-text-muted">Phone: {parsedSms.phone ?? '-'}</p>
           </CardBody>
@@ -144,7 +201,12 @@ export default function PaymentsPage() {
   );
 }
 
-function ManualPaymentDialog({ busy, error, onClose, onSubmit }: {
+function ManualPaymentDialog({
+  busy,
+  error,
+  onClose,
+  onSubmit,
+}: {
   busy: boolean;
   error: string | null;
   onClose: () => void;
@@ -158,29 +220,65 @@ function ManualPaymentDialog({ busy, error, onClose, onSubmit }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md rounded-xl bg-surface p-5">
         <h2 className="text-h2">Record manual payment</h2>
-        <p className="mt-1 text-sm text-text-muted">Emergency use only: creates a MANUAL payment and updates the ledger.</p>
+        <p className="mt-1 text-sm text-text-muted">
+          Emergency use only: creates a MANUAL payment and updates the ledger.
+        </p>
         {error ? <p className="mt-3 text-sm text-error">{error}</p> : null}
         <div className="mt-4 space-y-3">
-          <Field id="manual-booking" label="Booking ID" required><Input id="manual-booking" value={bookingId} onChange={(e) => setBookingId(e.target.value)} /></Field>
-          <Field id="manual-amount" label="Amount TZS" required><Input id="manual-amount" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} /></Field>
-          <Field id="manual-method" label="Method"><Select id="manual-method" value={method} onChange={(e) => setMethod(e.target.value)}><option value="cash">Cash</option><option value="bank">Bank</option><option value="mobile_money">Mobile money</option></Select></Field>
-          <Field id="manual-reason" label="Reason" required><Input id="manual-reason" value={reason} onChange={(e) => setReason(e.target.value)} /></Field>
+          <Field id="manual-booking" label="Booking ID" required>
+            <Input id="manual-booking" value={bookingId} onChange={(e) => setBookingId(e.target.value)} />
+          </Field>
+          <Field id="manual-amount" label="Amount TZS" required>
+            <Input
+              id="manual-amount"
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+          </Field>
+          <Field id="manual-method" label="Method">
+            <Select id="manual-method" value={method} onChange={(e) => setMethod(e.target.value)}>
+              <option value="cash">Cash</option>
+              <option value="bank">Bank</option>
+              <option value="mobile_money">Mobile money</option>
+            </Select>
+          </Field>
+          <Field id="manual-reason" label="Reason" required>
+            <Input id="manual-reason" value={reason} onChange={(e) => setReason(e.target.value)} />
+          </Field>
         </div>
         <div className="mt-5 flex gap-3">
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button disabled={busy || !bookingId || !amount || !reason} loading={busy} onClick={() => onSubmit({ booking_id: bookingId, amount_tzs: Number(amount), method, reason })}>Save</Button>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            disabled={busy || !bookingId || !amount || !reason}
+            loading={busy}
+            onClick={() => onSubmit({ booking_id: bookingId, amount_tzs: Number(amount), method, reason })}
+          >
+            Save
+          </Button>
         </div>
       </div>
     </div>
   );
 }
 
-
-function parseSms(text: string): { amountTzs: number | null; reference: string | null; phone: string | null } {
-  const amountMatch = text.match(/(?:TZS|TSh|Tsh|Tzs|KES|KSh)\s?([\d,]+)/i) || text.match(/([\d,]+)\s?(?:TZS|TSh|Tsh|Tzs|KES|KSh)/i);
+function parseSms(text: string): {
+  amountTzs: number | null;
+  reference: string | null;
+  phone: string | null;
+} {
+  const amountMatch =
+    text.match(/(?:TZS|TSh|Tsh|Tzs|KES|KSh)\s?([\d,]+)/i) ||
+    text.match(/([\d,]+)\s?(?:TZS|TSh|Tsh|Tzs|KES|KSh)/i);
   const amountRaw = amountMatch?.[1];
   const amount = amountRaw ? Number(amountRaw.replace(/,/g, '')) : null;
   const refMatch = text.match(/\b[A-Z0-9]{8,15}\b/);
   const phoneMatch = text.match(/\+255\d{9}/);
-  return { amountTzs: Number.isFinite(amount) ? amount : null, reference: refMatch ? refMatch[0] : null, phone: phoneMatch ? phoneMatch[0] : null };
+  return {
+    amountTzs: Number.isFinite(amount) ? amount : null,
+    reference: refMatch ? refMatch[0] : null,
+    phone: phoneMatch ? phoneMatch[0] : null,
+  };
 }

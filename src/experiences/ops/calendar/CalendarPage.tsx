@@ -1,12 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  MapPin,
-  Users,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, MapPin, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCalendarEvents } from '../tickets/hooks';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -134,7 +128,10 @@ export function CalendarPage() {
       <div className="mb-4 text-center">
         <h2 className="text-h2">
           {view === 'day' && formatDay(currentDate, 'en')}
-          {view === 'week' && displayDays[0] && displayDays[6] && `${formatDay(displayDays[0], 'en')} – ${formatDay(displayDays[6], 'en')}`}
+          {view === 'week' &&
+            displayDays[0] &&
+            displayDays[6] &&
+            `${formatDay(displayDays[0], 'en')} – ${formatDay(displayDays[6], 'en')}`}
           {view === 'month' && currentDate.toLocaleDateString('en', { month: 'long', year: 'numeric' })}
         </h2>
       </div>
@@ -146,23 +143,11 @@ export function CalendarPage() {
       {!isLoading && !error && (
         <>
           {view === 'day' && (
-            <DayView
-              date={currentDate}
-              events={eventsByDay.get(dayKey(currentDate)) ?? []}
-            />
+            <DayView date={currentDate} events={eventsByDay.get(dayKey(currentDate)) ?? []} />
           )}
-          {view === 'week' && (
-            <WeekView
-              days={displayDays}
-              eventsByDay={eventsByDay}
-            />
-          )}
+          {view === 'week' && <WeekView days={displayDays} eventsByDay={eventsByDay} />}
           {view === 'month' && (
-            <MonthView
-              days={displayDays}
-              eventsByDay={eventsByDay}
-              currentDate={currentDate}
-            />
+            <MonthView days={displayDays} eventsByDay={eventsByDay} currentDate={currentDate} />
           )}
         </>
       )}
@@ -219,12 +204,8 @@ function WeekView({ days, eventsByDay }: { days: Date[]; eventsByDay: Map<string
             )}
           >
             <div className="mb-2 text-center">
-              <p className="text-xs text-text-subtle">
-                {day.toLocaleDateString('en', { weekday: 'short' })}
-              </p>
-              <p className={cn('text-lg font-semibold', isToday && 'text-primary')}>
-                {day.getDate()}
-              </p>
+              <p className="text-xs text-text-subtle">{day.toLocaleDateString('en', { weekday: 'short' })}</p>
+              <p className={cn('text-lg font-semibold', isToday && 'text-primary')}>{day.getDate()}</p>
             </div>
             <div className="space-y-1">
               {dayEvents.map((ev) => (
@@ -255,7 +236,10 @@ function MonthView({
       <CardBody className="p-0">
         <div className="grid grid-cols-7">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-            <div key={d} className="border-b border-border p-2 text-center text-xs font-medium text-text-subtle">
+            <div
+              key={d}
+              className="border-b border-border p-2 text-center text-xs font-medium text-text-subtle"
+            >
               {d}
             </div>
           ))}
@@ -276,10 +260,12 @@ function MonthView({
                   !isCurrentMonth && 'bg-surface-muted/50',
                 )}
               >
-                <p className={cn(
-                  'text-right text-xs',
-                  isToday ? 'font-bold text-primary' : 'text-text-subtle',
-                )}>
+                <p
+                  className={cn(
+                    'text-right text-xs',
+                    isToday ? 'font-bold text-primary' : 'text-text-subtle',
+                  )}
+                >
                   {day.getDate()}
                 </p>
                 <div className="mt-1 space-y-0.5">

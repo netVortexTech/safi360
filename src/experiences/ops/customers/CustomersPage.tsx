@@ -84,7 +84,9 @@ export function CustomersPage() {
             <p className="font-medium text-text">{row.name}</p>
             <p className="text-sm text-text-subtle">{formatPhone(row.phone_e164)}</p>
           </div>
-          <Badge tone="outline">{row.booking_count} {t('ops.bookings_count')}</Badge>
+          <Badge tone="outline">
+            {row.booking_count} {t('ops.bookings_count')}
+          </Badge>
         </div>
         <div className="mt-3 flex items-center justify-between text-sm">
           <span className="text-text-subtle">{t('ops.total_booked')}</span>
@@ -92,7 +94,9 @@ export function CustomersPage() {
         </div>
         <div className="mt-1 flex items-center justify-between text-sm">
           <span className="text-text-subtle">{t('ops.balance')}</span>
-          <span className={`tabular font-medium ${row.total_booked_tzs - row.total_paid_tzs > 0 ? 'text-warning' : 'text-success'}`}>
+          <span
+            className={`tabular font-medium ${row.total_booked_tzs - row.total_paid_tzs > 0 ? 'text-warning' : 'text-success'}`}
+          >
             {formatTzs(row.total_booked_tzs - row.total_paid_tzs)}
           </span>
         </div>
@@ -102,13 +106,13 @@ export function CustomersPage() {
 
   return (
     <div>
-      <PageHeader
-        title={t('nav.customers')}
-        subtitle={t('ops.customers_subtitle')}
-      />
+      <PageHeader title={t('nav.customers')} subtitle={t('ops.customers_subtitle')} />
 
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-subtle" aria-hidden="true" />
+        <Search
+          className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-subtle"
+          aria-hidden="true"
+        />
         <Input
           type="search"
           placeholder={t('ops.search_customer')}
@@ -133,12 +137,7 @@ export function CustomersPage() {
             description={t('ops.no_customers_body')}
           />
         }
-        error={
-          <ErrorState
-            onRetry={() => refetch()}
-            retrying={isLoading}
-          />
-        }
+        error={<ErrorState onRetry={() => refetch()} retrying={isLoading} />}
         caption={t('nav.customers')}
       />
     </div>

@@ -84,16 +84,16 @@ export default function ControlHealth() {
       {loading ? (
         <div className="grid gap-3 md:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
-            <Card key={i}><CardBody><Skeleton className="h-16 w-full" /></CardBody></Card>
+            <Card key={i}>
+              <CardBody>
+                <Skeleton className="h-16 w-full" />
+              </CardBody>
+            </Card>
           ))}
         </div>
       ) : null}
       {error ? (
-        <ErrorState
-          title={t('control.health.load_error')}
-          description={String(error)}
-          onRetry={refetchAll}
-        />
+        <ErrorState title={t('control.health.load_error')} description={String(error)} onRetry={refetchAll} />
       ) : null}
       {!loading && !error ? (
         <>
@@ -110,24 +110,26 @@ export default function ControlHealth() {
             <Card>
               <CardBody>
                 <p className="text-caption text-text-subtle">{t('control.health.tenants')}</p>
-                <p className="mt-1 text-h2 tabular">{tenantsQuery.data ?? 0}</p>
+                <p className="tabular mt-1 text-h2">{tenantsQuery.data ?? 0}</p>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
                 <p className="text-caption text-text-subtle">{t('control.health.bookings_24h')}</p>
-                <p className="mt-1 text-h2 tabular">{bookingsQuery.data ?? 0}</p>
+                <p className="tabular mt-1 text-h2">{bookingsQuery.data ?? 0}</p>
               </CardBody>
             </Card>
             <Card>
               <CardBody>
                 <p className="text-caption text-text-subtle">{t('control.health.payments')}</p>
-                <p className="mt-1 text-h2 tabular">{paymentsQuery.data ?? 0}</p>
+                <p className="tabular mt-1 text-h2">{paymentsQuery.data ?? 0}</p>
               </CardBody>
             </Card>
           </div>
           <Card>
-            <CardHeader><CardTitle>{t('control.health.db_tables')}</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>{t('control.health.db_tables')}</CardTitle>
+            </CardHeader>
             <CardBody className="space-y-2 text-sm">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-text-muted">tenants</span>
@@ -148,10 +150,7 @@ export default function ControlHealth() {
             </CardBody>
           </Card>
           {(tenantsQuery.data ?? 0) === 0 && (bookingsQuery.data ?? 0) === 0 ? (
-            <EmptyState
-              title={t('control.health.empty')}
-              description={t('control.health.empty_hint')}
-            />
+            <EmptyState title={t('control.health.empty')} description={t('control.health.empty_hint')} />
           ) : null}
         </>
       ) : null}

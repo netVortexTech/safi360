@@ -71,11 +71,20 @@ export function useCustomers(search: string = '') {
       return ((data ?? []) as Record<string, any>[]).map((row) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const bookings = (row.bookings as Record<string, any>[]) ?? [];
-        const totalBooked = bookings.reduce((s: number, b: Record<string, unknown>) => s + (b.total_tzs as number), 0);
-        const totalPaid = bookings.reduce((s: number, b: Record<string, unknown>) => s + (b.paid_tzs as number), 0);
-        const lastBooking = bookings.length > 0
-          ? (bookings as { created_at: string }[]).sort((a, b) => b.created_at.localeCompare(a.created_at))[0]?.created_at ?? null
-          : null;
+        const totalBooked = bookings.reduce(
+          (s: number, b: Record<string, unknown>) => s + (b.total_tzs as number),
+          0,
+        );
+        const totalPaid = bookings.reduce(
+          (s: number, b: Record<string, unknown>) => s + (b.paid_tzs as number),
+          0,
+        );
+        const lastBooking =
+          bookings.length > 0
+            ? ((bookings as { created_at: string }[]).sort((a, b) =>
+                b.created_at.localeCompare(a.created_at),
+              )[0]?.created_at ?? null)
+            : null;
 
         return {
           ...mapCustomerRow(row),

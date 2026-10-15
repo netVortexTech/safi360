@@ -108,7 +108,9 @@ export default function ControlPlans() {
                   <TH>{t('control.plans.price')}</TH>
                   <TH>{t('control.plans.limits')}</TH>
                   <TH>{t('control.plans.active')}</TH>
-                  <TH><span className="sr-only">{t('control.plans.actions')}</span></TH>
+                  <TH>
+                    <span className="sr-only">{t('control.plans.actions')}</span>
+                  </TH>
                 </TR>
               </THead>
               <TBody>
@@ -145,7 +147,12 @@ export default function ControlPlans() {
         </CardBody>
       </Card>
 
-      <Dialog open={editTarget !== null} onOpenChange={(open) => { if (!open) setEditTarget(null); }}>
+      <Dialog
+        open={editTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditTarget(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('control.plans.edit')}</DialogTitle>
@@ -195,7 +202,14 @@ function formatLimits(limits: PlanLimits | null): string {
   return parts.length > 0 ? parts.join(' · ') : '-';
 }
 
-function EditLimitsForm({ plan, saving, error, t, onCancel, onSave }: {
+function EditLimitsForm({
+  plan,
+  saving,
+  error,
+  t,
+  onCancel,
+  onSave,
+}: {
   plan: PlanRow;
   saving: boolean;
   error: string | null;
@@ -220,24 +234,38 @@ function EditLimitsForm({ plan, saving, error, t, onCancel, onSave }: {
         <Input id="edit-staff" type="number" value={staff} onChange={(e) => setStaff(e.target.value)} />
       </Field>
       <Field id="edit-bookings" label={t('control.plans.limit_bookings')}>
-        <Input id="edit-bookings" type="number" value={bookings} onChange={(e) => setBookings(e.target.value)} />
+        <Input
+          id="edit-bookings"
+          type="number"
+          value={bookings}
+          onChange={(e) => setBookings(e.target.value)}
+        />
       </Field>
       <Field id="edit-reminders" label={t('control.plans.limit_reminders')}>
-        <Input id="edit-reminders" type="number" value={reminders} onChange={(e) => setReminders(e.target.value)} />
+        <Input
+          id="edit-reminders"
+          type="number"
+          value={reminders}
+          onChange={(e) => setReminders(e.target.value)}
+        />
       </Field>
       <DialogFooter>
-        <Button variant="secondary" onClick={onCancel}>{t('common.cancel')}</Button>
+        <Button variant="secondary" onClick={onCancel}>
+          {t('common.cancel')}
+        </Button>
         <Button
           disabled={!valid}
           loading={saving}
-          onClick={() => onSave(
-            {
-              ...(staff.trim() !== '' ? { staff: Number(staff) } : {}),
-              ...(bookings.trim() !== '' ? { bookings_month: Number(bookings) } : {}),
-              ...(reminders.trim() !== '' ? { reminders_month: Number(reminders) } : {}),
-            },
-            priceNum,
-          )}
+          onClick={() =>
+            onSave(
+              {
+                ...(staff.trim() !== '' ? { staff: Number(staff) } : {}),
+                ...(bookings.trim() !== '' ? { bookings_month: Number(bookings) } : {}),
+                ...(reminders.trim() !== '' ? { reminders_month: Number(reminders) } : {}),
+              },
+              priceNum,
+            )
+          }
         >
           {t('common.save')}
         </Button>
@@ -246,7 +274,13 @@ function EditLimitsForm({ plan, saving, error, t, onCancel, onSave }: {
   );
 }
 
-function CreatePlanForm({ saving, error, t, onCancel, onSave }: {
+function CreatePlanForm({
+  saving,
+  error,
+  t,
+  onCancel,
+  onSave,
+}: {
   saving: boolean;
   error: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -274,25 +308,39 @@ function CreatePlanForm({ saving, error, t, onCancel, onSave }: {
         <Input id="create-staff" type="number" value={staff} onChange={(e) => setStaff(e.target.value)} />
       </Field>
       <Field id="create-bookings" label={t('control.plans.limit_bookings')}>
-        <Input id="create-bookings" type="number" value={bookings} onChange={(e) => setBookings(e.target.value)} />
+        <Input
+          id="create-bookings"
+          type="number"
+          value={bookings}
+          onChange={(e) => setBookings(e.target.value)}
+        />
       </Field>
       <Field id="create-reminders" label={t('control.plans.limit_reminders')}>
-        <Input id="create-reminders" type="number" value={reminders} onChange={(e) => setReminders(e.target.value)} />
+        <Input
+          id="create-reminders"
+          type="number"
+          value={reminders}
+          onChange={(e) => setReminders(e.target.value)}
+        />
       </Field>
       <DialogFooter>
-        <Button variant="secondary" onClick={onCancel}>{t('common.cancel')}</Button>
+        <Button variant="secondary" onClick={onCancel}>
+          {t('common.cancel')}
+        </Button>
         <Button
           disabled={!valid}
           loading={saving}
-          onClick={() => onSave({
-            name: name.trim(),
-            price_tzs: priceNum,
-            limits: {
-              ...(staff.trim() !== '' ? { staff: Number(staff) } : {}),
-              ...(bookings.trim() !== '' ? { bookings_month: Number(bookings) } : {}),
-              ...(reminders.trim() !== '' ? { reminders_month: Number(reminders) } : {}),
-            },
-          })}
+          onClick={() =>
+            onSave({
+              name: name.trim(),
+              price_tzs: priceNum,
+              limits: {
+                ...(staff.trim() !== '' ? { staff: Number(staff) } : {}),
+                ...(bookings.trim() !== '' ? { bookings_month: Number(bookings) } : {}),
+                ...(reminders.trim() !== '' ? { reminders_month: Number(reminders) } : {}),
+              },
+            })
+          }
         >
           {t('control.plans.create')}
         </Button>

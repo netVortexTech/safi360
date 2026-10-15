@@ -52,7 +52,7 @@ export default function ControlHome() {
         .order('created_at', { ascending: false })
         .limit(200);
       if (error) throw new Error(error.message);
-      return (data ?? []);
+      return data ?? [];
     },
   });
 
@@ -106,31 +106,31 @@ export default function ControlHome() {
           <Card>
             <CardBody>
               <p className="text-caption text-text-subtle">{t('control.overview.total_companies')}</p>
-              <p className="mt-1 text-h2 tabular">{total}</p>
+              <p className="tabular mt-1 text-h2">{total}</p>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
               <p className="text-caption text-text-subtle">{t('control.overview.active_trials')}</p>
-              <p className="mt-1 text-h2 tabular">{trials}</p>
+              <p className="tabular mt-1 text-h2">{trials}</p>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
               <p className="text-caption text-text-subtle">{t('control.overview.active_subscriptions')}</p>
-              <p className="mt-1 text-h2 tabular">{active}</p>
+              <p className="tabular mt-1 text-h2">{active}</p>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
               <p className="text-caption text-text-subtle">{t('control.overview.past_due')}</p>
-              <p className="mt-1 text-h2 tabular">{pastDue}</p>
+              <p className="tabular mt-1 text-h2">{pastDue}</p>
             </CardBody>
           </Card>
           <Card>
             <CardBody>
               <p className="text-caption text-text-subtle">{t('control.overview.suspended')}</p>
-              <p className="mt-1 text-h2 tabular">{suspended}</p>
+              <p className="tabular mt-1 text-h2">{suspended}</p>
             </CardBody>
           </Card>
         </div>
@@ -174,7 +174,10 @@ export default function ControlHome() {
                 {recent.map((row) => (
                   <TR key={row.id}>
                     <TD>
-                      <Link to={`/control/companies/${row.id}`} className="font-medium text-primary hover:underline">
+                      <Link
+                        to={`/control/companies/${row.id}`}
+                        className="font-medium text-primary hover:underline"
+                      >
                         {row.name}
                       </Link>
                     </TD>

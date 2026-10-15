@@ -15,7 +15,8 @@ export function FieldBottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 border-t border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto flex max-w-md items-center justify-around">
         {tabs.map((tab) => {
-          const active = tab.to === '/field' ? location.pathname === '/field' : location.pathname.startsWith(tab.to);
+          const active =
+            tab.to === '/field' ? location.pathname === '/field' : location.pathname.startsWith(tab.to);
           return (
             <Link
               key={tab.to}

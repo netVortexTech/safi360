@@ -1,12 +1,5 @@
 import { useParams } from 'react-router-dom';
-import {
-  AlertTriangle,
-  Calendar,
-  CreditCard,
-  MapPin,
-  Phone,
-  User,
-} from 'lucide-react';
+import { AlertTriangle, Calendar, CreditCard, MapPin, Phone, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   useCustomer,
@@ -82,7 +75,9 @@ export function CustomerProfilePage() {
               </Badge>
             )}
             {customer.tags.map((tag) => (
-              <Badge key={tag} tone="outline">{tag}</Badge>
+              <Badge key={tag} tone="outline">
+                {tag}
+              </Badge>
             ))}
           </>
         }
@@ -116,7 +111,9 @@ export function CustomerProfilePage() {
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-text-subtle">{t('ops.first_source')}</dt>
-                  <dd><SourceChip source={customer.first_source} /></dd>
+                  <dd>
+                    <SourceChip source={customer.first_source} />
+                  </dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-text-subtle">{t('ops.since')}</dt>
@@ -186,11 +183,7 @@ export function CustomerProfilePage() {
                         <Badge tone="warning">{dup.reason}</Badge>
                       </div>
                       <div className="mt-2 flex gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => setMergeTarget(dup)}
-                        >
+                        <Button variant="secondary" size="sm" onClick={() => setMergeTarget(dup)}>
                           {t('ops.merge')}
                         </Button>
                         <Button
@@ -223,15 +216,15 @@ export function CustomerProfilePage() {
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <p className="text-caption text-text-subtle">{t('ops.total_booked')}</p>
-                  <p className="mt-1 text-h3 tabular">{formatTzs(totalBooked)}</p>
+                  <p className="tabular mt-1 text-h3">{formatTzs(totalBooked)}</p>
                 </div>
                 <div>
                   <p className="text-caption text-text-subtle">{t('ops.total_paid')}</p>
-                  <p className="mt-1 text-h3 tabular text-success">{formatTzs(totalPaid)}</p>
+                  <p className="tabular mt-1 text-h3 text-success">{formatTzs(totalPaid)}</p>
                 </div>
                 <div>
                   <p className="text-caption text-text-subtle">{t('ops.balance')}</p>
-                  <p className={`mt-1 text-h3 tabular ${balance > 0 ? 'text-warning' : 'text-success'}`}>
+                  <p className={`tabular mt-1 text-h3 ${balance > 0 ? 'text-warning' : 'text-success'}`}>
                     {formatTzs(balance)}
                   </p>
                 </div>
@@ -264,20 +257,22 @@ export function CustomerProfilePage() {
                       {bookings.map((booking) => (
                         <tr key={booking.id} className="border-b border-border/50 last:border-0">
                           <td className="py-3 pr-4">
-                            <TicketChip ticketRef={booking.ticket_ref} to={`/ops/tickets/${booking.id}`} size="sm" />
+                            <TicketChip
+                              ticketRef={booking.ticket_ref}
+                              to={`/ops/tickets/${booking.id}`}
+                              size="sm"
+                            />
                           </td>
                           <td className="py-3 pr-4">
                             <StatusBadge status={booking.status} />
                           </td>
                           <td className="py-3 pr-4 text-text-subtle">
-                            {booking.scheduled_start
-                              ? formatDay(booking.scheduled_start, 'en')
-                              : '—'}
+                            {booking.scheduled_start ? formatDay(booking.scheduled_start, 'en') : '—'}
                           </td>
                           <td className="py-3 pr-4">
                             <SourceChip source={booking.source} />
                           </td>
-                          <td className="py-3 text-right tabular font-medium">
+                          <td className="tabular py-3 text-right font-medium">
                             {formatTzs(booking.total_tzs)}
                           </td>
                         </tr>

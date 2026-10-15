@@ -73,13 +73,7 @@ export const OPS_BOTTOM_NAV: NavItem[] = [
   { key: 'customers', to: '/ops/customers', icon: Users },
 ];
 
-import {
-  Building2,
-  FileClock,
-  HeartPulse,
-  LifeBuoy,
-  ShieldCheck,
-} from 'lucide-react';
+import { Building2, FileClock, HeartPulse, LifeBuoy, ShieldCheck } from 'lucide-react';
 
 /** Control center sidebar groups. */
 export const CONTROL_NAV: NavGroup[] = [

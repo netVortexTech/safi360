@@ -73,8 +73,7 @@ export function useReports(dateFrom: string, dateTo: string) {
       if (error) throw error;
 
       const rows = (data ?? []) as Record<string, unknown>[];
-      const customer = (r: Record<string, unknown>) =>
-        (r.customer as { name: string })?.name ?? '';
+      const customer = (r: Record<string, unknown>) => (r.customer as { name: string })?.name ?? '';
       const itemLabels = (r: Record<string, unknown>) =>
         ((r.items as Record<string, unknown>[]) ?? []).map(
           (i) => (i.label_en as string) || (i.label_sw as string),
@@ -180,12 +179,12 @@ export function useReports(dateFrom: string, dateTo: string) {
       // Avg confirmation time
       const confirmedRows = rows.filter((r) => r.confirmed_at && r.created_at);
       const totalHours = confirmedRows.reduce((s, r) => {
-        const diff = new Date(r.confirmed_at as string).getTime() - new Date(r.created_at as string).getTime();
+        const diff =
+          new Date(r.confirmed_at as string).getTime() - new Date(r.created_at as string).getTime();
         return s + diff / (1000 * 60 * 60);
       }, 0);
-      const avgHours = confirmedRows.length > 0
-        ? Math.round((totalHours / confirmedRows.length) * 10) / 10
-        : 0;
+      const avgHours =
+        confirmedRows.length > 0 ? Math.round((totalHours / confirmedRows.length) * 10) / 10 : 0;
 
       return {
         kpis: { received: total, confirmed, cancelled, completed },

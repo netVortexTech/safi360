@@ -22,7 +22,11 @@ export function FieldLayout() {
   }, []);
 
   if (auth.status === 'loading') {
-    return <div className="min-h-dvh bg-surface-page" role="status" aria-label="loading"><div className="h-20 animate-pulse bg-surface-muted" /></div>;
+    return (
+      <div className="min-h-dvh bg-surface-page" role="status" aria-label="loading">
+        <div className="h-20 animate-pulse bg-surface-muted" />
+      </div>
+    );
   }
   if (auth.status !== 'signed_in' || auth.claims.tenant_role !== 'CLEANER') {
     return <Navigate to="/field/login" replace />;

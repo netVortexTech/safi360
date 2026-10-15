@@ -88,7 +88,15 @@ export default function ControlSupport() {
   });
 
   const replyMutation = useMutation({
-    mutationFn: async ({ requestId, tenantId, body }: { requestId: string; tenantId: string; body: string }) => {
+    mutationFn: async ({
+      requestId,
+      tenantId,
+      body,
+    }: {
+      requestId: string;
+      tenantId: string;
+      body: string;
+    }) => {
       const { error } = await supabase
         .from('support_messages')
         .insert({ request_id: requestId, tenant_id: tenantId, body, is_staff: true });
@@ -152,16 +160,24 @@ export default function ControlSupport() {
                   <TH>{t('control.support.status')}</TH>
                   <TH>{t('control.support.priority')}</TH>
                   <TH>{t('control.support.created')}</TH>
-                  <TH><span className="sr-only">{t('control.support.actions')}</span></TH>
+                  <TH>
+                    <span className="sr-only">{t('control.support.actions')}</span>
+                  </TH>
                 </TR>
               </THead>
               <TBody>
                 {filtered.map((row) => (
                   <TR key={row.id}>
                     <TD className="font-medium">{row.subject}</TD>
-                    <TD className="text-xs text-text-subtle">{row.tenant_id ? row.tenant_id.slice(0, 8) : '-'}</TD>
-                    <TD><Badge tone={row.status === 'open' ? 'warning' : 'neutral'}>{row.status}</Badge></TD>
-                    <TD><Badge tone={row.priority === 'high' ? 'error' : 'outline'}>{row.priority}</Badge></TD>
+                    <TD className="text-xs text-text-subtle">
+                      {row.tenant_id ? row.tenant_id.slice(0, 8) : '-'}
+                    </TD>
+                    <TD>
+                      <Badge tone={row.status === 'open' ? 'warning' : 'neutral'}>{row.status}</Badge>
+                    </TD>
+                    <TD>
+                      <Badge tone={row.priority === 'high' ? 'error' : 'outline'}>{row.priority}</Badge>
+                    </TD>
                     <TD className="text-xs text-text-subtle">{formatDay(row.created_at, locale)}</TD>
                     <TD>
                       <Button variant="ghost" size="sm" onClick={() => setSelectedId(row.id)}>
@@ -178,7 +194,9 @@ export default function ControlSupport() {
 
       {selected ? (
         <Card>
-          <CardHeader><CardTitle>{selected.subject}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>{selected.subject}</CardTitle>
+          </CardHeader>
           <CardBody className="space-y-3">
             {messagesQuery.isLoading ? <Skeleton className="h-24 w-full" /> : null}
             {messagesQuery.error ? (
@@ -188,8 +206,13 @@ export default function ControlSupport() {
                 onRetry={() => void messagesQuery.refetch()}
               />
             ) : null}
-            {!messagesQuery.isLoading && !messagesQuery.error && (messagesQuery.data?.rows.length ?? 0) === 0 ? (
-              <EmptyState title={t('control.support.no_messages')} description={t('control.support.no_messages_hint')} />
+            {!messagesQuery.isLoading &&
+            !messagesQuery.error &&
+            (messagesQuery.data?.rows.length ?? 0) === 0 ? (
+              <EmptyState
+                title={t('control.support.no_messages')}
+                description={t('control.support.no_messages_hint')}
+              />
             ) : null}
             {(messagesQuery.data?.rows ?? []).map((m) => (
               <div key={m.id} className="rounded-lg border border-border p-3 text-sm">
@@ -207,9 +230,17 @@ export default function ControlSupport() {
                     placeholder={t('control.support.reply_placeholder')}
                   />
                 </Field>
-                {replyMutation.error ? <p className="text-sm text-error">{String(replyMutation.error)}</p> : null}
+                {replyMutation.error ? (
+                  <p className="text-sm text-error">{String(replyMutation.error)}</p>
+                ) : null}
                 <div className="flex gap-2">
-                  <Button variant="secondary" onClick={() => { setSelectedId(null); setReply(''); }}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setSelectedId(null);
+                      setReply('');
+                    }}
+                  >
                     {t('common.close')}
                   </Button>
                   <Button
@@ -217,7 +248,11 @@ export default function ControlSupport() {
                     loading={replyMutation.isPending}
                     onClick={() => {
                       if (selectedId && selected?.tenant_id && reply.trim() !== '') {
-                        void replyMutation.mutateAsync({ requestId: selectedId, tenantId: selected.tenant_id, body: reply.trim() });
+                        void replyMutation.mutateAsync({
+                          requestId: selectedId,
+                          tenantId: selected.tenant_id,
+                          body: reply.trim(),
+                        });
                       }
                     }}
                   >

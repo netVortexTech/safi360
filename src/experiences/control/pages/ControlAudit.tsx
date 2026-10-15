@@ -61,7 +61,15 @@ export default function ControlAudit() {
   const exportCsv = () => {
     const header = 'timestamp,actor_user_id,actor_role,action,entity,entity_id,tenant_id';
     const lines = filtered.map((r) =>
-      [r.created_at, r.actor_user_id ?? '', r.actor_role ?? '', r.action, r.entity, r.entity_id ?? '', r.tenant_id ?? '']
+      [
+        r.created_at,
+        r.actor_user_id ?? '',
+        r.actor_role ?? '',
+        r.action,
+        r.entity,
+        r.entity_id ?? '',
+        r.tenant_id ?? '',
+      ]
         .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
         .join(','),
     );
@@ -105,10 +113,16 @@ export default function ControlAudit() {
               onChange={(e) => setActionSearch(e.target.value)}
               aria-label={t('control.audit.search_placeholder')}
             />
-            <Select value={entityFilter} onChange={(e) => setEntityFilter(e.target.value)} aria-label={t('control.audit.entity')}>
+            <Select
+              value={entityFilter}
+              onChange={(e) => setEntityFilter(e.target.value)}
+              aria-label={t('control.audit.entity')}
+            >
               <option value="">{t('control.audit.all_entities')}</option>
               {entities.map((e) => (
-                <option key={e} value={e}>{e}</option>
+                <option key={e} value={e}>
+                  {e}
+                </option>
               ))}
             </Select>
           </div>
@@ -143,7 +157,9 @@ export default function ControlAudit() {
                         {row.actor_user_id ? row.actor_user_id.slice(0, 8) : '-'}
                       </span>
                       {row.actor_role ? (
-                        <Badge tone="outline" className="ml-2">{row.actor_role}</Badge>
+                        <Badge tone="outline" className="ml-2">
+                          {row.actor_role}
+                        </Badge>
                       ) : null}
                     </TD>
                     <TD className="font-medium">{row.action}</TD>

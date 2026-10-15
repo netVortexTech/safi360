@@ -157,7 +157,10 @@ export function TicketsPage() {
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-subtle" aria-hidden="true" />
+        <Search
+          className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-subtle"
+          aria-hidden="true"
+        />
         <Input
           type="search"
           placeholder={t('ops.search_placeholder')}
@@ -177,11 +180,15 @@ export function TicketsPage() {
                 <Select
                   id="filter-source"
                   value={filters.source}
-                  onChange={(e) => setFilters((f) => ({ ...f, source: e.target.value as BookingSource | '' }))}
+                  onChange={(e) =>
+                    setFilters((f) => ({ ...f, source: e.target.value as BookingSource | '' }))
+                  }
                 >
                   <option value="">{t('common.all')}</option>
                   {BOOKING_SOURCES.map((s) => (
-                    <option key={s} value={s}>{t(`source.${s}`)}</option>
+                    <option key={s} value={s}>
+                      {t(`source.${s}`)}
+                    </option>
                   ))}
                 </Select>
               </Field>
@@ -189,11 +196,15 @@ export function TicketsPage() {
                 <Select
                   id="filter-status"
                   value={filters.status}
-                  onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value as BookingStatus | '' }))}
+                  onChange={(e) =>
+                    setFilters((f) => ({ ...f, status: e.target.value as BookingStatus | '' }))
+                  }
                 >
                   <option value="">{t('common.all')}</option>
                   {BOOKING_STATUSES.map((s) => (
-                    <option key={s} value={s}>{t(`status.${s}`)}</option>
+                    <option key={s} value={s}>
+                      {t(`status.${s}`)}
+                    </option>
                   ))}
                 </Select>
               </Field>
@@ -217,11 +228,15 @@ export function TicketsPage() {
                 <Select
                   id="filter-payment"
                   value={filters.payment_status}
-                  onChange={(e) => setFilters((f) => ({ ...f, payment_status: e.target.value as PaymentStatusEnum | '' }))}
+                  onChange={(e) =>
+                    setFilters((f) => ({ ...f, payment_status: e.target.value as PaymentStatusEnum | '' }))
+                  }
                 >
                   <option value="">{t('common.all')}</option>
                   {PAYMENT_STATUSES.map((s) => (
-                    <option key={s} value={s}>{t(`payment_status.${s}`)}</option>
+                    <option key={s} value={s}>
+                      {t(`payment_status.${s}`)}
+                    </option>
                   ))}
                 </Select>
               </Field>
@@ -252,12 +267,7 @@ export function TicketsPage() {
             description={t('ops.no_tickets_body')}
           />
         }
-        error={
-          <ErrorState
-            onRetry={() => refetch()}
-            retrying={isLoading}
-          />
-        }
+        error={<ErrorState onRetry={() => refetch()} retrying={isLoading} />}
         caption={t('nav.tickets')}
       />
     </div>

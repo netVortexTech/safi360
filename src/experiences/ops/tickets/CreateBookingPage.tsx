@@ -172,101 +172,105 @@ export function CreateBookingPage() {
     }
 
     void (async () => {
-    try {
-      setCreating(true);
-      // Build the booking payload
-      const items = selectedServices.map((s) => ({
-        service_id: s.service_id,
-        label_sw: s.name,
-        label_en: s.name,
-        qty: s.qty,
-        amount_tzs: s.amount_tzs,
-        requires_review: false,
-        input: {},
-      }));
-
-      const totalTzs = selectedServices.reduce((s, i) => s + i.amount_tzs, 0);
-      const depositTzs = paymentMode === 'DEPOSIT' && totalTzs > 0 ? Math.round(totalTzs * 0.3) : 0;
-
-      const schedule =
-        scheduledDate || saveAs === 'CONFIRMED'
-          ? {
-              start: new Date(`${scheduledDate || new Date().toISOString().slice(0, 10)}T${scheduledTime}:00`).toISOString(),
-              end: new Date(
-                new Date(`${scheduledDate || new Date().toISOString().slice(0, 10)}T${scheduledTime}:00`).getTime() +
-                  120 * 60000,
-              ).toISOString(),
-              capacity: 10,
-            }
-          : null;
-
-      const payload = {
-        source,
-        locale: customerLocale,
-        created_by: userId ?? null,
-        customer: selectedCustomerId
-          ? { phone_e164: customerPhone }
-          : {
-              phone_e164: customerPhone,
-              name: customerName,
-              email: customerEmail || null,
-              phone_verified: false,
-            },
-        address:
-          addressArea || addressStreet
-            ? {
-                label: addressLabel || null,
-                area: addressArea || null,
-                street: addressStreet || null,
-                landmark: addressLandmark || null,
-                lat: null,
-                lng: null,
-              }
-            : null,
-        quote: {
-          total_tzs: totalTzs,
-          deposit_tzs: depositTzs,
-          subtotal_tzs: totalTzs,
-          travel_fee_tzs: 0,
-          discount_tzs: 0,
-          tax_tzs: 0,
-          requires_review: false,
-          has_estimate: false,
-          est_duration_min: 120,
-          crew_size: 1,
-        },
-        items,
-        schedule,
-        payment_mode: paymentMode,
-        notes_customer: conversationNote || null,
-      };
-
-      const { data, error } = await supabase.rpc('create_booking_tx', {
-        p: payload,
-      });
-
-      if (error) throw error;
-
-      const result = data as { booking_id: string; ticket_ref: string; status: string };
-      setCreatedTicket(result.booking_id);
-      setCreatedTicketRef(result.ticket_ref);
-      setCreatedStatus(result.status);
       try {
-        window.localStorage.removeItem('ops-booking-draft');
-      } catch {
-        // ignore storage errors
-      }
-      setStep('save');
-      markComplete('save');
+        setCreating(true);
+        // Build the booking payload
+        const items = selectedServices.map((s) => ({
+          service_id: s.service_id,
+          label_sw: s.name,
+          label_en: s.name,
+          qty: s.qty,
+          amount_tzs: s.amount_tzs,
+          requires_review: false,
+          input: {},
+        }));
 
-      await qc.invalidateQueries({ queryKey: ['tickets'] });
-      await qc.invalidateQueries({ queryKey: ['dashboard'] });
-    } catch (err) {
-      console.error('Failed to create booking:', err);
-      setCreateError(t('errors.generic_body'));
-    } finally {
-      setCreating(false);
-    }
+        const totalTzs = selectedServices.reduce((s, i) => s + i.amount_tzs, 0);
+        const depositTzs = paymentMode === 'DEPOSIT' && totalTzs > 0 ? Math.round(totalTzs * 0.3) : 0;
+
+        const schedule =
+          scheduledDate || saveAs === 'CONFIRMED'
+            ? {
+                start: new Date(
+                  `${scheduledDate || new Date().toISOString().slice(0, 10)}T${scheduledTime}:00`,
+                ).toISOString(),
+                end: new Date(
+                  new Date(
+                    `${scheduledDate || new Date().toISOString().slice(0, 10)}T${scheduledTime}:00`,
+                  ).getTime() +
+                    120 * 60000,
+                ).toISOString(),
+                capacity: 10,
+              }
+            : null;
+
+        const payload = {
+          source,
+          locale: customerLocale,
+          created_by: userId ?? null,
+          customer: selectedCustomerId
+            ? { phone_e164: customerPhone }
+            : {
+                phone_e164: customerPhone,
+                name: customerName,
+                email: customerEmail || null,
+                phone_verified: false,
+              },
+          address:
+            addressArea || addressStreet
+              ? {
+                  label: addressLabel || null,
+                  area: addressArea || null,
+                  street: addressStreet || null,
+                  landmark: addressLandmark || null,
+                  lat: null,
+                  lng: null,
+                }
+              : null,
+          quote: {
+            total_tzs: totalTzs,
+            deposit_tzs: depositTzs,
+            subtotal_tzs: totalTzs,
+            travel_fee_tzs: 0,
+            discount_tzs: 0,
+            tax_tzs: 0,
+            requires_review: false,
+            has_estimate: false,
+            est_duration_min: 120,
+            crew_size: 1,
+          },
+          items,
+          schedule,
+          payment_mode: paymentMode,
+          notes_customer: conversationNote || null,
+        };
+
+        const { data, error } = await supabase.rpc('create_booking_tx', {
+          p: payload,
+        });
+
+        if (error) throw error;
+
+        const result = data as { booking_id: string; ticket_ref: string; status: string };
+        setCreatedTicket(result.booking_id);
+        setCreatedTicketRef(result.ticket_ref);
+        setCreatedStatus(result.status);
+        try {
+          window.localStorage.removeItem('ops-booking-draft');
+        } catch {
+          // ignore storage errors
+        }
+        setStep('save');
+        markComplete('save');
+
+        await qc.invalidateQueries({ queryKey: ['tickets'] });
+        await qc.invalidateQueries({ queryKey: ['dashboard'] });
+      } catch (err) {
+        console.error('Failed to create booking:', err);
+        setCreateError(t('errors.generic_body'));
+      } finally {
+        setCreating(false);
+      }
     })();
   };
 
@@ -278,7 +282,7 @@ export function CreateBookingPage() {
           <CardBody className="p-8">
             <PartyPopper className="mx-auto mb-4 size-16 text-success" aria-hidden="true" />
             <h2 className="text-h1">{t('ops.booking_created')}</h2>
-            <p className="mt-2 text-text-subtitle">
+            <p className="text-text-subtitle mt-2">
               {t('ops.booking_created_body', { ticket: createdTicketRef })}
             </p>
             <div className="mt-6 rounded-lg bg-surface-muted p-4">
@@ -290,7 +294,9 @@ export function CreateBookingPage() {
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Button
                 variant="secondary"
-                onClick={() => { void navigator.clipboard.writeText(createdTicketRef); }}
+                onClick={() => {
+                  void navigator.clipboard.writeText(createdTicketRef);
+                }}
               >
                 <Copy aria-hidden="true" />
                 {t('common.copy')}
@@ -366,11 +372,7 @@ export function CreateBookingPage() {
                   )}
                   aria-current={isCurrent ? 'step' : undefined}
                 >
-                  {isCompleted && !isCurrent ? (
-                    <Check className="size-4" aria-hidden="true" />
-                  ) : (
-                    i + 1
-                  )}
+                  {isCompleted && !isCurrent ? <Check className="size-4" aria-hidden="true" /> : i + 1}
                 </button>
                 <span
                   className={cn(
@@ -382,10 +384,7 @@ export function CreateBookingPage() {
                 </span>
                 {i < STEPS.length - 1 && (
                   <div
-                    className={cn(
-                      'h-px w-8 lg:w-12',
-                      isCompleted ? 'bg-success' : 'bg-border',
-                    )}
+                    className={cn('h-px w-8 lg:w-12', isCompleted ? 'bg-success' : 'bg-border')}
                     aria-hidden="true"
                   />
                 )}
@@ -429,12 +428,7 @@ export function CreateBookingPage() {
             />
           )}
 
-          {step === 'services' && (
-            <ServicesStep
-              services={selectedServices}
-              onChange={setSelectedServices}
-            />
-          )}
+          {step === 'services' && <ServicesStep services={selectedServices} onChange={setSelectedServices} />}
 
           {step === 'location' && (
             <LocationStep
@@ -469,21 +463,23 @@ export function CreateBookingPage() {
                 onConversationNoteChange={setConversationNote}
               />
               {createError && (
-                <p role="alert" className="mt-4 rounded-lg border border-error/30 bg-error-tint/40 p-3 text-sm text-error">
+                <p
+                  role="alert"
+                  className="mt-4 rounded-lg border border-error/30 bg-error-tint/40 p-3 text-sm text-error"
+                >
                   {createError}
                 </p>
               )}
               {draftSaved && (
-                <p role="status" className="mt-4 rounded-lg border border-success/30 bg-success/5 p-3 text-sm text-success">
+                <p
+                  role="status"
+                  className="mt-4 rounded-lg border border-success/30 bg-success/5 p-3 text-sm text-success"
+                >
                   {t('ops.draft_saved')}
                 </p>
               )}
               <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-4">
-                <Button
-                  variant="secondary"
-                  onClick={() => handleCreateBooking('DRAFT')}
-                  disabled={creating}
-                >
+                <Button variant="secondary" onClick={() => handleCreateBooking('DRAFT')} disabled={creating}>
                   {t('ops.save_draft')}
                 </Button>
                 <Button
@@ -507,11 +503,7 @@ export function CreateBookingPage() {
 
           {/* Navigation */}
           <div className="mt-8 flex items-center justify-between border-t border-border pt-4">
-            <Button
-              variant="ghost"
-              onClick={goBack}
-              disabled={stepIndex === 0}
-            >
+            <Button variant="ghost" onClick={goBack} disabled={stepIndex === 0}>
               <ArrowLeft aria-hidden="true" />
               {t('common.back')}
             </Button>
@@ -582,7 +574,10 @@ function CustomerStep({
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-subtle" aria-hidden="true" />
+        <Search
+          className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-subtle"
+          aria-hidden="true"
+        />
         <Input
           type="search"
           placeholder={t('ops.search_customer')}
@@ -616,9 +611,7 @@ function CustomerStep({
                     <p className="font-medium text-text">{c.name}</p>
                     <p className="text-sm text-text-subtle">{c.phone_e164}</p>
                   </div>
-                  {selectedId === c.id && (
-                    <CheckCircle2 className="size-5 text-primary" aria-hidden="true" />
-                  )}
+                  {selectedId === c.id && <CheckCircle2 className="size-5 text-primary" aria-hidden="true" />}
                 </div>
               </button>
             </li>
@@ -836,16 +829,35 @@ function LocationStep({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id="booking-address-label" label={t('ops.address_label')}>
-          <Input id="booking-address-label" value={label} onChange={(e) => onLabelChange(e.target.value)} placeholder={t('portal.location.title')} />
+          <Input
+            id="booking-address-label"
+            value={label}
+            onChange={(e) => onLabelChange(e.target.value)}
+            placeholder={t('portal.location.title')}
+          />
         </Field>
         <Field id="booking-address-area" label={t('portal.location.area')}>
-          <Input id="booking-address-area" value={area} onChange={(e) => onAreaChange(e.target.value)} placeholder={t('portal.location.area_placeholder')} />
+          <Input
+            id="booking-address-area"
+            value={area}
+            onChange={(e) => onAreaChange(e.target.value)}
+            placeholder={t('portal.location.area_placeholder')}
+          />
         </Field>
         <Field id="booking-address-street" label={t('portal.location.street')}>
-          <Input id="booking-address-street" value={street} onChange={(e) => onStreetChange(e.target.value)} />
+          <Input
+            id="booking-address-street"
+            value={street}
+            onChange={(e) => onStreetChange(e.target.value)}
+          />
         </Field>
         <Field id="booking-address-landmark" label={t('portal.location.landmark')}>
-          <Input id="booking-address-landmark" value={landmark} onChange={(e) => onLandmarkChange(e.target.value)} placeholder={t('portal.location.landmark_placeholder')} />
+          <Input
+            id="booking-address-landmark"
+            value={landmark}
+            onChange={(e) => onLandmarkChange(e.target.value)}
+            placeholder={t('portal.location.landmark_placeholder')}
+          />
         </Field>
       </div>
 
@@ -856,10 +868,20 @@ function LocationStep({
         </h4>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field id="booking-date" label={t('ops.date')}>
-            <Input id="booking-date" type="date" value={date} onChange={(e) => onDateChange(e.target.value)} />
+            <Input
+              id="booking-date"
+              type="date"
+              value={date}
+              onChange={(e) => onDateChange(e.target.value)}
+            />
           </Field>
           <Field id="booking-time" label={t('ops.time')}>
-            <Input id="booking-time" type="time" value={time} onChange={(e) => onTimeChange(e.target.value)} />
+            <Input
+              id="booking-time"
+              type="time"
+              value={time}
+              onChange={(e) => onTimeChange(e.target.value)}
+            />
           </Field>
         </div>
       </div>
@@ -911,7 +933,9 @@ function PriceStep({
           onChange={(e) => onSourceChange(e.target.value as BookingSource)}
         >
           {BOOKING_SOURCES.map((s) => (
-            <option key={s} value={s}>{t(`source.${s}`)}</option>
+            <option key={s} value={s}>
+              {t(`source.${s}`)}
+            </option>
           ))}
         </Select>
       </Field>

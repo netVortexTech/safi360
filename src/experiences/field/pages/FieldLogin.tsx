@@ -99,8 +99,23 @@ export default function FieldLogin() {
             <p className="mb-4 text-sm text-text-muted">
               {t('auth.enter_code_body', { phone: phoneE164 ? formatPhone(phoneE164) : '' })}
             </p>
-            <CodeInput label={t('auth.code_label')} value={code} onChange={setCode} onComplete={(v) => void verify(v)} error={error ?? undefined} disabled={busy} autoFocus />
-            <Button type="button" className="mt-3 w-full" onClick={() => void verify(code)} loading={busy} loadingLabel={t('auth.verifying')} disabled={code.length < 6}>
+            <CodeInput
+              label={t('auth.code_label')}
+              value={code}
+              onChange={setCode}
+              onComplete={(v) => void verify(v)}
+              error={error ?? undefined}
+              disabled={busy}
+              autoFocus
+            />
+            <Button
+              type="button"
+              className="mt-3 w-full"
+              onClick={() => void verify(code)}
+              loading={busy}
+              loadingLabel={t('auth.verifying')}
+              disabled={code.length < 6}
+            >
               {t('auth.verify')}
             </Button>
           </div>

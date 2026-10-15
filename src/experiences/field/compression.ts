@@ -6,7 +6,11 @@ export interface CompressedImage {
   sizeBytes: number;
 }
 
-export async function compressImage(file: File, maxSide = 1280, targetBytes = 300 * 1024): Promise<CompressedImage> {
+export async function compressImage(
+  file: File,
+  maxSide = 1280,
+  targetBytes = 300 * 1024,
+): Promise<CompressedImage> {
   let bitmap: ImageBitmap | null = null;
   try {
     bitmap = await createImageBitmap(file);

@@ -47,18 +47,13 @@ export function DispatchPage() {
   useEffect(() => {
     const channel = supabase
       .channel('dispatch-bookings')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'bookings' },
-        () => {
-          void refetch();
-        },
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
+        void refetch();
+      })
       .subscribe((status: string) => {
         if (status === 'SUBSCRIBED') setRealtimeStatus('connected');
         else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') setRealtimeStatus('disconnected');
       });
-     
 
     return () => {
       void supabase.removeChannel(channel);
@@ -103,7 +98,10 @@ export function DispatchPage() {
 
       {/* Stale connection warning */}
       {realtimeStatus === 'disconnected' && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm" role="alert">
+        <div
+          className="mb-4 flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-sm"
+          role="alert"
+        >
           <AlertTriangle className="size-4 text-warning" aria-hidden="true" />
           <p className="text-text">{t('ops.realtime_stale_warning')}</p>
         </div>
@@ -141,10 +139,7 @@ export function DispatchPage() {
         {/* Assignment drawer */}
         <div>
           {selectedItem ? (
-            <AssignmentDrawer
-              item={selectedItem}
-              onClose={() => setSelectedBooking(null)}
-            />
+            <AssignmentDrawer item={selectedItem} onClose={() => setSelectedBooking(null)} />
           ) : (
             <Card>
               <CardBody className="py-12 text-center text-text-subtle">
@@ -174,10 +169,7 @@ function DispatchCard({
 
   return (
     <Card
-      className={cn(
-        'cursor-pointer transition-all',
-        selected && 'ring-2 ring-primary',
-      )}
+      className={cn('cursor-pointer transition-all', selected && 'ring-2 ring-primary')}
       onClick={onSelect}
     >
       <CardBody className="p-4">
@@ -240,10 +232,7 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
   };
 
   const handleTransition = (to: 'ASSIGNED' | 'EN_ROUTE' | 'ARRIVED' | 'IN_PROGRESS' | 'COMPLETED') => {
-    void transition.mutate(
-      { booking_id: item.booking_id, to },
-      { onSuccess: () => {} },
-    );
+    void transition.mutate({ booking_id: item.booking_id, to }, { onSuccess: () => {} });
   };
 
   return (
@@ -267,7 +256,10 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
             <h4 className="mb-2 text-sm font-medium">{t('ops.current_assignments')}</h4>
             <ul className="space-y-1">
               {item.assignee_ids.map((staffId) => (
-                <li key={staffId} className="flex items-center justify-between rounded-lg border border-border p-2 text-sm">
+                <li
+                  key={staffId}
+                  className="flex items-center justify-between rounded-lg border border-border p-2 text-sm"
+                >
                   <span className="flex items-center gap-2">
                     <UserCheck className="size-4 text-success" aria-hidden="true" />
                     {staffId.slice(0, 8)}
@@ -322,9 +314,7 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
                         </Badge>
                       )}
                     </div>
-                    {c.conflict_reason && (
-                      <p className="mt-1 text-xs text-warning">{c.conflict_reason}</p>
-                    )}
+                    {c.conflict_reason && <p className="mt-1 text-xs text-warning">{c.conflict_reason}</p>}
                     <p className="mt-1 text-xs text-text-subtle">
                       {t('ops.current_load')}: {c.current_load}
                     </p>

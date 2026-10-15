@@ -1,10 +1,5 @@
 import { useState } from 'react';
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  XCircle,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useExceptions, useResolveException } from '../tickets/hooks';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -75,7 +70,11 @@ export function ExceptionsPage() {
                   onResolve={(action) => {
                     void resolveException.mutate(
                       { id: exception.id, action },
-                      { onSuccess: () => { void refetch(); } },
+                      {
+                        onSuccess: () => {
+                          void refetch();
+                        },
+                      },
                     );
                   }}
                   resolving={resolveException.isPending}
@@ -124,30 +123,42 @@ function ExceptionCard({
           <div className="mt-0.5">{kindIcon}</div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <Badge tone={
-                exception.severity === 'high' ? 'error' :
-                exception.severity === 'normal' ? 'warning' : 'outline'
-              }>
+              <Badge
+                tone={
+                  exception.severity === 'high'
+                    ? 'error'
+                    : exception.severity === 'normal'
+                      ? 'warning'
+                      : 'outline'
+                }
+              >
                 {exception.kind}
               </Badge>
-              <Badge tone={
-                exception.status === 'OPEN' ? 'warning' :
-                exception.status === 'RESOLVED' ? 'success' : 'outline'
-              }>
+              <Badge
+                tone={
+                  exception.status === 'OPEN'
+                    ? 'warning'
+                    : exception.status === 'RESOLVED'
+                      ? 'success'
+                      : 'outline'
+                }
+              >
                 {t(`ops.exception_status.${exception.status}`)}
               </Badge>
             </div>
             <p className="mt-2 text-sm text-text">
-              {details.reason as string || t(`ops.exception_kind.${exception.kind}`)}
+              {(details.reason as string) || t(`ops.exception_kind.${exception.kind}`)}
             </p>
             {exception.ticket_ref && (
               <div className="mt-2">
-                <TicketChip ticketRef={exception.ticket_ref} to={`/ops/tickets/${exception.booking_id}`} size="sm" />
+                <TicketChip
+                  ticketRef={exception.ticket_ref}
+                  to={`/ops/tickets/${exception.booking_id}`}
+                  size="sm"
+                />
               </div>
             )}
-            <p className="mt-2 text-xs text-text-subtle">
-              {formatDateTime(exception.created_at, 'en')}
-            </p>
+            <p className="mt-2 text-xs text-text-subtle">{formatDateTime(exception.created_at, 'en')}</p>
           </div>
           {exception.status === 'OPEN' && (
             <div className="flex shrink-0 gap-2">
@@ -159,11 +170,7 @@ function ExceptionCard({
               >
                 {t('ops.dismiss')}
               </Button>
-              <Button
-                size="sm"
-                onClick={() => onResolve('RESOLVED')}
-                disabled={resolving}
-              >
+              <Button size="sm" onClick={() => onResolve('RESOLVED')} disabled={resolving}>
                 <CheckCircle2 aria-hidden="true" />
                 {t('ops.resolve')}
               </Button>

@@ -32,7 +32,9 @@ export function usePaymentsLedger() {
     queryFn: async (): Promise<PaymentLedgerRow[]> => {
       const { data, error } = await supabase
         .from('payments')
-        .select('id, tenant_id, booking_id, kind, provider, provider_ref, amount_tzs, status, idempotency_key, raw, completed_at, created_at, booking:bookings!inner(ticket_ref, customer:customers(name))')
+        .select(
+          'id, tenant_id, booking_id, kind, provider, provider_ref, amount_tzs, status, idempotency_key, raw, completed_at, created_at, booking:bookings!inner(ticket_ref, customer:customers(name))',
+        )
         .order('created_at', { ascending: false })
         .limit(200);
       if (error) throw error;
@@ -51,7 +53,10 @@ export function usePaymentsLedger() {
         completed_at: typeof row.completed_at === 'string' ? row.completed_at : null,
         created_at: String(row.created_at ?? ''),
         booking_ticket_ref: String((row.booking as Record<string, unknown> | null)?.ticket_ref ?? ''),
-        customer_name: String(((row.booking as Record<string, unknown> | null)?.customer as Record<string, unknown> | null)?.name ?? ''),
+        customer_name: String(
+          ((row.booking as Record<string, unknown> | null)?.customer as Record<string, unknown> | null)
+            ?.name ?? '',
+        ),
       }));
     },
     staleTime: 30_000,
@@ -61,12 +66,7 @@ export function usePaymentsLedger() {
 export function useRecordManualPayment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (vars: {
-      booking_id: string;
-      amount_tzs: number;
-      method: string;
-      reason: string;
-    }) => {
+    mutationFn: async (vars: { booking_id: string; amount_tzs: number; method: string; reason: string }) => {
       const { data, error } = await supabase.rpc('record_manual_payment', {
         p_booking_id: vars.booking_id,
         p_amount_tzs: vars.amount_tzs,

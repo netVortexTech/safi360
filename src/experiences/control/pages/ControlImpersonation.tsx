@@ -154,7 +154,9 @@ export default function ControlImpersonation() {
       ) : null}
 
       <Card>
-        <CardHeader><CardTitle>{t('control.impersonation.start_title')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('control.impersonation.start_title')}</CardTitle>
+        </CardHeader>
         <CardBody className="space-y-3">
           {tenantsQuery.isLoading ? <Skeleton className="h-24 w-full" /> : null}
           {tenantsQuery.error ? (
@@ -175,17 +177,25 @@ export default function ControlImpersonation() {
                 />
               </Field>
               <Field id="imp-tenant" label={t('control.impersonation.tenant')} required>
-                <Select id="imp-tenant" value={selectedTenantId} onChange={(e) => setSelectedTenantId(e.target.value)}>
+                <Select
+                  id="imp-tenant"
+                  value={selectedTenantId}
+                  onChange={(e) => setSelectedTenantId(e.target.value)}
+                >
                   <option value="">{t('control.impersonation.select_tenant')}</option>
                   {tenants.map((x) => (
-                    <option key={x.id} value={x.id}>{x.name}</option>
+                    <option key={x.id} value={x.id}>
+                      {x.name}
+                    </option>
                   ))}
                 </Select>
               </Field>
               <Field id="imp-role" label={t('control.impersonation.role')} required>
                 <Select id="imp-role" value={role} onChange={(e) => setRole(e.target.value)}>
                   {ROLES.map((r) => (
-                    <option key={r} value={r}>{r}</option>
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
                   ))}
                 </Select>
               </Field>
@@ -197,7 +207,9 @@ export default function ControlImpersonation() {
                   placeholder={t('control.impersonation.reason_placeholder')}
                 />
               </Field>
-              {startMutation.error ? <p className="text-sm text-error">{String(startMutation.error)}</p> : null}
+              {startMutation.error ? (
+                <p className="text-sm text-error">{String(startMutation.error)}</p>
+              ) : null}
               {localStarted && !startMutation.error ? (
                 <p className="text-sm text-success-text">{t('control.impersonation.started')}</p>
               ) : null}
@@ -222,7 +234,9 @@ export default function ControlImpersonation() {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>{t('control.impersonation.history')}</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{t('control.impersonation.history')}</CardTitle>
+        </CardHeader>
         <CardBody>
           {historyQuery.isLoading ? <Skeleton className="h-24 w-full" /> : null}
           {historyQuery.error ? (
@@ -256,7 +270,9 @@ export default function ControlImpersonation() {
                 {(historyQuery.data?.rows ?? []).map((s) => (
                   <TR key={s.id}>
                     <TD className="text-xs text-text-subtle">{s.target_tenant_id.slice(0, 8)}…</TD>
-                    <TD><Badge tone="warning">{s.target_role}</Badge></TD>
+                    <TD>
+                      <Badge tone="warning">{s.target_role}</Badge>
+                    </TD>
                     <TD className="max-w-xs truncate text-sm">{s.reason}</TD>
                     <TD className="text-xs text-text-subtle">{formatDay(s.created_at, locale)}</TD>
                   </TR>

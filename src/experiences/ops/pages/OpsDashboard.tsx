@@ -1,14 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  AlertTriangle,
-  Banknote,
-  Calendar,
-  CheckCircle2,
-  Plus,
-  Ticket,
-  TrendingUp,
-} from 'lucide-react';
+import { AlertTriangle, Banknote, Calendar, CheckCircle2, Plus, Ticket, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../tickets/hooks';
 import { useCurrentTenant } from '@/lib/tenant';
@@ -33,10 +25,7 @@ export function OpsDashboard() {
   const recentTickets = useMemo(() => data?.recent_tickets ?? [], [data]);
   const bySource = useMemo(() => data?.by_source ?? [], [data]);
 
-  const maxSourceCount = useMemo(
-    () => Math.max(...bySource.map((s) => s.count), 1),
-    [bySource],
-  );
+  const maxSourceCount = useMemo(() => Math.max(...bySource.map((s) => s.count), 1), [bySource]);
 
   if (isLoading) {
     return (
@@ -134,7 +123,11 @@ export function OpsDashboard() {
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <TicketChip ticketRef={item.ticket_ref} to={`/ops/tickets/${item.booking_id}`} size="sm" />
+                        <TicketChip
+                          ticketRef={item.ticket_ref}
+                          to={`/ops/tickets/${item.booking_id}`}
+                          size="sm"
+                        />
                         <StatusBadge status={item.status} />
                       </div>
                       <p className="mt-1 truncate text-sm text-text-muted">
@@ -161,9 +154,7 @@ export function OpsDashboard() {
           </CardHeader>
           <CardBody>
             {bySource.length === 0 ? (
-              <p className="py-4 text-center text-sm text-text-subtle">
-                {t('ops.no_bookings_yet')}
-              </p>
+              <p className="py-4 text-center text-sm text-text-subtle">{t('ops.no_bookings_yet')}</p>
             ) : (
               <ul className="space-y-3" data-testid="source-chart">
                 {bySource.map((s) => (
@@ -195,21 +186,15 @@ export function OpsDashboard() {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-caption text-text-subtle">{t('ops.booked_value')}</p>
-              <p className="mt-1 text-h2 tabular text-text">
-                {formatTzs(kpis?.booked_value_tzs ?? 0)}
-              </p>
+              <p className="tabular mt-1 text-h2 text-text">{formatTzs(kpis?.booked_value_tzs ?? 0)}</p>
             </div>
             <div>
               <p className="text-caption text-text-subtle">{t('ops.collected')}</p>
-              <p className="mt-1 text-h2 tabular text-success">
-                {formatTzs(kpis?.collected_tzs ?? 0)}
-              </p>
+              <p className="tabular mt-1 text-h2 text-success">{formatTzs(kpis?.collected_tzs ?? 0)}</p>
             </div>
             <div>
               <p className="text-caption text-text-subtle">{t('ops.pending')}</p>
-              <p className="mt-1 text-h2 tabular text-warning">
-                {formatTzs(kpis?.pending_tzs ?? 0)}
-              </p>
+              <p className="tabular mt-1 text-h2 text-warning">{formatTzs(kpis?.pending_tzs ?? 0)}</p>
             </div>
           </div>
         </CardBody>
@@ -242,10 +227,7 @@ export function OpsDashboard() {
                 </thead>
                 <tbody>
                   {recentTickets.map((ticket) => (
-                    <tr
-                      key={ticket.id}
-                      className="border-b border-border/50 last:border-0"
-                    >
+                    <tr key={ticket.id} className="border-b border-border/50 last:border-0">
                       <td className="py-3 pr-4">
                         <TicketChip
                           ticketRef={ticket.ticket_ref}
@@ -268,9 +250,7 @@ export function OpsDashboard() {
                       <td className="py-3 pr-4">
                         <SourceChip source={ticket.source} />
                       </td>
-                      <td className="py-3 text-right tabular font-medium">
-                        {formatTzs(ticket.total_tzs)}
-                      </td>
+                      <td className="tabular py-3 text-right font-medium">{formatTzs(ticket.total_tzs)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -315,7 +295,7 @@ function KpiCard({
       <CardBody className="p-4">
         <div className={`mb-2 ${tones[tone]}`}>{icon}</div>
         <p className="text-caption text-text-subtle">{label}</p>
-        <p className="mt-1 text-h2 tabular text-text">{value}</p>
+        <p className="tabular mt-1 text-h2 text-text">{value}</p>
       </CardBody>
     </Card>
   );
@@ -364,9 +344,7 @@ function SetupChecklist({ tenant }: { tenant: { settings?: Record<string, unknow
         <li key={item.key} className="flex items-center gap-3">
           <div
             className={`flex size-5 items-center justify-center rounded-full border-2 ${
-              item.done
-                ? 'border-success bg-success text-white'
-                : 'border-border'
+              item.done ? 'border-success bg-success text-white' : 'border-border'
             }`}
             aria-hidden="true"
           >

@@ -58,7 +58,7 @@ export default function ControlCreateCompany() {
     queryFn: async (): Promise<PlanRow[]> => {
       const { data, error } = await supabase.from('plans').select('id, name, price_tzs').order('name');
       if (error) throw new Error(error.message);
-      return (data ?? []);
+      return data ?? [];
     },
   });
 
@@ -175,7 +175,11 @@ export default function ControlCreateCompany() {
             >
               {i + 1}. {t(`control.create_company.step_${key}`)}
             </span>
-            {i < STEPS.length - 1 && <span aria-hidden="true" className="text-text-subtle">→</span>}
+            {i < STEPS.length - 1 && (
+              <span aria-hidden="true" className="text-text-subtle">
+                →
+              </span>
+            )}
           </li>
         ))}
       </ol>
@@ -214,7 +218,11 @@ export default function ControlCreateCompany() {
                 id="cc-phone"
                 label={t('control.create_company.phone')}
                 required
-                error={phone && !PHONE_RE.test(phone.trim()) ? t('control.create_company.phone_invalid') : undefined}
+                error={
+                  phone && !PHONE_RE.test(phone.trim())
+                    ? t('control.create_company.phone_invalid')
+                    : undefined
+                }
               >
                 <Input
                   id="cc-phone"
@@ -243,7 +251,14 @@ export default function ControlCreateCompany() {
                 <Input
                   id="cc-prefix"
                   value={ticketPrefix}
-                  onChange={(e) => setTicketPrefix(e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 5))}
+                  onChange={(e) =>
+                    setTicketPrefix(
+                      e.target.value
+                        .toUpperCase()
+                        .replace(/[^A-Z]/g, '')
+                        .slice(0, 5),
+                    )
+                  }
                   invalid={Boolean((ticketPrefix && !prefixValid) || prefixTaken)}
                 />
               </Field>
@@ -286,12 +301,7 @@ export default function ControlCreateCompany() {
                 />
               </Field>
               <Field id="cc-logo" label={t('control.create_company.logo_url')}>
-                <Input
-                  id="cc-logo"
-                  type="url"
-                  value={logoUrl}
-                  onChange={(e) => setLogoUrl(e.target.value)}
-                />
+                <Input id="cc-logo" type="url" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} />
               </Field>
               <Field id="cc-color" label={t('control.create_company.brand_color')}>
                 <Input

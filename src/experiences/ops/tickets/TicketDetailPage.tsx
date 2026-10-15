@@ -122,20 +122,32 @@ export function TicketDetailPage() {
     enabled: !!id && rawTicket?.status === 'COMPLETED',
     queryFn: async () => {
       const beforePaths = (events ?? []).flatMap((e) =>
-        Array.isArray((e.data ?? {}).evidence_before) ? ((e.data ?? {}) as { evidence_before: string[] }).evidence_before : [],
+        Array.isArray((e.data ?? {}).evidence_before)
+          ? ((e.data ?? {}) as { evidence_before: string[] }).evidence_before
+          : [],
       );
       const afterPaths = (events ?? []).flatMap((e) =>
-        Array.isArray((e.data ?? {}).evidence_after) ? ((e.data ?? {}) as { evidence_after: string[] }).evidence_after : [],
+        Array.isArray((e.data ?? {}).evidence_after)
+          ? ((e.data ?? {}) as { evidence_after: string[] }).evidence_after
+          : [],
       );
       const storage = supabase.storage.from('job-evidence');
-      const before = (await Promise.all(beforePaths.map(async (path) => {
-        const { data } = await storage.createSignedUrl(path, 3600);
-        return data?.signedUrl ? { path, url: data.signedUrl } : null;
-      }))).filter((item): item is { path: string; url: string } => !!item?.url);
-      const after = (await Promise.all(afterPaths.map(async (path) => {
-        const { data } = await storage.createSignedUrl(path, 3600);
-        return data?.signedUrl ? { path, url: data.signedUrl } : null;
-      }))).filter((item): item is { path: string; url: string } => !!item?.url);
+      const before = (
+        await Promise.all(
+          beforePaths.map(async (path) => {
+            const { data } = await storage.createSignedUrl(path, 3600);
+            return data?.signedUrl ? { path, url: data.signedUrl } : null;
+          }),
+        )
+      ).filter((item): item is { path: string; url: string } => !!item?.url);
+      const after = (
+        await Promise.all(
+          afterPaths.map(async (path) => {
+            const { data } = await storage.createSignedUrl(path, 3600);
+            return data?.signedUrl ? { path, url: data.signedUrl } : null;
+          }),
+        )
+      ).filter((item): item is { path: string; url: string } => !!item?.url);
       return { before, after };
     },
   });
@@ -148,7 +160,9 @@ export function TicketDetailPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('notifications')
-        .select('id, channel, template_key, status, scheduled_for, sent_at, delivered_at, read_at, failed_at, last_error, variables, created_at')
+        .select(
+          'id, channel, template_key, status, scheduled_for, sent_at, delivered_at, read_at, failed_at, last_error, variables, created_at',
+        )
         .eq('booking_id', id ?? '')
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -174,7 +188,9 @@ export function TicketDetailPage() {
       <ErrorState
         title={t('errors.generic_title')}
         description={t('errors.generic_body')}
-        onRetry={() => { void refetch(); }}
+        onRetry={() => {
+          void refetch();
+        }}
       />
     );
   }
@@ -211,7 +227,9 @@ export function TicketDetailPage() {
         title={
           <span className="flex items-center gap-3">
             <TicketChip ticketRef={ticket.ticket_ref} size="display" />
-            {ticket.flags.map((f) => <FlagBadge key={f} flag={f} />)}
+            {ticket.flags.map((f) => (
+              <FlagBadge key={f} flag={f} />
+            ))}
           </span>
         }
         subtitle={customer.name}
@@ -246,19 +264,11 @@ export function TicketDetailPage() {
       {/* Status-based action bar */}
       {canManage && ['CONFIRMED', 'ASSIGNED'].includes(ticket.status) && (
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowNoShow(true)}
-          >
+          <Button variant="secondary" size="sm" onClick={() => setShowNoShow(true)}>
             <XCircle aria-hidden="true" />
             {t('ops.mark_no_show')}
           </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowFlagReview(true)}
-          >
+          <Button variant="secondary" size="sm" onClick={() => setShowFlagReview(true)}>
             <Flag aria-hidden="true" />
             {t('ops.flag_needs_review')}
           </Button>
@@ -294,8 +304,8 @@ export function TicketDetailPage() {
                           </Badge>
                         )}
                       </td>
-                      <td className="py-2 text-right tabular">{item.qty}</td>
-                      <td className="py-2 text-right tabular">
+                      <td className="tabular py-2 text-right">{item.qty}</td>
+                      <td className="tabular py-2 text-right">
                         {item.amount_tzs != null ? formatTzs(item.amount_tzs) : '—'}
                       </td>
                     </tr>
@@ -303,18 +313,22 @@ export function TicketDetailPage() {
                 </tbody>
                 <tfoot>
                   <tr className="border-t-2 border-border font-semibold">
-                    <td className="pt-2" colSpan={2}>{t('quote.summary.total')}</td>
-                    <td className="pt-2 text-right tabular">{formatTzs(ticket.total_tzs)}</td>
+                    <td className="pt-2" colSpan={2}>
+                      {t('quote.summary.total')}
+                    </td>
+                    <td className="tabular pt-2 text-right">{formatTzs(ticket.total_tzs)}</td>
                   </tr>
                   {ticket.deposit_tzs > 0 && (
                     <>
                       <tr className="text-text-muted">
                         <td colSpan={2}>{t('quote.summary.deposit')}</td>
-                        <td className="text-right tabular">{formatTzs(ticket.deposit_tzs)}</td>
+                        <td className="tabular text-right">{formatTzs(ticket.deposit_tzs)}</td>
                       </tr>
                       <tr className="text-text-muted">
                         <td colSpan={2}>{t('quote.summary.balance')}</td>
-                        <td className="text-right tabular">{formatTzs(ticket.total_tzs - ticket.deposit_tzs)}</td>
+                        <td className="tabular text-right">
+                          {formatTzs(ticket.total_tzs - ticket.deposit_tzs)}
+                        </td>
                       </tr>
                     </>
                   )}
@@ -327,7 +341,10 @@ export function TicketDetailPage() {
                   <h4 className="mb-2 text-sm font-medium text-text">{t('ops.quotes')}</h4>
                   <ul className="space-y-2">
                     {quotes.map((q, i) => (
-                      <li key={q.id} className="flex items-center justify-between rounded-lg bg-surface-muted px-3 py-2 text-sm">
+                      <li
+                        key={q.id}
+                        className="flex items-center justify-between rounded-lg bg-surface-muted px-3 py-2 text-sm"
+                      >
                         <div className="flex items-center gap-2">
                           <Badge tone="outline">#{quotes.length - i}</Badge>
                           <span className="text-text-subtle">{formatDay(q.created_at, 'en')}</span>
@@ -335,7 +352,15 @@ export function TicketDetailPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="tabular font-medium">{formatTzs(q.total_tzs)}</span>
-                          <Badge tone={q.status === 'APPROVED' ? 'success' : q.status === 'REJECTED' ? 'error' : 'outline'}>
+                          <Badge
+                            tone={
+                              q.status === 'APPROVED'
+                                ? 'success'
+                                : q.status === 'REJECTED'
+                                  ? 'error'
+                                  : 'outline'
+                            }
+                          >
                             {q.status}
                           </Badge>
                         </div>
@@ -414,11 +439,10 @@ export function TicketDetailPage() {
                   <p className="text-caption text-text-subtle">{t('ops.scheduled')}</p>
                   {ticket.scheduled_start ? (
                     <div className="mt-1">
-                      <p className="font-medium text-text">
-                        {formatDay(ticket.scheduled_start, 'en')}
-                      </p>
+                      <p className="font-medium text-text">{formatDay(ticket.scheduled_start, 'en')}</p>
                       <p className="text-sm text-text-subtle">
-                        {formatTime(ticket.scheduled_start, 'en')} – {ticket.scheduled_end ? formatTime(ticket.scheduled_end, 'en') : '…'}
+                        {formatTime(ticket.scheduled_start, 'en')} –{' '}
+                        {ticket.scheduled_end ? formatTime(ticket.scheduled_end, 'en') : '…'}
                       </p>
                     </div>
                   ) : (
@@ -466,15 +490,15 @@ export function TicketDetailPage() {
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <p className="text-caption text-text-subtle">{t('ops.total')}</p>
-                  <p className="mt-1 text-h3 tabular">{formatTzs(ticket.total_tzs)}</p>
+                  <p className="tabular mt-1 text-h3">{formatTzs(ticket.total_tzs)}</p>
                 </div>
                 <div>
                   <p className="text-caption text-text-subtle">{t('ops.paid')}</p>
-                  <p className="mt-1 text-h3 tabular text-success">{formatTzs(ticket.paid_tzs)}</p>
+                  <p className="tabular mt-1 text-h3 text-success">{formatTzs(ticket.paid_tzs)}</p>
                 </div>
                 <div>
                   <p className="text-caption text-text-subtle">{t('ops.balance')}</p>
-                  <p className="mt-1 text-h3 tabular text-warning">
+                  <p className="tabular mt-1 text-h3 text-warning">
                     {formatTzs(Math.max(ticket.total_tzs - ticket.paid_tzs, 0))}
                   </p>
                 </div>
@@ -516,11 +540,17 @@ export function TicketDetailPage() {
                         <div className="grid grid-cols-2 gap-2">
                           {group.images.map((image) => (
                             <a key={image.path} href={image.url} target="_blank" rel="noreferrer">
-                              <img src={image.url} alt={`${group.label} evidence`} className="aspect-square rounded-lg object-cover" />
+                              <img
+                                src={image.url}
+                                alt={`${group.label} evidence`}
+                                className="aspect-square rounded-lg object-cover"
+                              />
                             </a>
                           ))}
                         </div>
-                        {!group.images.length ? <p className="text-sm text-text-subtle">No photos uploaded.</p> : null}
+                        {!group.images.length ? (
+                          <p className="text-sm text-text-subtle">No photos uploaded.</p>
+                        ) : null}
                       </section>
                     ))}
                   </div>
@@ -530,7 +560,11 @@ export function TicketDetailPage() {
                       onClick={() =>
                         void transition.mutate(
                           { booking_id: ticket.id, to: 'CLOSED', reason: 'Completion approved by office' },
-                          { onSuccess: () => { void refetch(); } },
+                          {
+                            onSuccess: () => {
+                              void refetch();
+                            },
+                          },
                         )
                       }
                     >
@@ -540,12 +574,14 @@ export function TicketDetailPage() {
                       variant="secondary"
                       onClick={() => {
                         void import('@/lib/supabase').then(({ supabase }) => {
-                          void supabase.rpc('open_exception', {
-                            p_booking_id: ticket.id,
-                            p_kind: 'NEEDS_REVIEW',
-                            p_details: { source: 'completion_review' },
-                            p_severity: 'normal',
-                          }).then(() => refetch());
+                          void supabase
+                            .rpc('open_exception', {
+                              p_booking_id: ticket.id,
+                              p_kind: 'NEEDS_REVIEW',
+                              p_details: { source: 'completion_review' },
+                              p_severity: 'normal',
+                            })
+                            .then(() => refetch());
                         });
                       }}
                     >
@@ -569,21 +605,34 @@ export function TicketDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardBody>
-                {notifications.isLoading ? <p className="text-sm text-text-muted">Loading notifications...</p> : null}
+                {notifications.isLoading ? (
+                  <p className="text-sm text-text-muted">Loading notifications...</p>
+                ) : null}
                 {(notifications.data ?? []).length ? (
                   <ul className="space-y-2">
                     {(notifications.data ?? []).map((row: Record<string, unknown>) => (
-                      <li key={String(row.id)} className="flex items-center justify-between rounded-lg border border-border p-3 text-sm">
+                      <li
+                        key={String(row.id)}
+                        className="flex items-center justify-between rounded-lg border border-border p-3 text-sm"
+                      >
                         <div>
                           <p className="font-medium">{String(row.template_key)}</p>
-                          <p className="text-xs text-text-subtle">{String(row.channel)} · {String(row.status)}</p>
+                          <p className="text-xs text-text-subtle">
+                            {String(row.channel)} · {String(row.status)}
+                          </p>
                         </div>
-                        {String(row.status) !== 'sent' && String(row.status) !== 'delivered' && String(row.status) !== 'read' ? (
+                        {String(row.status) !== 'sent' &&
+                        String(row.status) !== 'delivered' &&
+                        String(row.status) !== 'read' ? (
                           <Button
                             variant="secondary"
                             size="sm"
                             onClick={() => {
-                              void supabase.from('notifications').update({ status: 'queued', failed_at: null, last_error: null }).eq('id', String(row.id)).then(() => notifications.refetch());
+                              void supabase
+                                .from('notifications')
+                                .update({ status: 'queued', failed_at: null, last_error: null })
+                                .eq('id', String(row.id))
+                                .then(() => notifications.refetch());
                             }}
                           >
                             Resend
@@ -598,7 +647,6 @@ export function TicketDetailPage() {
               </CardBody>
             </Card>
           ) : null}
-
         </div>
 
         {/* Right column: Timeline + Audit */}
@@ -673,7 +721,12 @@ export function TicketDetailPage() {
                 capacity: 10,
                 reason,
               },
-              { onSuccess: () => { setShowReschedule(false); void refetch(); } },
+              {
+                onSuccess: () => {
+                  setShowReschedule(false);
+                  void refetch();
+                },
+              },
             );
           }}
           loading={reschedule.isPending}
@@ -693,7 +746,12 @@ export function TicketDetailPage() {
         onConfirm={(reason) => {
           transition.mutate(
             { booking_id: ticket.id, to: 'CANCELLED', reason },
-            { onSuccess: () => { setShowCancel(false); void refetch(); } },
+            {
+              onSuccess: () => {
+                setShowCancel(false);
+                void refetch();
+              },
+            },
           );
         }}
       />
@@ -711,7 +769,12 @@ export function TicketDetailPage() {
         onConfirm={(reason) => {
           transition.mutate(
             { booking_id: ticket.id, to: 'NO_SHOW', reason },
-            { onSuccess: () => { setShowNoShow(false); void refetch(); } },
+            {
+              onSuccess: () => {
+                setShowNoShow(false);
+                void refetch();
+              },
+            },
           );
         }}
       />
@@ -723,15 +786,17 @@ export function TicketDetailPage() {
           onConfirm={(reason) => {
             // Use open_exception via RPC
             void import('@/lib/supabase').then(({ supabase }) => {
-              void supabase.rpc('open_exception', {
-                p_booking_id: ticket.id,
-                p_kind: 'NEEDS_REVIEW',
-                p_details: { reason, source: 'manual_flag' },
-                p_severity: 'normal',
-              }).then(() => {
-                setShowFlagReview(false);
-                void refetch();
-              });
+              void supabase
+                .rpc('open_exception', {
+                  p_booking_id: ticket.id,
+                  p_kind: 'NEEDS_REVIEW',
+                  p_details: { reason, source: 'manual_flag' },
+                  p_severity: 'normal',
+                })
+                .then(() => {
+                  setShowFlagReview(false);
+                  void refetch();
+                });
             });
           }}
         />
@@ -768,7 +833,12 @@ export function TicketDetailPage() {
                   onClick={() => {
                     addNote.mutate(
                       { booking_id: ticket.id, note: noteText, customer_visible: noteVisible },
-                      { onSuccess: () => { setShowNote(false); setNoteText(''); } },
+                      {
+                        onSuccess: () => {
+                          setShowNote(false);
+                          setNoteText('');
+                        },
+                      },
                     );
                   }}
                   loading={addNote.isPending}
@@ -792,13 +862,28 @@ function getPrimaryAction(
   status: BookingStatus,
   canManage: boolean,
   t: (key: string) => string,
-): { label: string; icon: React.ReactNode; variant: 'primary' | 'destructive'; action: 'reschedule' | 'cancel' } | null {
+): {
+  label: string;
+  icon: React.ReactNode;
+  variant: 'primary' | 'destructive';
+  action: 'reschedule' | 'cancel';
+} | null {
   if (!canManage) return null;
   if (status === 'AWAITING_PAYMENT') {
-    return { label: t('ops.action.reschedule'), icon: <RotateCcw className="size-4" aria-hidden="true" />, variant: 'primary', action: 'reschedule' };
+    return {
+      label: t('ops.action.reschedule'),
+      icon: <RotateCcw className="size-4" aria-hidden="true" />,
+      variant: 'primary',
+      action: 'reschedule',
+    };
   }
   if (['CONFIRMED', 'ASSIGNED'].includes(status)) {
-    return { label: t('ops.action.cancel'), icon: <XCircle className="size-4" aria-hidden="true" />, variant: 'destructive', action: 'cancel' };
+    return {
+      label: t('ops.action.cancel'),
+      icon: <XCircle className="size-4" aria-hidden="true" />,
+      variant: 'destructive',
+      action: 'cancel',
+    };
   }
   return null;
 }
@@ -834,7 +919,9 @@ function Timeline({ events, customerVisibleOnly }: { events: JobEventRow[]; cust
               {event.actor_label ? ` · ${event.actor_label}` : ''}
             </p>
             {!event.customer_visible && (
-              <Badge tone="outline" className="mt-1 text-xs">{t('ops.internal')}</Badge>
+              <Badge tone="outline" className="mt-1 text-xs">
+                {t('ops.internal')}
+              </Badge>
             )}
           </div>
         </li>
@@ -894,20 +981,10 @@ function RescheduleDialog({
         </CardHeader>
         <CardBody className="space-y-4">
           <Field id="reschedule-date" label={t('ops.reschedule_date')}>
-            <Input
-              id="reschedule-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
+            <Input id="reschedule-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </Field>
           <Field id="reschedule-time" label={t('ops.reschedule_time')}>
-            <Input
-              id="reschedule-time"
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-            />
+            <Input id="reschedule-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
           </Field>
           <Field id="reschedule-reason" label={t('ops.reschedule_reason')}>
             <Textarea

@@ -1,7 +1,11 @@
 import type { QueuedPhoto } from './queue';
 import { supabase } from '@/lib/supabase';
 
-export async function uploadQueuedPhoto(photo: QueuedPhoto, tenantId: string, onProgress?: (progress: number) => void): Promise<string> {
+export async function uploadQueuedPhoto(
+  photo: QueuedPhoto,
+  tenantId: string,
+  onProgress?: (progress: number) => void,
+): Promise<string> {
   const path = `${tenantId}/${photo.staffId}/${photo.bookingId}/${photo.phase}/${photo.id}.jpg`;
   const bucket = 'job-evidence';
   const { data, error } = await supabase.storage.from(bucket).createSignedUploadUrl(path);

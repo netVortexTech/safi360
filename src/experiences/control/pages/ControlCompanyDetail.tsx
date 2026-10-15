@@ -112,7 +112,7 @@ export default function ControlCompanyDetail() {
         .order('created_at', { ascending: false })
         .limit(8);
       if (error) throw new Error(error.message);
-      return (data ?? []);
+      return data ?? [];
     },
   });
 
@@ -149,7 +149,9 @@ export default function ControlCompanyDetail() {
           tenant ? (
             <>
               <Button asChild variant="secondary">
-                <Link to={`/control/impersonation?tenant=${tenant.id}`}>{t('control.company_detail.impersonate')}</Link>
+                <Link to={`/control/impersonation?tenant=${tenant.id}`}>
+                  {t('control.company_detail.impersonate')}
+                </Link>
               </Button>
               {suspended ? (
                 <Button
@@ -239,15 +241,21 @@ export default function ControlCompanyDetail() {
               <CardBody className="space-y-1 text-sm">
                 <p>
                   <span className="text-text-subtle">{t('control.company_detail.bookings')}: </span>
-                  <span className="tabular font-medium">{bookingsCount.isLoading ? '…' : (bookingsCount.data ?? 0)}</span>
+                  <span className="tabular font-medium">
+                    {bookingsCount.isLoading ? '…' : (bookingsCount.data ?? 0)}
+                  </span>
                 </p>
                 <p>
                   <span className="text-text-subtle">{t('control.company_detail.staff')}: </span>
-                  <span className="tabular font-medium">{staffCount.isLoading ? '…' : (staffCount.data ?? 0)}</span>
+                  <span className="tabular font-medium">
+                    {staffCount.isLoading ? '…' : (staffCount.data ?? 0)}
+                  </span>
                 </p>
                 <p>
                   <span className="text-text-subtle">{t('control.company_detail.services')}: </span>
-                  <span className="tabular font-medium">{servicesCount.isLoading ? '…' : (servicesCount.data ?? 0)}</span>
+                  <span className="tabular font-medium">
+                    {servicesCount.isLoading ? '…' : (servicesCount.data ?? 0)}
+                  </span>
                 </p>
               </CardBody>
             </Card>
@@ -261,7 +269,10 @@ export default function ControlCompanyDetail() {
               {recentBookings.isLoading ? (
                 <Skeleton className="h-32 w-full" />
               ) : recentBookings.error ? (
-                <ErrorState onRetry={() => void recentBookings.refetch()} retrying={recentBookings.isFetching} />
+                <ErrorState
+                  onRetry={() => void recentBookings.refetch()}
+                  retrying={recentBookings.isFetching}
+                />
               ) : (recentBookings.data ?? []).length === 0 ? (
                 <EmptyState
                   title={t('control.company_detail.no_bookings_title')}

@@ -8,7 +8,9 @@ export default function FieldToday() {
   const jobs = useFieldJobs();
   const today = dayKey(new Date());
   const todaysJobs = (jobs.data ?? []).filter((job) => job.scheduled_start.slice(0, 10) === today);
-  const activeJobs = (jobs.data ?? []).filter((job) => !['COMPLETED', 'CLOSED', 'CANCELLED', 'NO_SHOW', 'EXPIRED'].includes(job.status));
+  const activeJobs = (jobs.data ?? []).filter(
+    (job) => !['COMPLETED', 'CLOSED', 'CANCELLED', 'NO_SHOW', 'EXPIRED'].includes(job.status),
+  );
 
   if (jobs.isLoading) {
     return <div className="h-40 animate-pulse rounded-xl bg-surface-muted" aria-busy="true" />;
@@ -31,7 +33,9 @@ export default function FieldToday() {
           ))}
         </section>
       ) : (
-        <div className="rounded-xl border border-border bg-surface p-6 text-center text-text-muted">No jobs today.</div>
+        <div className="rounded-xl border border-border bg-surface p-6 text-center text-text-muted">
+          No jobs today.
+        </div>
       )}
     </div>
   );

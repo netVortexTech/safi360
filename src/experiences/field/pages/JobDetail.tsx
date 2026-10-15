@@ -4,7 +4,13 @@ import { AlertTriangle, ChevronRight, Clock, MapPin, Phone, Wrench } from 'lucid
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { useFieldJob, useFieldEvents, useFieldTransition, useOpenFieldException, useAddFieldJobEvent } from '../hooks';
+import {
+  useFieldJob,
+  useFieldEvents,
+  useFieldTransition,
+  useOpenFieldException,
+  useAddFieldJobEvent,
+} from '../hooks';
 import { compressImage } from '../compression';
 import { listPhotos, queuePhoto, updatePhoto } from '../queue';
 import { uploadQueuedPhoto } from '../uploads';
@@ -38,17 +44,23 @@ export default function JobDetail() {
     setAccepted(events.some((event) => event.data?.field_action === 'field_accepted'));
   }, [events]);
 
-  const photoPathsBefore = events.flatMap((e) => (Array.isArray(e.data?.evidence_before) ? (e.data?.evidence_before as string[]) : []));
-  const photoPathsAfter = events.flatMap((e) => (Array.isArray(e.data?.evidence_after) ? (e.data?.evidence_after as string[]) : []));
+  const photoPathsBefore = events.flatMap((e) =>
+    Array.isArray(e.data?.evidence_before) ? (e.data?.evidence_before as string[]) : [],
+  );
+  const photoPathsAfter = events.flatMap((e) =>
+    Array.isArray(e.data?.evidence_after) ? (e.data?.evidence_after as string[]) : [],
+  );
 
   const photoLinksQuery = useQuery({
     queryKey: ['field', 'evidence-links', id],
     queryFn: async () => {
       const storage = supabase.storage.from('job-evidence');
-      const results = await Promise.all([...photoPathsBefore, ...photoPathsAfter].map(async (path) => {
-        const { data } = await storage.createSignedUrl(path, 3600);
-        return { path, url: data?.signedUrl ?? null };
-      }));
+      const results = await Promise.all(
+        [...photoPathsBefore, ...photoPathsAfter].map(async (path) => {
+          const { data } = await storage.createSignedUrl(path, 3600);
+          return { path, url: data?.signedUrl ?? null };
+        }),
+      );
       return results;
     },
     enabled: photoPathsBefore.length + photoPathsAfter.length > 0,
@@ -60,7 +72,8 @@ export default function JobDetail() {
   }, [id]);
 
   if (jobQuery.isLoading) return <div className="h-48 animate-pulse rounded-xl bg-surface-muted" />;
-  if (jobQuery.error || !job) return <p className="text-center text-error">{String(jobQuery.error ?? 'Job not found')}</p>;
+  if (jobQuery.error || !job)
+    return <p className="text-center text-error">{String(jobQuery.error ?? 'Job not found')}</p>;
 
   const primaryLabel = () => {
     switch (job.status) {
@@ -86,20 +99,37 @@ export default function JobDetail() {
       switch (job.status) {
         case 'ASSIGNED':
           if (!accepted) {
-            await addEvent.mutateAsync({ booking_id: job.booking_id, kind: 'note', customer_visible: false, data: { field_action: 'field_accepted', at: new Date().toISOString() } });
+            await addEvent.mutateAsync({
+              booking_id: job.booking_id,
+              kind: 'note',
+              customer_visible: false,
+              data: { field_action: 'field_accepted', at: new Date().toISOString() },
+            });
             setAccepted(true);
           } else {
-            await transition.mutateAsync({ booking_id: job.booking_id, to: 'EN_ROUTE', reason: 'Cleaner travelling' });
+            await transition.mutateAsync({
+              booking_id: job.booking_id,
+              to: 'EN_ROUTE',
+              reason: 'Cleaner travelling',
+            });
           }
           break;
         case 'EN_ROUTE':
-          await transition.mutateAsync({ booking_id: job.booking_id, to: 'ARRIVED', reason: 'Cleaner arrived' });
+          await transition.mutateAsync({
+            booking_id: job.booking_id,
+            to: 'ARRIVED',
+            reason: 'Cleaner arrived',
+          });
           break;
         case 'ARRIVED':
           if (beforeCount === 0) {
             beforeInput.current?.click();
           } else {
-            await transition.mutateAsync({ booking_id: job.booking_id, to: 'IN_PROGRESS', reason: 'Cleaning started' });
+            await transition.mutateAsync({
+              booking_id: job.booking_id,
+              to: 'IN_PROGRESS',
+              reason: 'Cleaning started',
+            });
           }
           break;
         case 'IN_PROGRESS':
@@ -107,7 +137,11 @@ export default function JobDetail() {
             afterInput.current?.click();
           } else {
             if (beforeCount < 1 || afterCount < 1) throw new Error('photos_required');
-            await transition.mutateAsync({ booking_id: job.booking_id, to: 'COMPLETED', reason: 'Cleaner completed job' });
+            await transition.mutateAsync({
+              booking_id: job.booking_id,
+              to: 'COMPLETED',
+              reason: 'Cleaner completed job',
+            });
           }
           break;
         default:
@@ -160,7 +194,11 @@ export default function JobDetail() {
         booking_id: job.booking_id,
         kind: 'note',
         customer_visible: false,
-        data: { field_action: 'field_photo', phase, [phase === 'before' ? 'evidence_before' : 'evidence_after']: uploadedPaths },
+        data: {
+          field_action: 'field_photo',
+          phase,
+          [phase === 'before' ? 'evidence_before' : 'evidence_after']: uploadedPaths,
+        },
       });
       await qc.invalidateQueries({ queryKey: ['field', 'events', job.booking_id] });
     } catch (err) {
@@ -174,7 +212,11 @@ export default function JobDetail() {
     setBusy(true);
     setError(null);
     try {
-      await openException.mutateAsync({ booking_id: job.booking_id, category: issueCategory, reason: issueReason });
+      await openException.mutateAsync({
+        booking_id: job.booking_id,
+        category: issueCategory,
+        reason: issueReason,
+      });
       setReportOpen(false);
       setIssueReason('');
     } catch (err) {
@@ -191,7 +233,9 @@ export default function JobDetail() {
 
   return (
     <div className="space-y-4">
-      <Link to="/field" className="text-sm text-primary">Back to jobs</Link>
+      <Link to="/field" className="text-sm text-primary">
+        Back to jobs
+      </Link>
       <article className="space-y-4">
         <header className="rounded-xl bg-surface p-4 shadow-card">
           <div className="flex items-start justify-between gap-3">
@@ -199,15 +243,25 @@ export default function JobDetail() {
               <p className="text-sm text-text-muted">{job.ticket_ref}</p>
               <h1 className="mt-1 text-h1">{job.customer_first_name}</h1>
             </div>
-            <span className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold">{job.status.replace(/_/g, ' ')}</span>
+            <span className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold">
+              {job.status.replace(/_/g, ' ')}
+            </span>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {job.customer_phone ? (
               <>
-                <a href={`tel:${job.customer_phone}`} className="inline-flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm font-medium text-success">
+                <a
+                  href={`tel:${job.customer_phone}`}
+                  className="inline-flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm font-medium text-success"
+                >
                   <Phone className="size-4" /> Call
                 </a>
-                <a href={`https://wa.me/${job.customer_phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm font-medium text-success">
+                <a
+                  href={`https://wa.me/${job.customer_phone.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm font-medium text-success"
+                >
                   WhatsApp
                 </a>
               </>
@@ -215,22 +269,39 @@ export default function JobDetail() {
           </div>
         </header>
 
-        {error ? <p role="alert" className="rounded-lg border border-error/30 bg-error/5 p-3 text-sm text-error">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="rounded-lg border border-error/30 bg-error/5 p-3 text-sm text-error">
+            {error}
+          </p>
+        ) : null}
 
         <section className="rounded-xl bg-surface p-4 shadow-card">
-          <h2 className="flex items-center gap-2 text-h3"><MapPin className="size-5" /> Location</h2>
+          <h2 className="flex items-center gap-2 text-h3">
+            <MapPin className="size-5" /> Location
+          </h2>
           <p className="mt-2 text-sm">{address.landmark ?? address.area ?? 'Location pending'}</p>
-          <p className="mt-1 text-sm text-text-muted">{[address.area, address.street].filter(Boolean).join(', ')}</p>
+          <p className="mt-1 text-sm text-text-muted">
+            {[address.area, address.street].filter(Boolean).join(', ')}
+          </p>
           {address.lat != null && address.lng != null ? (
-            <a href={`https://maps.google.com/?q=${address.lat},${address.lng}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary">
+            <a
+              href={`https://maps.google.com/?q=${address.lat},${address.lng}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary"
+            >
               Open in Maps <ChevronRight className="size-4" />
             </a>
           ) : null}
-          <p className="mt-3 text-sm"><Clock className="inline size-4" /> {new Date(job.scheduled_start).toLocaleString()}</p>
+          <p className="mt-3 text-sm">
+            <Clock className="inline size-4" /> {new Date(job.scheduled_start).toLocaleString()}
+          </p>
         </section>
 
         <section className="rounded-xl bg-surface p-4 shadow-card">
-          <h2 className="flex items-center gap-2 text-h3"><Wrench className="size-5" /> Services</h2>
+          <h2 className="flex items-center gap-2 text-h3">
+            <Wrench className="size-5" /> Services
+          </h2>
           <ul className="mt-3 space-y-2 text-sm">
             {job.services.map((service, index) => (
               <li key={index} className="flex justify-between gap-3">
@@ -239,14 +310,20 @@ export default function JobDetail() {
               </li>
             ))}
           </ul>
-          {job.customer_note ? <p className="mt-3 text-sm text-text-muted">Customer note: {job.customer_note}</p> : null}
-          {job.instructions ? <p className="mt-3 text-sm text-text-muted">Instructions: {job.instructions}</p> : null}
+          {job.customer_note ? (
+            <p className="mt-3 text-sm text-text-muted">Customer note: {job.customer_note}</p>
+          ) : null}
+          {job.instructions ? (
+            <p className="mt-3 text-sm text-text-muted">Instructions: {job.instructions}</p>
+          ) : null}
         </section>
 
         <section className="rounded-xl bg-surface p-4 shadow-card">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-h3">Progress</h2>
-            <span className="text-xs text-text-muted">Step {Math.min(statusIndex + 1, statuses.length)} of {statuses.length}</span>
+            <span className="text-xs text-text-muted">
+              Step {Math.min(statusIndex + 1, statuses.length)} of {statuses.length}
+            </span>
           </div>
           <button
             type="button"
@@ -256,9 +333,26 @@ export default function JobDetail() {
           >
             {primaryLabel() ?? 'Done'}
           </button>
-          <input ref={beforeInput} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => void handleCapture('before', e.target.files)} />
-          <input ref={afterInput} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => void handleCapture('after', e.target.files)} />
-          <p className="mt-2 text-xs text-text-muted">Before: {beforeCount} photo(s), after: {afterCount} photo(s). Camera photos required before completion.</p>
+          <input
+            ref={beforeInput}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => void handleCapture('before', e.target.files)}
+          />
+          <input
+            ref={afterInput}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => void handleCapture('after', e.target.files)}
+          />
+          <p className="mt-2 text-xs text-text-muted">
+            Before: {beforeCount} photo(s), after: {afterCount} photo(s). Camera photos required before
+            completion.
+          </p>
         </section>
 
         <section className="rounded-xl bg-surface p-4 shadow-card">
@@ -266,15 +360,26 @@ export default function JobDetail() {
           <div className="mt-3 grid grid-cols-2 gap-2">
             {[...beforeLinks, ...afterLinks].map((item) => (
               <a key={item.path} href={item.url ?? '#'} target="_blank" rel="noreferrer">
-                <img src={item.url ?? ''} alt="job evidence" loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+                <img
+                  src={item.url ?? ''}
+                  alt="job evidence"
+                  loading="lazy"
+                  className="aspect-square w-full rounded-lg object-cover"
+                />
               </a>
             ))}
           </div>
-          {beforeLinks.length + afterLinks.length === 0 ? <p className="text-sm text-text-muted">No photos uploaded yet.</p> : null}
+          {beforeLinks.length + afterLinks.length === 0 ? (
+            <p className="text-sm text-text-muted">No photos uploaded yet.</p>
+          ) : null}
         </section>
 
         <section className="rounded-xl bg-surface p-4 shadow-card">
-          <button type="button" onClick={() => setReportOpen(true)} className="w-full rounded-xl border border-warning/40 bg-warning/5 px-4 py-3 text-sm font-medium text-warning">
+          <button
+            type="button"
+            onClick={() => setReportOpen(true)}
+            className="w-full rounded-xl border border-warning/40 bg-warning/5 px-4 py-3 text-sm font-medium text-warning"
+          >
             Report an issue
           </button>
         </section>
@@ -283,19 +388,44 @@ export default function JobDetail() {
       {reportOpen ? (
         <div className="fixed inset-0 z-50 flex items-end bg-black/50 p-4 sm:items-center">
           <div className="w-full rounded-2xl bg-surface p-5 shadow-xl">
-            <h2 className="text-h2 flex items-center gap-2"><AlertTriangle className="size-5 text-warning" /> Report issue</h2>
+            <h2 className="flex items-center gap-2 text-h2">
+              <AlertTriangle className="size-5 text-warning" /> Report issue
+            </h2>
             <label className="mt-4 block text-sm font-medium">Category</label>
-            <select value={issueCategory} onChange={(e) => setIssueCategory(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-surface p-3">
+            <select
+              value={issueCategory}
+              onChange={(e) => setIssueCategory(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-surface p-3"
+            >
               <option value="customer_absent">Customer absent</option>
               <option value="no_access">No access</option>
               <option value="missing_equipment">Missing equipment</option>
               <option value="extra_work">Extra work needed</option>
             </select>
             <label className="mt-4 block text-sm font-medium">Details</label>
-            <textarea value={issueReason} onChange={(e) => setIssueReason(e.target.value)} rows={4} className="mt-1 w-full rounded-lg border border-border bg-surface p-3" required />
+            <textarea
+              value={issueReason}
+              onChange={(e) => setIssueReason(e.target.value)}
+              rows={4}
+              className="mt-1 w-full rounded-lg border border-border bg-surface p-3"
+              required
+            />
             <div className="mt-4 flex gap-3">
-              <button type="button" onClick={() => setReportOpen(false)} className="touch-target flex-1 rounded-lg border border-border px-4 py-3">Cancel</button>
-              <button type="button" onClick={() => void submitIssue()} disabled={busy} className="touch-target flex-1 rounded-lg bg-error px-4 py-3 text-white">Send</button>
+              <button
+                type="button"
+                onClick={() => setReportOpen(false)}
+                className="touch-target flex-1 rounded-lg border border-border px-4 py-3"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void submitIssue()}
+                disabled={busy}
+                className="touch-target flex-1 rounded-lg bg-error px-4 py-3 text-white"
+              >
+                Send
+              </button>
             </div>
           </div>
         </div>

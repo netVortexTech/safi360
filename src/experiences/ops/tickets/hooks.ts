@@ -61,9 +61,7 @@ function buildTicketQuery(filters: Partial<TicketFilters>) {
 
   if (filters.search) {
     const s = filters.search.replace(/[%_]/g, '');
-    query = query.or(
-      `ticket_ref.ilike.%${s}%,customers.name.ilike.%${s}%,customers.phone_e164.ilike.%${s}%`,
-    );
+    query = query.or(`ticket_ref.ilike.%${s}%,customers.name.ilike.%${s}%,customers.phone_e164.ilike.%${s}%`);
   }
   if (filters.source) query = query.eq('source', filters.source);
   if (filters.status) query = query.eq('status', filters.status);
@@ -74,9 +72,7 @@ function buildTicketQuery(filters: Partial<TicketFilters>) {
   }
   if (filters.date_to) {
     const end = filters.date_to + 'T23:59:59.999Z';
-    query = query.or(
-      `scheduled_start.lte.${end},and(scheduled_start.is.null,created_at.lte.${end})`,
-    );
+    query = query.or(`scheduled_start.lte.${end},and(scheduled_start.is.null,created_at.lte.${end})`);
   }
   if (filters.service_id) {
     query = query.eq('items.service_id', filters.service_id);
@@ -310,11 +306,7 @@ export function useDashboard() {
           .select('id, kind, severity, status, booking_id, created_at')
           .eq('status', 'OPEN')
           .order('created_at', { ascending: false }),
-        supabase
-          .from('bookings')
-          .select('source')
-          .order('created_at', { ascending: false })
-          .limit(500),
+        supabase.from('bookings').select('source').order('created_at', { ascending: false }).limit(500),
       ]);
 
       if (bookedsRes.error) throw bookedsRes.error;
@@ -378,9 +370,7 @@ export function useDashboard() {
       }
 
       // Unassigned confirmed
-      const unassigned = mapped.filter(
-        (b) => b.status === 'CONFIRMED' && b.assignee_names.length === 0,
-      );
+      const unassigned = mapped.filter((b) => b.status === 'CONFIRMED' && b.assignee_names.length === 0);
       for (const b of unassigned) {
         needsAction.push({
           booking_id: b.id,
@@ -676,11 +666,7 @@ export function useRescheduleBooking() {
 export function useAddNote() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (vars: {
-      booking_id: string;
-      note: string;
-      customer_visible: boolean;
-    }) => {
+    mutationFn: async (vars: { booking_id: string; note: string; customer_visible: boolean }) => {
       const { data, error } = await supabase.rpc('add_job_event', {
         p_booking_id: vars.booking_id,
         p_kind: 'note',
@@ -712,7 +698,9 @@ export function useAssignmentCandidates(bookingId: string, start: string, end: s
         .eq('booking_id', bookingId);
       if (itemsErr) throw itemsErr;
 
-      const serviceIds = ((itemsRes ?? []) as { service_id: string }[]).map((i) => i.service_id).filter(Boolean);
+      const serviceIds = ((itemsRes ?? []) as { service_id: string }[])
+        .map((i) => i.service_id)
+        .filter(Boolean);
 
       // Get all active staff
       const { data: staffRes, error: staffErr } = await supabase

@@ -63,7 +63,7 @@ export default function ControlCompanies() {
         .order('created_at', { ascending: false })
         .limit(500);
       if (error) throw new Error(error.message);
-      return (data ?? []);
+      return data ?? [];
     },
   });
 
@@ -72,7 +72,7 @@ export default function ControlCompanies() {
     queryFn: async (): Promise<PlanRow[]> => {
       const { data, error } = await supabase.from('plans').select('id, name').order('name');
       if (error) throw new Error(error.message);
-      return (data ?? []);
+      return data ?? [];
     },
   });
 
@@ -164,7 +164,10 @@ export default function ControlCompanies() {
                 {filtered.map((row) => (
                   <TR key={row.id}>
                     <TD>
-                      <Link to={`/control/companies/${row.id}`} className="font-medium text-primary hover:underline">
+                      <Link
+                        to={`/control/companies/${row.id}`}
+                        className="font-medium text-primary hover:underline"
+                      >
                         {row.name}
                       </Link>
                     </TD>
