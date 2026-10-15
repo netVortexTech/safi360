@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Copy,
   Flag,
+  Repeat,
   MapPin,
   MessageSquare,
   Navigation,
@@ -267,6 +268,12 @@ export function TicketDetailPage() {
                 {primaryAction.label}
               </Button>
             )}
+            <Button variant="secondary" size="sm" asChild>
+              <Link to={`/ops/bookings/new?repeat=${ticket.id}`}>
+                <Repeat aria-hidden="true" />
+                {t('ops.repeat_booking')}
+              </Link>
+            </Button>
           </div>
         }
       />

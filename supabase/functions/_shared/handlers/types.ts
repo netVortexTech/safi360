@@ -207,6 +207,14 @@ export interface BookingDeps extends PublicDeps {
     tenantId: string,
     phone: string,
   ): Promise<(BookingRow & { service_label_sw: string; service_label_en: string })[]>;
+  /** Tenant id from the staff JWT claims — never from the request body. */
+  staffTenantId(): string;
+  /** Tenant role from the staff JWT claims: OWNER/MANAGER/DISPATCHER/CLEANER. */
+  staffTenantRole(): string | undefined;
+  /** Staff user id from the JWT claims. */
+  staffUserId(): string;
+  /** Resolve an already-known tenant id (staff sessions) to public info. */
+  resolveTenantById(tenantId: string): Promise<PublicTenantInfo>;
   /** Customer-submitted comments/complaints on one booking, newest first. */
   feedbackForBooking(
     tenantId: string,

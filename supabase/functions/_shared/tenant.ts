@@ -40,3 +40,17 @@ export async function resolveTenantBySlug(admin: SupabaseClient, rawSlug: string
   if (data.status === 'SUSPENDED') throw new TenantSuspended();
   return data as PublicTenant;
 }
+
+/** Same lookup by id, for staff sessions whose tenant comes from the JWT claims. */
+export async function resolveTenantById(admin: SupabaseClient, tenantId: string): Promise<PublicTenant> {
+  const { data, error } = await admin
+    .from('tenants')
+    .select('id, slug, name, status, branding, settings, base_lat, base_lng')
+    .eq('id', tenantId)
+    .is('deleted_at', null)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new TenantNotFound();
+  if (data.status === 'SUSPENDED') throw new TenantSuspended();
+  return data as PublicTenant;
+}

@@ -37,6 +37,8 @@ export interface FakeWorld {
   /** Calls per tenant+action, so tests can assert the limiter was consulted. */
   rateLimitCalls: string[];
   rateLimited: boolean;
+  /** Staff session claims (ops create path): tenant id, role and user id. */
+  staffSession: { tenantId: string; role: string; userId: string };
 }
 
 export const FAKE_TOKEN_SECRET = 'test-secret-do-not-use';
@@ -84,6 +86,7 @@ export function fakeWorld(over: Partial<FakeWorld> = {}): FakeWorld {
     now: new Date('2026-10-14T09:00:00Z'),
     rateLimitCalls: [],
     rateLimited: false,
+    staffSession: { tenantId: FIXTURE_TENANT_ID, role: 'OWNER', userId: 'staff-owner-1' },
     ...over,
   };
 }
@@ -286,6 +289,14 @@ export function fakeBookingDeps(world: FakeBookingWorld): BookingDeps {
 
   return {
     ...base,
+    staffTenantId: () => world.staffSession.tenantId,
+    staffTenantRole: () => world.staffSession.role,
+    staffUserId: () => world.staffSession.userId,
+    resolveTenantById: async (tenantId) => {
+      const t = world.tenants.find((x) => x.id === tenantId);
+      if (!t) return Promise.reject(new Error('tenant_not_found'));
+      return Promise.resolve(t);
+    },
     env: { sandbox: world.sandbox, tokenSecret: world.tokenSecret },
     sms: world.sms,
     payments: world.paymentProvider,

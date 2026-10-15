@@ -95,6 +95,10 @@ const KNOWN_CODES: Record<
     message: 'tracking.error.action_not_allowed',
     status: 409,
   },
+  booking_forbidden: { code: 'forbidden', message: 'errors.forbidden', status: 403 },
+  tenant_required: { code: 'tenant_required', message: 'errors.no_access', status: 401 },
+  schedule_invalid: { code: 'schedule_invalid', message: 'errors.invalid_data', status: 422 },
+  quote_invalid: { code: 'quote_invalid', message: 'errors.invalid_data', status: 422 },
   transition_not_allowed: {
     code: 'action_not_allowed',
     message: 'tracking.error.action_not_allowed',

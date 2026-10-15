@@ -85,6 +85,9 @@ import_map = "./functions/deno.json"
 [functions.customer_action]
 import_map = "./functions/deno.json"
 
+[functions.ops_create_booking]
+import_map = "./functions/deno.json"
+
 [functions.payment_start]
 import_map = "./functions/deno.json"
 

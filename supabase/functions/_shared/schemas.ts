@@ -46,6 +46,67 @@ export const memberRole = z.enum(MEMBER_ROLES);
 
 export const locale = z.enum(['sw', 'en']);
 
+/** Office-created booking (ops app / repeat flow): staff identity comes from the
+ *  request JWT, the tenant from the staff membership. Pricing is office-set. */
+export const opsCreateBookingRequest = z
+  .object({
+    customer: z.object({
+      phone_e164: z.string().regex(/^\+255[1-9]\d{8}$/),
+      name: z.string().trim().min(1).max(120),
+      email: z.string().trim().max(120).nullish(),
+      phone_verified: z.boolean().default(false),
+    }),
+    address: z
+      .object({
+        label: z.string().trim().max(120).nullish(),
+        area: z.string().trim().max(120).nullish(),
+        street: z.string().trim().max(200).nullish(),
+        landmark: z.string().trim().max(200).nullish(),
+        zone_id: z.string().uuid().nullish(),
+      })
+      .nullish(),
+    items: z
+      .array(
+        z.object({
+          service_id: z.string().uuid().nullish(),
+          label_sw: z.string().max(200),
+          label_en: z.string().max(200),
+          qty: z.number().int().min(1).max(100).default(1),
+          amount_tzs: z.number().int().min(0).max(100_000_000).nullish(),
+          requires_review: z.boolean().default(false),
+          input: z.record(z.string(), z.unknown()).default({}),
+        }),
+      )
+      .min(1)
+      .max(50),
+    quote: z.object({
+      subtotal_tzs: z.number().int().min(0),
+      travel_fee_tzs: z.number().int().min(0).default(0),
+      discount_tzs: z.number().int().min(0).default(0),
+      tax_tzs: z.number().int().min(0).default(0),
+      total_tzs: z.number().int().min(0),
+      deposit_tzs: z.number().int().min(0).default(0),
+      requires_review: z.boolean().default(false),
+      has_estimate: z.boolean().default(false),
+      est_duration_min: z.number().int().min(15).max(1440).default(120),
+      crew_size: z.number().int().min(1).max(50).default(1),
+    }),
+    schedule: z
+      .object({
+        start: z.string().datetime({ offset: true }),
+        end: z.string().datetime({ offset: true }),
+        capacity: z.number().int().min(1).max(500).default(10),
+      })
+      .nullish(),
+    payment_mode: z.enum(['DEPOSIT', 'ON_COMPLETION']).default('ON_COMPLETION'),
+    source: bookingSource.default('walk_in'),
+    locale: locale.default('sw'),
+    notes_customer: z.string().trim().max(2000).nullish(),
+    idempotency_key: idempotencyKey.optional(),
+  })
+  .strict();
+export type OpsCreateBookingRequest = z.infer<typeof opsCreateBookingRequest>;
+
 /** Six-digit one-time code used by customer tracking and staff OTP login. */
 export const otpCode = z.string().regex(/^\d{6}$/, { message: 'validation.otp.format' });
 

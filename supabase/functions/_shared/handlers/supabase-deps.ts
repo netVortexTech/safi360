@@ -10,7 +10,7 @@ import type { Catalog } from '../pricing/quote.ts';
 import type { CatalogAddon, CatalogService, CatalogZone } from '../pricing/types.ts';
 import { callerIdFrom, enforceRateLimit, RATE_LIMITS } from '../rate-limit.ts';
 import { smsProviderFromEnv } from '../sms/provider.ts';
-import { resolveTenantBySlug } from '../tenant.ts';
+import { resolveTenantBySlug, resolveTenantById } from '../tenant.ts';
 import type {
   BookingDeps,
   BookingDetail,
@@ -176,6 +176,37 @@ export function bookingDeps(admin: SupabaseClient, req: Request, env: FunctionEn
   if (!tokenSecret) throw new Error('otp_token_secret_missing');
   const sandbox = env.APP_ENV !== 'production';
 
+  /** Staff claims straight from the request JWT (the DB verifies them). */
+  const staffClaims = (): {
+    tenant_id?: string | undefined;
+    tenant_role?: string | undefined;
+    sub?: string | undefined;
+  } => {
+    const auth = req.headers.get('authorization') ?? '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    if (!token) return {};
+    try {
+      const raw = token.split('.')[1];
+      if (!raw) return {};
+      const decoded: unknown = JSON.parse(atob(raw.replace(/-/g, '+').replace(/_/g, '/')));
+      if (typeof decoded !== 'object' || decoded === null) return {};
+      const claims = decoded as Record<string, unknown>;
+      return {
+        tenant_id: typeof claims.tenant_id === 'string' ? claims.tenant_id : undefined,
+        tenant_role: typeof claims.tenant_role === 'string' ? claims.tenant_role : undefined,
+        sub: typeof claims.sub === 'string' ? claims.sub : undefined,
+      };
+    } catch {
+      return {};
+    }
+  };
+
+  const staffTenantId = (): string => {
+    const id = staffClaims().tenant_id;
+    if (!id) throw new Error('tenant_required');
+    return id;
+  };
+
   const rpc = async <T>(fn: string, args: Record<string, unknown>): Promise<T> => {
     const res: { data: unknown; error: { message: string } | null } = await admin.rpc(fn, args);
     if (res.error) throw new Error(res.error.message);
@@ -184,6 +215,10 @@ export function bookingDeps(admin: SupabaseClient, req: Request, env: FunctionEn
 
   return {
     ...base,
+    staffTenantId,
+    staffTenantRole: () => staffClaims().tenant_role,
+    staffUserId: () => staffClaims().sub ?? '',
+    resolveTenantById: (tenantId) => resolveTenantById(admin, tenantId),
     env: { sandbox, tokenSecret },
     sms: smsProviderFromEnv(env),
     payments: paymentProviderFromEnv(env),

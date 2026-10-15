@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unnecessary-type-assertion */
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -30,6 +30,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatTzs } from '@/lib/money';
 import { useAuth } from '@/lib/auth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useTicket } from './hooks';
 import { cn } from '@/lib/utils';
 import { BOOKING_SOURCES } from '@shared/enums';
 import type { BookingSource } from '@shared/enums';
@@ -58,6 +60,10 @@ export function CreateBookingPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { userId } = useAuth();
+  const [searchParams] = useSearchParams();
+  const repeatId = searchParams.get('repeat');
+  const repeatTicket = useTicket(repeatId ?? '');
+  const [repeatPrefilled, setRepeatPrefilled] = useState(false);
 
   const [step, setStep] = useState<Step>('customer');
   const [completedSteps, setCompletedSteps] = useState<Set<Step>>(new Set());
@@ -99,6 +105,53 @@ export function CreateBookingPage() {
   const stepIndex = STEPS.findIndex((s) => s.key === step);
 
   const { data: customerResults, isLoading: searchingCustomers } = useSearchCustomers(customerSearch);
+
+  // Repeat flow: pre-fill from an existing ticket.
+  useEffect(() => {
+    const raw = repeatTicket?.data as
+      | {
+          id: string;
+          customer_id: string;
+          payment_mode: 'DEPOSIT' | 'ON_COMPLETION';
+          source: BookingSource;
+          locale: 'sw' | 'en';
+          address_snapshot: Record<string, unknown>;
+          customer: { name: string; phone_e164: string; email: string | null; locale: string };
+          items: {
+            service_id: string | null;
+            label_en: string;
+            label_sw: string;
+            qty: number;
+            amount_tzs: number | null;
+          }[];
+        }
+      | undefined;
+    if (!raw || repeatPrefilled) return;
+    setSelectedCustomerId(raw.customer_id);
+    setCustomerName(raw.customer.name);
+    setCustomerPhone(raw.customer.phone_e164);
+    setCustomerEmail(raw.customer.email ?? '');
+    const a = raw.address_snapshot ?? {};
+    if (typeof a.label === 'string') setAddressLabel(a.label);
+    if (typeof a.area === 'string') setAddressArea(a.area);
+    if (typeof a.street === 'string') setAddressStreet(a.street);
+    if (typeof a.landmark === 'string') setAddressLandmark(a.landmark);
+    setPaymentMode(raw.payment_mode);
+    setSource(raw.source);
+    setCustomerLocale(raw.locale);
+    setSelectedServices(
+      raw.items
+        .filter((i) => i.service_id)
+        .map((i) => ({
+          service_id: i.service_id as string,
+          name: i.label_en || i.label_sw,
+          qty: i.qty,
+          unit_price_tzs: i.amount_tzs != null ? Math.round(i.amount_tzs / i.qty) : 0,
+          amount_tzs: i.amount_tzs ?? 0,
+        })),
+    );
+    setRepeatPrefilled(true);
+  }, [repeatTicket?.data, repeatPrefilled]);
 
   const markComplete = (s: Step) => {
     setCompletedSteps((prev) => new Set(prev).add(s));
@@ -175,7 +228,7 @@ export function CreateBookingPage() {
       try {
         setCreating(true);
         // Build the booking payload
-        const items = selectedServices.map((s) => ({
+        const items = selectedServices.map((s, i) => ({
           service_id: s.service_id,
           label_sw: s.name,
           label_en: s.name,
@@ -183,6 +236,7 @@ export function CreateBookingPage() {
           amount_tzs: s.amount_tzs,
           requires_review: false,
           input: {},
+          item_index: i,
         }));
 
         const totalTzs = selectedServices.reduce((s, i) => s + i.amount_tzs, 0);
@@ -245,8 +299,11 @@ export function CreateBookingPage() {
           notes_customer: conversationNote || null,
         };
 
-        const { data, error } = await supabase.rpc('create_booking_tx', {
-          p: payload,
+        // Staff-created booking goes through the ops_create_booking Edge Function:
+        // the RPC itself is service-role only, and the tenant must come from the
+        // staff JWT, never from this payload.
+        const { data, error } = await supabase.functions.invoke('ops_create_booking', {
+          body: payload,
         });
 
         if (error) throw error;
@@ -347,6 +404,11 @@ export function CreateBookingPage() {
         title={t('nav.create_booking')}
         subtitle={t('ops.create_booking_subtitle')}
       />
+      {repeatId && repeatPrefilled ? (
+        <div className="rounded-lg border border-info/30 bg-info/5 p-3 text-sm" role="status">
+          {t('ops.repeat_prefilled')}
+        </div>
+      ) : null}
 
       {/* Stepper */}
       <nav aria-label="Booking steps" className="mb-8">
