@@ -1,4 +1,5 @@
 import {
+  buildConfirmSchedule,
   darDayRange,
   darYear,
   dayKey,
@@ -46,6 +47,13 @@ describe('dates in Africa/Dar_es_Salaam', () => {
     const job = new Date('2026-10-16T22:30:00.000Z').toISOString();
     expect(job >= start && job < end).toBe(true);
     expect(job >= '2026-10-17T00:00:00.000Z').toBe(false);
+  });
+  it('builds a first-time schedule from Dar wall-clock', () => {
+    // 09:00 + 120 min in Dar on the 17th → 06:00Z–08:00Z
+    expect(buildConfirmSchedule('2026-10-17', '09:00', 120)).toEqual({
+      start: '2026-10-17T06:00:00.000Z',
+      end: '2026-10-17T08:00:00.000Z',
+    });
   });
   it('resolves the ticket year in Dar time', () => {
     // 23:00 UTC on 31 Dec 2025 is already 2026 in Dar

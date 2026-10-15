@@ -6,6 +6,7 @@ import {
   Banknote,
   Calendar,
   Camera,
+  CheckCircle2,
   Copy,
   Flag,
   MapPin,
@@ -42,7 +43,7 @@ import { ErrorState } from '@/components/shared/ErrorState';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Field } from '@/components/shared/Field';
-import { formatDay, formatDateTime, formatTime } from '@/lib/dates';
+import { formatDay, formatDateTime, formatTime, dayKey, nowInDar, buildConfirmSchedule } from '@/lib/dates';
 import { formatTzs } from '@/lib/money';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
@@ -108,6 +109,7 @@ export function TicketDetailPage() {
   const role = claims.tenant_role;
   const [tab, setTab] = useState<Tab>('timeline');
   const [showReschedule, setShowReschedule] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
   const [showNoShow, setShowNoShow] = useState(false);
   const [showFlagReview, setShowFlagReview] = useState(false);
@@ -203,9 +205,10 @@ export function TicketDetailPage() {
 
   const canManage = can(role, 'booking.cancel');
   const canAssign = can(role, 'booking.assign');
+  const canReview = can(role, 'booking.review');
   const canSeeBilling = can(role, 'payment.view');
 
-  const primaryAction = getPrimaryAction(ticket.status, canManage, t);
+  const primaryAction = getPrimaryAction(ticket.status, canManage, canReview, t);
 
   const handleCopyTicket = () => {
     void navigator.clipboard.writeText(ticket.ticket_ref);
@@ -250,6 +253,7 @@ export function TicketDetailPage() {
                 variant={primaryAction.variant}
                 onClick={() => {
                   if (primaryAction.action === 'reschedule') setShowReschedule(true);
+                  if (primaryAction.action === 'confirm') setShowConfirm(true);
                   if (primaryAction.action === 'cancel') setShowCancel(true);
                 }}
               >
@@ -733,6 +737,39 @@ export function TicketDetailPage() {
         />
       )}
 
+      {/* Confirm Dialog (review queue: schedule + confirm in one step) */}
+      {showConfirm && (
+        <ConfirmBookingDialog
+          onOpenChange={setShowConfirm}
+          durationMin={ticket.duration_min}
+          onConfirm={(start, end) => {
+            reschedule.mutate(
+              {
+                booking_id: ticket.id,
+                start,
+                end,
+                capacity: 10,
+                reason: 'Confirmed from review',
+              },
+              {
+                onSuccess: () => {
+                  transition.mutate(
+                    { booking_id: ticket.id, to: 'CONFIRMED' },
+                    {
+                      onSuccess: () => {
+                        setShowConfirm(false);
+                        void refetch();
+                      },
+                    },
+                  );
+                },
+              },
+            );
+          }}
+          loading={reschedule.isPending || transition.isPending}
+        />
+      )}
+
       {/* Cancel Dialog */}
       <ConfirmDialog
         open={showCancel}
@@ -861,13 +898,22 @@ export function TicketDetailPage() {
 function getPrimaryAction(
   status: BookingStatus,
   canManage: boolean,
+  canReview: boolean,
   t: (key: string) => string,
 ): {
   label: string;
   icon: React.ReactNode;
   variant: 'primary' | 'destructive';
-  action: 'reschedule' | 'cancel';
+  action: 'reschedule' | 'confirm' | 'cancel';
 } | null {
+  if (canReview && status === 'AWAITING_REVIEW') {
+    return {
+      label: t('ops.action.confirm'),
+      icon: <CheckCircle2 className="size-4" aria-hidden="true" />,
+      variant: 'primary',
+      action: 'confirm',
+    };
+  }
   if (!canManage) return null;
   if (status === 'AWAITING_PAYMENT') {
     return {
@@ -949,6 +995,55 @@ function AuditTrail({ logs }: { logs: AuditLogRow[] }) {
   );
 }
 
+function ConfirmBookingDialog({
+  onOpenChange,
+  durationMin,
+  onConfirm,
+  loading,
+}: {
+  onOpenChange: (open: boolean) => void;
+  durationMin: number;
+  onConfirm: (start: string, end: string) => void;
+  loading: boolean;
+}) {
+  const { t } = useTranslation();
+  const [date, setDate] = useState(dayKey(nowInDar()));
+  const [time, setTime] = useState('09:00');
+
+  const handleSubmit = () => {
+    if (!date || !time) return;
+    const { start, end } = buildConfirmSchedule(date, time, durationMin);
+    onConfirm(start, end);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>{t('ops.confirm_booking_title')}</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-4">
+          <p className="text-sm text-text-subtle">{t('ops.confirm_booking_body')}</p>
+          <Field id="confirm-date" label={t('ops.date')}>
+            <Input id="confirm-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </Field>
+          <Field id="confirm-time" label={t('ops.time')}>
+            <Input id="confirm-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+          </Field>
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => onOpenChange(false)} disabled={loading}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleSubmit} loading={loading} disabled={!date || !time}>
+              {t('ops.confirm_schedule')}
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
 function RescheduleDialog({
   onOpenChange,
   scheduledStart,
@@ -968,9 +1063,10 @@ function RescheduleDialog({
   const [reason, setReason] = useState('');
 
   const handleSubmit = () => {
-    const start = new Date(`${date}T${time}:00`).toISOString();
-    const endDate = new Date(new Date(`${date}T${time}:00`).getTime() + durationMin * 60000);
-    onReschedule(start, endDate.toISOString(), reason);
+    if (!date || !time) return;
+    // Dar wall-clock, not browser-local: the office schedules in Dar time.
+    const { start, end } = buildConfirmSchedule(date, time, durationMin);
+    onReschedule(start, end, reason);
   };
 
   return (

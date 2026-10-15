@@ -955,6 +955,9 @@
     "cancel_booking_title": "Cancel this booking?",
     "cancel_booking_body": "The customer will be notified. This cannot be undone.",
     "cancel_booking": "Cancel booking",
+    "confirm_booking_title": "Confirm this booking?",
+    "confirm_booking_body": "Set the schedule and confirm. The booking will appear on the dispatch board and the customer will be notified.",
+    "confirm_schedule": "Schedule & confirm",
     "cancel_reason": "Reason for cancellation",
     "no_show_title": "Mark as no-show?",
     "no_show_body": "The cleaner waited but the customer was not available.",
@@ -968,6 +971,7 @@
     "reschedule": "Reschedule",
     "action": {
       "reschedule": "Reschedule",
+      "confirm": "Confirm booking",
       "cancel": "Cancel"
     },
     "create_booking_subtitle": "Walk through each step to create a booking for a customer",

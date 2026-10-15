@@ -955,6 +955,9 @@
     "cancel_booking_title": "Ghairi oda hii?",
     "cancel_booking_body": "Mteja atalazimishwa. Hii haiwezi kufutwa.",
     "cancel_booking": "Ghairi oda",
+    "confirm_booking_title": "Thibitisha oda hii?",
+    "confirm_booking_body": "Weka ratiba na uthibitishe. Oda itaonekana kwenye ubao wa usambazaji na mteja ataarifiwa.",
+    "confirm_schedule": "Panga na uthibitishe",
     "cancel_reason": "Sababu ya kughairi",
     "no_show_title": "Weka kama hakuja?",
     "no_show_body": "Msafishaji alisubiri lakini mteja hakupatikana.",
@@ -968,6 +971,7 @@
     "reschedule": "Badilisha muda",
     "action": {
       "reschedule": "Badilisha muda",
+      "confirm": "Thibitisha oda",
       "cancel": "Ghairi"
     },
     "create_booking_subtitle": "Pita kwa kila hatua kuweka oda kwa mteja",

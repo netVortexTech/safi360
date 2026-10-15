@@ -85,6 +85,17 @@ export function darDayRange(dateKey: string): { start: string; end: string } {
   return { start: start.toISOString(), end: end.toISOString() };
 }
 
+/** First-time schedule from a Dar wall-clock date + "HH:mm" and a duration in minutes. */
+export function buildConfirmSchedule(
+  dateKey: string,
+  time: string,
+  durationMin: number,
+): { start: string; end: string } {
+  const start = fromDarLocal(dateKey, time);
+  const end = new Date(start.getTime() + durationMin * 60000);
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
 /** Current wall-clock Date in Dar es Salaam (for "today" comparisons). */
 export function nowInDar(): Date {
   return toZonedTime(new Date(), TZ);

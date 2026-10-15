@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-floating-promises, @typescript-eslint/no-unnecessary-type-assertion */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth';
 import { darDayRange } from '@/lib/dates';
 import type {
   AuditLogRow,
@@ -601,8 +602,21 @@ export function useResolveException() {
 // Transition booking (shared by ticket detail actions)
 // ---------------------------------------------------------------------------
 
+/**
+ * Explicit staff actor for the write path, in the same shape the Edge Functions
+ * send (`staff:<uuid>` + tenant role). Databases with correct JWT-claim wiring
+ * ignore it (claims win); it keeps attribution and role checks working where
+ * the claims do not reach the RPC.
+ */
+function useActorMeta(): Record<string, unknown> {
+  const { userId, claims } = useAuth();
+  if (!userId || !claims.tenant_role) return {};
+  return { actor: `staff:${userId}`, actor_role: claims.tenant_role };
+}
+
 export function useTransitionBooking() {
   const qc = useQueryClient();
+  const actorMeta = useActorMeta();
   return useMutation({
     mutationFn: async (vars: {
       booking_id: string;
@@ -614,7 +628,7 @@ export function useTransitionBooking() {
         p_booking_id: vars.booking_id,
         p_to: vars.to,
         p_reason: vars.reason ?? null,
-        p_meta: vars.meta ?? {},
+        p_meta: { ...actorMeta, ...vars.meta },
       });
       if (error) throw error;
       return data as { booking_id: string; status: string; changed: boolean };
@@ -634,6 +648,7 @@ export function useTransitionBooking() {
 
 export function useRescheduleBooking() {
   const qc = useQueryClient();
+  const actorMeta = useActorMeta();
   return useMutation({
     mutationFn: async (vars: {
       booking_id: string;
@@ -641,6 +656,7 @@ export function useRescheduleBooking() {
       end: string;
       capacity: number;
       reason?: string;
+      meta?: Record<string, unknown>;
     }) => {
       const { data, error } = await supabase.rpc('reschedule_booking', {
         p_booking_id: vars.booking_id,
@@ -648,7 +664,7 @@ export function useRescheduleBooking() {
         p_end: vars.end,
         p_capacity: vars.capacity,
         p_reason: vars.reason ?? null,
-        p_meta: {},
+        p_meta: { ...actorMeta, ...vars.meta },
       });
       if (error) throw error;
       return data as { booking_id: string; scheduled_start: string; scheduled_end: string };
