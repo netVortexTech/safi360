@@ -595,7 +595,7 @@ export function useResolveException() {
   return useMutation({
     mutationFn: async (vars: { id: string; action: 'RESOLVED' | 'DISMISSED' }) => {
       const { error } = await supabase
-        .from('Exceptions')
+        .from('exceptions')
         .update({
           status: vars.action,
           resolved_at: new Date().toISOString(),
