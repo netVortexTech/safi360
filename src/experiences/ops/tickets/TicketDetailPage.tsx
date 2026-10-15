@@ -30,6 +30,8 @@ import {
   useTicket,
   useTransitionBooking,
 } from './hooks';
+import { useRecordManualPayment } from '../payments/hooks';
+import { ManualPaymentDialog } from '../payments/ManualPaymentDialog';
 import { StatusBadge, FlagBadge } from '@/components/shared/StatusBadge';
 import { TicketChip } from '@/components/shared/TicketChip';
 import { PaymentStatus } from '@/components/shared/PaymentStatus';
@@ -115,6 +117,7 @@ export function TicketDetailPage() {
   const [showNoShow, setShowNoShow] = useState(false);
   const [showFlagReview, setShowFlagReview] = useState(false);
   const [showNote, setShowNote] = useState(false);
+  const [showRecordPayment, setShowRecordPayment] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [noteVisible, setNoteVisible] = useState(false);
 
@@ -154,7 +157,7 @@ export function TicketDetailPage() {
       return { before, after };
     },
   });
-  const { data: payments } = useBookingPayments(id ?? '');
+  const { data: payments, refetch: refetchPayments } = useBookingPayments(id ?? '');
   const { data: quotes } = useBookingQuotes(id ?? '');
   const { data: auditLogs } = useBookingAudit(id ?? '');
   const notifications = useQuery<Record<string, unknown>[]>({
@@ -175,6 +178,7 @@ export function TicketDetailPage() {
   const transition = useTransitionBooking();
   const reschedule = useRescheduleBooking();
   const addNote = useAddNote();
+  const recordPayment = useRecordManualPayment();
 
   if (isLoading) {
     return (
@@ -208,6 +212,7 @@ export function TicketDetailPage() {
   const canAssign = can(role, 'booking.assign');
   const canReview = can(role, 'booking.review');
   const canSeeBilling = can(role, 'payment.view');
+  const canRecordPayment = can(role, 'payment.record_manual');
 
   const primaryAction = getPrimaryAction(ticket.status, canManage, canReview, t);
 
@@ -521,6 +526,17 @@ export function TicketDetailPage() {
                   ))}
                 </ul>
               )}
+              {canRecordPayment && ticket.total_tzs - ticket.paid_tzs > 0 && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => setShowRecordPayment(true)}
+                >
+                  <Banknote aria-hidden="true" />
+                  {t('ops.record_payment')}
+                </Button>
+              )}
             </CardBody>
           </Card>
 
@@ -560,6 +576,13 @@ export function TicketDetailPage() {
                     ))}
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    {ticket.total_tzs - ticket.paid_tzs > 0 && (
+                      <p className="w-full text-sm text-warning">
+                        {t('ops.close_out_hint', {
+                          amount: formatTzs(ticket.total_tzs - ticket.paid_tzs),
+                        })}
+                      </p>
+                    )}
                     <Button
                       loading={transition.isPending}
                       onClick={() =>
@@ -768,6 +791,25 @@ export function TicketDetailPage() {
             );
           }}
           loading={reschedule.isPending || transition.isPending}
+        />
+      )}
+
+      {/* Record payment dialog (booking preset, balance prefilled) */}
+      {showRecordPayment && (
+        <ManualPaymentDialog
+          busy={recordPayment.isPending}
+          error={recordPayment.error ? String(recordPayment.error) : null}
+          bookingId={ticket.id}
+          bookingLabel={ticket.ticket_ref}
+          suggestedAmount={Math.max(ticket.total_tzs - ticket.paid_tzs, 0)}
+          onClose={() => setShowRecordPayment(false)}
+          onSubmit={(vars) => {
+            void recordPayment.mutateAsync(vars).then(() => {
+              setShowRecordPayment(false);
+              void refetch();
+              void refetchPayments();
+            });
+          }}
         />
       )}
 

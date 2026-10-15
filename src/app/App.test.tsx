@@ -48,6 +48,8 @@ vi.mock('@/experiences/ops/tickets/hooks', () => {
     useDispatchItems: query([]),
     useExceptions: query([]),
     useResolveException: mutation(),
+    useAddJobEvent: mutation(),
+    useQueueNotification: mutation(),
     useTransitionBooking: mutation(),
     useRescheduleBooking: mutation(),
     useAddNote: mutation(),

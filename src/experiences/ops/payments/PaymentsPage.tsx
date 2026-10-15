@@ -6,11 +6,11 @@ import { formatDay } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
-import { Field } from '@/components/shared/Field';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody } from '@/components/ui/card';
 import { PaymentStatus } from '@/components/shared/PaymentStatus';
 import { usePaymentsLedger, useRecordManualPayment } from './hooks';
+import { ManualPaymentDialog } from './ManualPaymentDialog';
 import type { PaymentLedgerRow } from './hooks';
 
 export default function PaymentsPage() {
@@ -197,69 +197,6 @@ export default function PaymentsPage() {
           </CardBody>
         </Card>
       </section>
-    </div>
-  );
-}
-
-function ManualPaymentDialog({
-  busy,
-  error,
-  onClose,
-  onSubmit,
-}: {
-  busy: boolean;
-  error: string | null;
-  onClose: () => void;
-  onSubmit: (vars: { booking_id: string; amount_tzs: number; method: string; reason: string }) => void;
-}) {
-  const [bookingId, setBookingId] = useState('');
-  const [amount, setAmount] = useState('');
-  const [method, setMethod] = useState('cash');
-  const [reason, setReason] = useState('');
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-xl bg-surface p-5">
-        <h2 className="text-h2">Record manual payment</h2>
-        <p className="mt-1 text-sm text-text-muted">
-          Emergency use only: creates a MANUAL payment and updates the ledger.
-        </p>
-        {error ? <p className="mt-3 text-sm text-error">{error}</p> : null}
-        <div className="mt-4 space-y-3">
-          <Field id="manual-booking" label="Booking ID" required>
-            <Input id="manual-booking" value={bookingId} onChange={(e) => setBookingId(e.target.value)} />
-          </Field>
-          <Field id="manual-amount" label="Amount TZS" required>
-            <Input
-              id="manual-amount"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          </Field>
-          <Field id="manual-method" label="Method">
-            <Select id="manual-method" value={method} onChange={(e) => setMethod(e.target.value)}>
-              <option value="cash">Cash</option>
-              <option value="bank">Bank</option>
-              <option value="mobile_money">Mobile money</option>
-            </Select>
-          </Field>
-          <Field id="manual-reason" label="Reason" required>
-            <Input id="manual-reason" value={reason} onChange={(e) => setReason(e.target.value)} />
-          </Field>
-        </div>
-        <div className="mt-5 flex gap-3">
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            disabled={busy || !bookingId || !amount || !reason}
-            loading={busy}
-            onClick={() => onSubmit({ booking_id: bookingId, amount_tzs: Number(amount), method, reason })}
-          >
-            Save
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-base-to-string */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
+import { useActorMeta } from '@/lib/actor-meta';
 import type { PaymentStatus } from '@shared/enums';
 
 export type PaymentLedgerRow = {
@@ -65,6 +66,7 @@ export function usePaymentsLedger() {
 
 export function useRecordManualPayment() {
   const qc = useQueryClient();
+  const actorMeta = useActorMeta();
   return useMutation({
     mutationFn: async (vars: { booking_id: string; amount_tzs: number; method: string; reason: string }) => {
       const { data, error } = await supabase.rpc('record_manual_payment', {
@@ -72,6 +74,7 @@ export function useRecordManualPayment() {
         p_amount_tzs: vars.amount_tzs,
         p_method: vars.method,
         p_reason: vars.reason,
+        p_meta: actorMeta,
       });
       if (error) throw error;
       return data as string;
@@ -79,6 +82,7 @@ export function useRecordManualPayment() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: paymentQueryKeys.all });
       void qc.invalidateQueries({ queryKey: ['tickets'] });
+      void qc.invalidateQueries({ queryKey: ['invoices'] });
     },
   });
 }

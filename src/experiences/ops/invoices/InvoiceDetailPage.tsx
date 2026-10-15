@@ -1,9 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { ArrowLeft, Banknote, Printer } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { useCurrentTenant } from '@/lib/tenant';
+import { useRecordManualPayment } from '../payments/hooks';
+import { ManualPaymentDialog } from '../payments/ManualPaymentDialog';
 import { formatTzs } from '@/lib/money';
 import { formatDay } from '@/lib/dates';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -25,6 +28,9 @@ export default function InvoiceDetailPage() {
   const { claims } = useAuth();
   const { data: invoice, isLoading, error, refetch } = useInvoice(id ?? '');
   const tenant = useCurrentTenant();
+  const recordPayment = useRecordManualPayment();
+  const [showRecordPayment, setShowRecordPayment] = useState(false);
+  const canRecord = can(claims.tenant_role, 'payment.record_manual');
 
   if (!can(claims.tenant_role, 'payment.view')) {
     return (
@@ -159,8 +165,33 @@ export default function InvoiceDetailPage() {
             <p className="text-h3">{t('ops.balance_due')}</p>
             <p className="tabular text-h2">{formatTzs(balance)}</p>
           </div>
+          {canRecord && balance > 0 && (
+            <div className="print:hidden">
+              <Button onClick={() => setShowRecordPayment(true)}>
+                <Banknote aria-hidden="true" />
+                {t('ops.record_payment')}
+              </Button>
+            </div>
+          )}
         </CardBody>
       </Card>
+
+      {showRecordPayment && (
+        <ManualPaymentDialog
+          busy={recordPayment.isPending}
+          error={recordPayment.error ? String(recordPayment.error) : null}
+          bookingId={invoice.id}
+          bookingLabel={invoice.ticket_ref}
+          suggestedAmount={balance}
+          onClose={() => setShowRecordPayment(false)}
+          onSubmit={(vars) => {
+            void recordPayment.mutateAsync(vars).then(() => {
+              setShowRecordPayment(false);
+              void refetch();
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

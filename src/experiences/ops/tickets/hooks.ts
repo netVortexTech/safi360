@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-floating-promises, @typescript-eslint/no-unnecessary-type-assertion */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/lib/auth';
+import { useActorMeta } from '@/lib/actor-meta';
 import { darDayRange } from '@/lib/dates';
 import type {
   AuditLogRow,
@@ -694,18 +694,6 @@ export function useQueueNotification() {
 // ---------------------------------------------------------------------------
 // Transition booking (shared by ticket detail actions)
 // ---------------------------------------------------------------------------
-
-/**
- * Explicit staff actor for the write path, in the same shape the Edge Functions
- * send (`staff:<uuid>` + tenant role). Databases with correct JWT-claim wiring
- * ignore it (claims win); it keeps attribution and role checks working where
- * the claims do not reach the RPC.
- */
-function useActorMeta(): Record<string, unknown> {
-  const { userId, claims } = useAuth();
-  if (!userId || !claims.tenant_role) return {};
-  return { actor: `staff:${userId}`, actor_role: claims.tenant_role };
-}
 
 export function useTransitionBooking() {
   const qc = useQueryClient();
