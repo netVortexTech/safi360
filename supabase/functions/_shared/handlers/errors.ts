@@ -104,4 +104,8 @@ const KNOWN_CODES: Record<
   reason_required: { code: 'reason_required', message: 'validation.reason.required', status: 422 },
   signature_invalid: { code: 'signature_invalid', message: 'errors.forbidden', status: 401 },
   payment_amount_invalid: { code: 'payment_amount_invalid', message: 'errors.invalid_data', status: 422 },
+  feedback_kind_required: { code: 'feedback_kind_required', message: 'errors.invalid_data', status: 422 },
+  feedback_body_required: { code: 'feedback_body_required', message: 'errors.invalid_data', status: 422 },
+  feedback_kind_invalid: { code: 'feedback_kind_invalid', message: 'errors.invalid_data', status: 422 },
+  feedback_rating_invalid: { code: 'feedback_rating_invalid', message: 'errors.invalid_data', status: 422 },
 };

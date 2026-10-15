@@ -45,6 +45,9 @@ export default function TrackBookingPage() {
   const [dialog, setDialog] = useState<Dialogs>(null);
   const [preferred, setPreferred] = useState('');
   const [note, setNote] = useState('');
+  const [fbKind, setFbKind] = useState<'COMMENT' | 'COMPLAINT'>('COMMENT');
+  const [fbRating, setFbRating] = useState(5);
+  const [fbBody, setFbBody] = useState('');
   const id = useId();
   const [expired, setExpired] = useState(false);
 
@@ -107,7 +110,7 @@ export default function TrackBookingPage() {
     );
   }
 
-  const { booking, items, quote, timeline, payments, actions, policy } = view.data;
+  const { booking, items, quote, timeline, payments, feedback, actions, policy } = view.data;
   const deadline = policy.cancel_deadline ? formatDateTime(policy.cancel_deadline, locale) : '';
   const depositDue = Math.max(0, booking.deposit_tzs - booking.paid_tzs);
 
@@ -186,6 +189,109 @@ export default function TrackBookingPage() {
         </h2>
         <Timeline events={timeline} locale={locale} />
       </section>
+
+      {actions.includes('submit_feedback') && (
+        <section
+          aria-labelledby="track-feedback"
+          className="space-y-3 rounded-lg border border-border bg-surface p-4"
+        >
+          <h2 id="track-feedback" className="text-h3">
+            {t('portal.track.feedback_title')}
+          </h2>
+          {feedback.length > 0 && (
+            <ul className="space-y-2">
+              {feedback.map((f) => (
+                <li key={f.id} className="rounded-lg bg-surface-muted p-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">
+                      {t(`portal.track.feedback_kind_${f.kind.toLowerCase()}`)}
+                    </span>
+                    {f.rating != null && (
+                      <span className="text-warning" aria-label={`${f.rating}/5`}>
+                        {'★'.repeat(f.rating)}
+                        {'☆'.repeat(5 - f.rating)}
+                      </span>
+                    )}
+                    <span className="ml-auto text-xs text-text-subtle">
+                      {formatDateTime(f.created_at, locale)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-text">{f.body}</p>
+                  {f.response && (
+                    <p className="mt-2 rounded bg-surface p-2 text-text">
+                      <span className="font-medium">{t('portal.track.feedback_response')}: </span>
+                      {f.response}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex gap-2">
+            {(['COMMENT', 'COMPLAINT'] as const).map((k) => (
+              <Button
+                key={k}
+                variant={fbKind === k ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => setFbKind(k)}
+              >
+                {t(`portal.track.feedback_kind_${k.toLowerCase()}`)}
+              </Button>
+            ))}
+          </div>
+          {fbKind === 'COMMENT' && (
+            <div className="flex items-center gap-1" role="radiogroup" aria-label={t('portal.track.rating')}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  role="radio"
+                  aria-checked={fbRating === n}
+                  aria-label={`${n}/5`}
+                  onClick={() => setFbRating(n)}
+                  className="text-xl text-warning"
+                >
+                  {n <= fbRating ? '★' : '☆'}
+                </button>
+              ))}
+            </div>
+          )}
+          <Field id={`${id}-fb-body`} label={t('portal.track.feedback_body')}>
+            <Textarea
+              id={`${id}-fb-body`}
+              value={fbBody}
+              onChange={(e) => setFbBody(e.target.value.slice(0, 2000))}
+              rows={3}
+            />
+          </Field>
+          <Button
+            loading={act.isPending}
+            disabled={fbBody.trim().length < 2}
+            onClick={() =>
+              void act
+                .mutateAsync({
+                  slug,
+                  token: token ?? '',
+                  booking_id: bookingId,
+                  action: 'submit_feedback',
+                  feedback_kind: fbKind,
+                  rating: fbKind === 'COMMENT' ? fbRating : undefined,
+                  body: fbBody.trim(),
+                })
+                .then(() => {
+                  setFbBody('');
+                  toast({ title: t('portal.track.feedback_sent') });
+                  return view.refetch();
+                })
+                .catch((err) => {
+                  toast({ title: t(portalErrorKey(err)), tone: 'error' });
+                })
+            }
+          >
+            {t('portal.track.feedback_send')}
+          </Button>
+        </section>
+      )}
 
       <section aria-labelledby="track-details" className="space-y-3">
         <h2 id="track-details" className="text-h3">

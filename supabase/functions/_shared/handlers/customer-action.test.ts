@@ -95,6 +95,44 @@ describe('customer_action', () => {
     });
   });
 
+  it('records a comment with rating without changing the booking', async () => {
+    const w = withStaff(fakeBookingWorld());
+    const b = await seedBooking(w, { status: 'COMPLETED' });
+    const res = await act(w, b.id, 'submit_feedback', {
+      feedback_kind: 'COMMENT',
+      rating: 5,
+      body: 'Safi sana, asanteni!',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ outcome: 'request_logged', booking_status: 'COMPLETED' });
+    expect(b.status).toBe('COMPLETED');
+    expect(w.feedback).toEqual([
+      expect.objectContaining({
+        booking_id: b.id,
+        kind: 'COMMENT',
+        rating: 5,
+        body: 'Safi sana, asanteni!',
+        status: 'OPEN',
+      }),
+    ]);
+  });
+
+  it('records a complaint and rejects missing kind or body', async () => {
+    const w = withStaff(fakeBookingWorld());
+    const b = await seedBooking(w, { status: 'COMPLETED' });
+    const res = await act(w, b.id, 'submit_feedback', {
+      feedback_kind: 'COMPLAINT',
+      body: 'Mfanyakazi alichelewa sana',
+    });
+    expect(res.status).toBe(200);
+    expect(w.feedback[0]).toMatchObject({ kind: 'COMPLAINT', rating: null });
+
+    const noKind = await act(w, b.id, 'submit_feedback', { body: 'Missing kind' });
+    expect(noKind.status).toBe(422);
+    const noBody = await act(w, b.id, 'submit_feedback', { feedback_kind: 'COMMENT', rating: 4 });
+    expect(noBody.status).toBe(422);
+  });
+
   it('refuses actions the policy does not offer and bookings that are not yours', async () => {
     const w = withStaff(fakeBookingWorld());
     const b = await seedBooking(w);

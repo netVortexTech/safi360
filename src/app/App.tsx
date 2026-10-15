@@ -33,6 +33,7 @@ const CustomerProfilePage = lazy(() => import('@/experiences/ops/customers/Custo
 const CalendarPage = lazy(() => import('@/experiences/ops/calendar/CalendarPage'));
 const DispatchPage = lazy(() => import('@/experiences/ops/dispatch/DispatchPage'));
 const ExceptionsPage = lazy(() => import('@/experiences/ops/exceptions/ExceptionsPage'));
+const ReviewsPage = lazy(() => import('@/experiences/ops/reviews/ReviewsPage'));
 const PaymentsPage = lazy(() => import('@/experiences/ops/payments/PaymentsPage'));
 const InvoicesPage = lazy(() => import('@/experiences/ops/invoices/InvoicesPage'));
 const InvoiceDetailPage = lazy(() => import('@/experiences/ops/invoices/InvoiceDetailPage'));
@@ -90,6 +91,7 @@ export const routes: RouteObject[] = [
       { path: 'calendar', element: withSuspense(<CalendarPage />) },
       { path: 'dispatch', element: withSuspense(<DispatchPage />) },
       { path: 'exceptions', element: withSuspense(<ExceptionsPage />) },
+      { path: 'reviews', element: withSuspense(<ReviewsPage />) },
       { path: 'payments', element: withSuspense(<PaymentsPage />) },
       { path: 'invoices', element: withSuspense(<InvoicesPage />) },
       { path: 'invoices/:id', element: withSuspense(<InvoiceDetailPage />) },

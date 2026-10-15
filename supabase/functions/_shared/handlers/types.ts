@@ -207,6 +207,30 @@ export interface BookingDeps extends PublicDeps {
     tenantId: string,
     phone: string,
   ): Promise<(BookingRow & { service_label_sw: string; service_label_en: string })[]>;
+  /** Customer-submitted comments/complaints on one booking, newest first. */
+  feedbackForBooking(
+    tenantId: string,
+    bookingId: string,
+  ): Promise<
+    {
+      id: string;
+      kind: string;
+      rating: number | null;
+      body: string;
+      status: string;
+      response: string | null;
+      created_at: string;
+    }[]
+  >;
+  /** Insert a verified customer's comment/complaint. */
+  submitFeedback(input: {
+    tenantId: string;
+    bookingId: string;
+    customerId: string | null;
+    kind: 'COMMENT' | 'COMPLAINT';
+    rating: number | null;
+    body: string;
+  }): Promise<{ id: string }>;
   loadBookingDetail(tenantId: string, bookingId: string): Promise<BookingDetail | null>;
   insertPayment(row: {
     tenant_id: string;

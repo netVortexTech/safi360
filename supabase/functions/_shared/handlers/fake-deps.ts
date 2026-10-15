@@ -143,6 +143,17 @@ export interface FakeBookingWorld extends FakeWorld {
   otps: CustomerOtpRow[];
   payments: PaymentRow[];
   exceptions: { booking_id: string; kind: string; details: Record<string, unknown>; severity: string }[];
+  feedback: {
+    id: string;
+    tenant_id: string;
+    booking_id: string;
+    kind: string;
+    rating: number | null;
+    body: string;
+    status: string;
+    response: string | null;
+    created_at: string;
+  }[];
   sms: MockSmsProvider | null;
   paymentProvider: PaymentProvider | null;
   tokenSecret: string;
@@ -160,6 +171,7 @@ export function fakeBookingWorld(over: Partial<FakeBookingWorld> = {}): FakeBook
     otps: [],
     payments: [],
     exceptions: [],
+    feedback: [],
     sms: new MockSmsProvider(),
     paymentProvider: new MockPaymentProvider(FAKE_PAYMENT_SECRET),
     tokenSecret: FAKE_TOKEN_SECRET,
@@ -475,6 +487,38 @@ export function fakeBookingDeps(world: FakeBookingWorld): BookingDeps {
       if (open) open.details = { ...open.details, ...details };
       else world.exceptions.push({ booking_id: bookingId, kind, details, severity });
       return Promise.resolve();
+    },
+
+    feedbackForBooking(tenantId, bookingId) {
+      return Promise.resolve(
+        world.feedback
+          .filter((f) => f.tenant_id === tenantId && f.booking_id === bookingId)
+          .map((f) => ({ ...f })),
+      );
+    },
+
+    submitFeedback(input) {
+      const b = world.bookings.find((x) => x.id === input.bookingId && x.tenant_id === input.tenantId);
+      if (!b) return Promise.reject(new Error('booking_not_found'));
+      if (input.kind !== 'COMMENT' && input.kind !== 'COMPLAINT')
+        return Promise.reject(new Error('feedback_kind_invalid'));
+      if (input.rating != null && (input.rating < 1 || input.rating > 5))
+        return Promise.reject(new Error('feedback_rating_invalid'));
+      if (!input.body || input.body.trim().length < 2)
+        return Promise.reject(new Error('feedback_body_required'));
+      const row = {
+        id: fakeId('fb'),
+        tenant_id: input.tenantId,
+        booking_id: input.bookingId,
+        kind: input.kind,
+        rating: input.rating,
+        body: input.body.trim(),
+        status: 'OPEN',
+        response: null,
+        created_at: world.now.toISOString(),
+      };
+      world.feedback.push(row);
+      return Promise.resolve({ id: row.id });
     },
 
     bookingsForPhone(tenantId, phone) {

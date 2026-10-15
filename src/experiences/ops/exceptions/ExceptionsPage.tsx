@@ -297,14 +297,14 @@ function ExceptionCard({
             {r && preferredDate && (
               <div className="mt-2 space-y-1 rounded-lg bg-surface-muted p-3 text-sm">
                 <p>
-                  <span className="text-text-subtle">{t('ops.preferred_time')}: </span>
+                  <span className="text-text-subtle">{t('ops.requested_time')}: </span>
                   <span className="font-medium text-text">
                     {formatDateTime(preferredDate, 'en')} ({formatTime(preferredDate, 'en')})
                   </span>
                 </p>
                 {r.note && (
                   <p>
-                    <span className="text-text-subtle">{t('ops.customer_note')}: </span>
+                    <span className="text-text-subtle">{t('ops.request_note')}: </span>
                     <span className="text-text">{r.note}</span>
                   </p>
                 )}

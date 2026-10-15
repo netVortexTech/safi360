@@ -277,6 +277,47 @@ export function bookingDeps(admin: SupabaseClient, req: Request, env: FunctionEn
         p_meta: meta,
       }).then(() => undefined),
 
+    feedbackForBooking: async (tenantId, bookingId) => {
+      const rows = unwrap<
+        {
+          id: string;
+          kind: string;
+          rating: number | null;
+          body: string;
+          status: string;
+          response: string | null;
+          created_at: string;
+        }[]
+      >(
+        await admin
+          .from('booking_feedback')
+          .select('id, kind, rating, body, status, response, created_at')
+          .eq('tenant_id', tenantId)
+          .eq('booking_id', bookingId)
+          .order('created_at', { ascending: false }),
+      );
+      return rows;
+    },
+
+    submitFeedback: async (input) => {
+      const row = unwrap<{ id: string } | null>(
+        await admin
+          .from('booking_feedback')
+          .insert({
+            tenant_id: input.tenantId,
+            booking_id: input.bookingId,
+            customer_id: input.customerId,
+            kind: input.kind,
+            rating: input.rating,
+            body: input.body,
+          })
+          .select('id')
+          .single(),
+      );
+      if (!row) throw new Error('feedback_insert_failed');
+      return { id: row.id };
+    },
+
     async bookingsForPhone(tenantId, phone) {
       const customer = unwrap<{ id: string } | null>(
         await admin

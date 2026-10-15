@@ -231,7 +231,15 @@ export const trackingViewRequest = z
   .strict();
 export type TrackingViewRequest = z.infer<typeof trackingViewRequest>;
 
-export const customerActionKind = z.enum(['approve_quote', 'reject_quote', 'cancel', 'request_reschedule']);
+export const customerActionKind = z.enum([
+  'approve_quote',
+  'reject_quote',
+  'cancel',
+  'request_reschedule',
+  'submit_feedback',
+]);
+
+export const feedbackKind = z.enum(['COMMENT', 'COMPLAINT']);
 
 export const customerActionRequest = z
   .object({
@@ -243,6 +251,10 @@ export const customerActionRequest = z
     /** request_reschedule: the customer's preferred new start (ISO) and a note. */
     preferred_start: z.string().datetime({ offset: true }).optional(),
     note: z.string().trim().max(500).optional(),
+    /** submit_feedback: kind + optional 1-5 rating (comments) + text. */
+    feedback_kind: feedbackKind.optional(),
+    rating: z.number().int().min(1).max(5).optional(),
+    body: z.string().trim().min(2).max(2000).optional(),
   })
   .strict();
 export type CustomerActionRequest = z.infer<typeof customerActionRequest>;

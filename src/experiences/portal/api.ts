@@ -117,10 +117,13 @@ export const portalApi = {
     slug: string;
     token: string;
     booking_id: string;
-    action: 'approve_quote' | 'reject_quote' | 'cancel' | 'request_reschedule';
+    action: 'approve_quote' | 'reject_quote' | 'cancel' | 'request_reschedule' | 'submit_feedback';
     reason?: string;
     preferred_start?: string;
     note?: string;
+    feedback_kind?: 'COMMENT' | 'COMPLAINT';
+    rating?: number | undefined;
+    body?: string;
   }) => invoke<CustomerActionResponse>('customer_action', args),
   paymentStart: (args: {
     slug: string;

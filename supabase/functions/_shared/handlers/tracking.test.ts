@@ -94,7 +94,7 @@ describe('tracking_view', () => {
     });
     expect(body.customer).toEqual({ name: 'Daudi Lyimo', phone_masked: '+25571****342' });
     expect(body.timeline.map((e) => e.kind)).toEqual(['created', 'status_changed']);
-    expect(body.actions).toEqual(['cancel', 'request_reschedule']);
+    expect(body.actions).toEqual(['cancel', 'request_reschedule', 'submit_feedback']);
     expect(body.policy).toMatchObject({ cancel_hours: 4, cancel_within_policy: true });
     const text = JSON.stringify(body);
     expect(text).not.toContain(PHONE);
@@ -157,7 +157,7 @@ describe('allowedActions policy', () => {
   it('offers approval only while a quote waits, payment only while a deposit is due', () => {
     expect(
       allowedActions(booking({ status: 'AWAITING_CUSTOMER_APPROVAL' }), settings, now, true).actions,
-    ).toEqual(['approve_quote', 'reject_quote', 'cancel']);
+    ).toEqual(['approve_quote', 'reject_quote', 'cancel', 'submit_feedback']);
     expect(
       allowedActions(
         booking({ status: 'AWAITING_PAYMENT', payment_mode: 'DEPOSIT', deposit_tzs: 10 }),
@@ -165,7 +165,7 @@ describe('allowedActions policy', () => {
         now,
         true,
       ).actions,
-    ).toEqual(['pay_deposit', 'cancel', 'request_reschedule']);
+    ).toEqual(['pay_deposit', 'cancel', 'request_reschedule', 'submit_feedback']);
     expect(
       allowedActions(
         booking({ status: 'AWAITING_PAYMENT', payment_mode: 'DEPOSIT', deposit_tzs: 10 }),
@@ -178,7 +178,7 @@ describe('allowedActions policy', () => {
 
   it('keeps cancel visible inside the window but marks it outside policy; reschedule disappears', () => {
     const late = allowedActions(booking({ scheduled_start: '2026-10-14T11:00:00Z' }), settings, now, true);
-    expect(late.actions).toEqual(['cancel']);
+    expect(late.actions).toEqual(['cancel', 'submit_feedback']);
     expect(late.cancel_within_policy).toBe(false);
     expect(late.cancel_deadline).toBe('2026-10-14T07:00:00.000Z');
     const unscheduled = allowedActions(
@@ -187,13 +187,15 @@ describe('allowedActions policy', () => {
       now,
       true,
     );
-    expect(unscheduled.actions).toEqual(['cancel']);
+    expect(unscheduled.actions).toEqual(['cancel', 'submit_feedback']);
     expect(unscheduled.cancel_within_policy).toBe(true);
   });
 
-  it('offers nothing once a job is underway or finished', () => {
+  it('offers only feedback once a job is underway or finished', () => {
     for (const status of ['EN_ROUTE', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'EXPIRED'] as const) {
-      expect(allowedActions(booking({ status }), settings, now, true).actions, status).toEqual([]);
+      expect(allowedActions(booking({ status }), settings, now, true).actions, status).toEqual([
+        'submit_feedback',
+      ]);
     }
   });
 });

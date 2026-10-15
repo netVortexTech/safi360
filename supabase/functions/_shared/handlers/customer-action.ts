@@ -106,6 +106,20 @@ export async function handleCustomerAction(rawBody: unknown, deps: BookingDeps):
         body = { action: input.action, outcome: 'request_logged', booking_status: b.status };
         break;
       }
+      case 'submit_feedback': {
+        if (!input.feedback_kind) throw new Error('feedback_kind_required');
+        if (!input.body || input.body.trim().length < 2) throw new Error('feedback_body_required');
+        await deps.submitFeedback({
+          tenantId: tenant.id,
+          bookingId: b.id,
+          customerId: b.customer_id,
+          kind: input.feedback_kind,
+          rating: input.rating ?? null,
+          body: input.body.trim(),
+        });
+        body = { action: input.action, outcome: 'request_logged', booking_status: b.status };
+        break;
+      }
     }
     return { status: 200, body };
   } catch (err) {

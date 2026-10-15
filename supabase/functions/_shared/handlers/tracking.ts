@@ -36,7 +36,7 @@ export interface TrackingVerifyResponse {
 }
 
 export type CustomerActionKind =
-  'approve_quote' | 'reject_quote' | 'cancel' | 'request_reschedule' | 'pay_deposit';
+  'approve_quote' | 'reject_quote' | 'cancel' | 'request_reschedule' | 'pay_deposit' | 'submit_feedback';
 
 export interface TrackingViewResponse {
   booking: {
@@ -92,6 +92,15 @@ export interface TrackingViewResponse {
     provider: string;
     created_at: string;
   }[];
+  feedback: {
+    id: string;
+    kind: string;
+    rating: number | null;
+    body: string;
+    status: string;
+    response: string | null;
+    created_at: string;
+  }[];
   actions: CustomerActionKind[];
   policy: { cancel_hours: number; cancel_within_policy: boolean; cancel_deadline: string | null };
 }
@@ -130,6 +139,8 @@ export function allowedActions(
   if (CANCELLABLE.includes(booking.status)) actions.push('cancel');
   if (RESCHEDULABLE.includes(booking.status) && booking.scheduled_start && withinPolicy)
     actions.push('request_reschedule');
+  // Comments and complaints are always welcome on a tracked booking.
+  actions.push('submit_feedback');
   return { actions, cancel_within_policy: withinPolicy, cancel_deadline: deadline?.toISOString() ?? null };
 }
 
@@ -137,7 +148,15 @@ export function maskPhone(phone: string): string {
   return `${phone.slice(0, 6)}****${phone.slice(-3)}`;
 }
 
-const VISIBLE_DATA_KEYS = ['reason', 'amount_tzs', 'kind', 'preferred_start', 'from', 'to'] as const;
+const VISIBLE_DATA_KEYS = [
+  'reason',
+  'response',
+  'amount_tzs',
+  'kind',
+  'preferred_start',
+  'from',
+  'to',
+] as const;
 const ADDRESS_KEYS = ['label', 'area', 'street', 'landmark', 'ward', 'district'] as const;
 
 /** The parts of an address snapshot a customer may see back (no coordinates, no notes). */
@@ -150,11 +169,22 @@ export function publicAddress(snapshot: Record<string, unknown>): TrackingViewRe
   return out;
 }
 
+export interface FeedbackView {
+  id: string;
+  kind: string;
+  rating: number | null;
+  body: string;
+  status: string;
+  response: string | null;
+  created_at: string;
+}
+
 export function projectBooking(
   detail: BookingDetail,
   settings: TenantSettings,
   now: Date,
   paymentsConfigured: boolean,
+  feedback: FeedbackView[] = [],
 ): TrackingViewResponse {
   const b = detail.booking;
   const policy = allowedActions(b, settings, now, paymentsConfigured);
@@ -210,6 +240,7 @@ export function projectBooking(
       provider: p.provider,
       created_at: p.created_at,
     })),
+    feedback,
     actions: policy.actions,
     policy: {
       cancel_hours: settings.cancel_hours,
@@ -314,7 +345,8 @@ export async function handleTrackingView(rawBody: unknown, deps: BookingDeps): P
     await deps.rateLimit(tenant.id, 'tracking_view');
     const { phone } = await requireTrackingToken(deps, tenant, input.token, ['tracking', 'booking']);
     const detail = await requireOwnBooking(deps, tenant, phone, input.booking_id);
-    const body = projectBooking(detail, settingsOf(tenant), deps.now(), deps.payments != null);
+    const feedback = await deps.feedbackForBooking(tenant.id, detail.booking.id);
+    const body = projectBooking(detail, settingsOf(tenant), deps.now(), deps.payments != null, feedback);
     return { status: 200, body };
   } catch (err) {
     return toErrorResult(err);
