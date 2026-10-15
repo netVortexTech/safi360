@@ -106,6 +106,20 @@ export interface ExceptionRow {
   resolved_by: string | null;
   resolved_at: string | null;
   created_at: string;
+  /**
+   * Populated for OPEN reschedule requests: what the customer asked for plus
+   * the booking context ops needs to approve it in one step.
+   */
+  reschedule: {
+    preferred_start: string;
+    note: string | null;
+    duration_min: number | null;
+    booking_status: string;
+    current_start: string | null;
+    current_end: string | null;
+    customer_id: string | null;
+    locale: 'sw' | 'en';
+  } | null;
 }
 
 export interface CalendarEvent {

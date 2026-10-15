@@ -561,15 +561,25 @@ export function useExceptions() {
           `
           id, booking_id, kind, severity, status, details,
           resolved_by, resolved_at, created_at,
-          booking:bookings(ticket_ref, customer:customers(name))
+          booking:bookings(ticket_ref, status, locale, duration_min, scheduled_start, scheduled_end, customer:customers(id, name))
         `,
         )
         .order('created_at', { ascending: false })
         .limit(100);
       if (error) throw error;
 
-      return ((data ?? []) as Record<string, unknown>[]).map((row) => {
-        const booking = row.booking as { ticket_ref: string; customer: { name: string } } | null;
+      return ((data ?? []) as Record<string, unknown>[]).map((row): ExceptionRow => {
+        const booking = row.booking as {
+          ticket_ref: string;
+          status: string;
+          locale: string;
+          duration_min: number;
+          scheduled_start: string | null;
+          scheduled_end: string | null;
+          customer: { id: string; name: string };
+        } | null;
+        const details = (row.details as Record<string, unknown>) ?? {};
+        const preferred = typeof details.preferred_start === 'string' ? details.preferred_start : null;
         return {
           id: row.id as string,
           tenant_id: '',
@@ -583,6 +593,19 @@ export function useExceptions() {
           resolved_by: row.resolved_by as string | null,
           resolved_at: row.resolved_at as string | null,
           created_at: row.created_at as string,
+          reschedule:
+            row.kind === 'RESCHEDULE_REQUESTED' && preferred && booking
+              ? {
+                  preferred_start: preferred,
+                  note: typeof details.note === 'string' ? details.note : null,
+                  duration_min: booking.duration_min ?? null,
+                  booking_status: booking.status,
+                  current_start: booking.scheduled_start,
+                  current_end: booking.scheduled_end,
+                  customer_id: booking.customer?.id ?? null,
+                  locale: booking.locale === 'en' ? 'en' : 'sw',
+                }
+              : null,
         };
       });
     },
@@ -606,6 +629,64 @@ export function useResolveException() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ticketKeys.exceptions });
       qc.invalidateQueries({ queryKey: ticketKeys.dashboard });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Customer-visible timeline event (ops-authored, e.g. request declined)
+// ---------------------------------------------------------------------------
+
+export function useAddJobEvent() {
+  const actorMeta = useActorMeta();
+  return useMutation({
+    mutationFn: async (vars: {
+      booking_id: string;
+      kind: 'note' | 'customer_action' | 'payment' | 'assignment' | 'reschedule_requested';
+      customer_visible: boolean;
+      message_key?: string;
+      data?: Record<string, unknown>;
+    }) => {
+      const { error } = await supabase.rpc('add_job_event', {
+        p_booking_id: vars.booking_id,
+        p_kind: vars.kind,
+        p_customer_visible: vars.customer_visible,
+        p_message_key: vars.message_key ?? null,
+        p_data: vars.data ?? {},
+        p_meta: actorMeta,
+      });
+      if (error) throw error;
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Queue an SMS/WhatsApp notification (picked up when a provider is connected)
+// ---------------------------------------------------------------------------
+
+export interface QueueNotificationVars {
+  tenant_id: string;
+  booking_id: string | null;
+  customer_id: string | null;
+  channel: 'SMS' | 'WHATSAPP';
+  template_key: string;
+  locale: 'sw' | 'en';
+  variables: Record<string, unknown>;
+}
+
+export function useQueueNotification() {
+  return useMutation({
+    mutationFn: async (vars: QueueNotificationVars) => {
+      const { error } = await supabase.from('notifications').insert({
+        tenant_id: vars.tenant_id,
+        booking_id: vars.booking_id,
+        customer_id: vars.customer_id,
+        channel: vars.channel,
+        template_key: vars.template_key,
+        locale: vars.locale,
+        variables: vars.variables,
+      });
+      if (error) throw error;
     },
   });
 }
