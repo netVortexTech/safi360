@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Filter, Plus, Search, SlidersHorizontal } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Filter, Search, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from './hooks';
 import { emptyTicketFilters, type TicketFilters } from './types';
@@ -26,8 +26,18 @@ import type { TicketRow } from './types';
 export function TicketsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [filters, setFilters] = useState<TicketFilters>({ ...emptyTicketFilters });
+  const [params, setParams] = useSearchParams();
+  const [filters, setFilters] = useState<TicketFilters>(() => ({
+    ...emptyTicketFilters,
+    search: params.get('q') ?? '',
+  }));
   const [showFilters, setShowFilters] = useState(false);
+
+  // The global ops search box lives in the shell header; keep this list in step with it.
+  useEffect(() => {
+    const q = params.get('q') ?? '';
+    setFilters((f) => (f.search === q ? f : { ...f, search: q }));
+  }, [params]);
 
   const { data, isLoading, error, refetch } = useTickets(filters);
 
@@ -133,23 +143,15 @@ export function TicketsPage() {
         title={t('nav.tickets')}
         subtitle={t('ops.tickets_subtitle')}
         actions={
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" onClick={() => setShowFilters(!showFilters)}>
-              <SlidersHorizontal aria-hidden="true" />
-              {t('common.filters')}
-              {activeFilterCount > 0 && (
-                <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-                  {activeFilterCount}
-                </span>
-              )}
-            </Button>
-            <Button asChild>
-              <Link to="/ops/bookings/new">
-                <Plus aria-hidden="true" />
-                {t('nav.create_booking')}
-              </Link>
-            </Button>
-          </div>
+          <Button variant="secondary" onClick={() => setShowFilters(!showFilters)}>
+            <SlidersHorizontal aria-hidden="true" />
+            {t('common.filters')}
+            {activeFilterCount > 0 && (
+              <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
+                {activeFilterCount}
+              </span>
+            )}
+          </Button>
         }
       />
 
@@ -164,7 +166,19 @@ export function TicketsPage() {
             type="search"
             placeholder={t('ops.search_placeholder')}
             value={filters.search}
-            onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFilters((f) => ({ ...f, search: value }));
+              setParams(
+                (prev) => {
+                  const next = new URLSearchParams(prev);
+                  if (value) next.set('q', value);
+                  else next.delete('q');
+                  return next;
+                },
+                { replace: true },
+              );
+            }}
             className="pl-10"
             aria-label={t('common.search')}
           />

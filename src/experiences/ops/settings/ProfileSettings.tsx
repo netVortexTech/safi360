@@ -109,44 +109,48 @@ export default function ProfileSettings() {
           </CardHeader>
           <CardBody className="space-y-4">
             {!canEdit ? <p className="text-sm text-text-muted">{t('settings.readonly')}</p> : null}
-            <Field id="profile-name" label={t('settings.field_name')} required>
-              <Input
-                id="profile-name"
-                value={name}
-                disabled={!canEdit}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </Field>
-            <Field id="profile-phone" label={t('settings.field_phone')}>
-              <Input
-                id="profile-phone"
-                value={phone}
-                disabled={!canEdit}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+255…"
-              />
-            </Field>
-            <Field id="profile-city" label={t('settings.field_city')}>
-              <Input
-                id="profile-city"
-                value={city}
-                disabled={!canEdit}
-                onChange={(e) => setCity(e.target.value)}
-              />
-            </Field>
-            <Field
-              id="profile-prefix"
-              label={t('settings.field_prefix')}
-              hint={t('settings.field_prefix_hint')}
-            >
-              <Input
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field id="profile-name" label={t('settings.field_name')} required className="sm:col-span-2">
+                <Input
+                  id="profile-name"
+                  value={name}
+                  disabled={!canEdit}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </Field>
+              <Field id="profile-phone" label={t('settings.field_phone')}>
+                <Input
+                  id="profile-phone"
+                  value={phone}
+                  disabled={!canEdit}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+255…"
+                />
+              </Field>
+              <Field id="profile-city" label={t('settings.field_city')}>
+                <Input
+                  id="profile-city"
+                  value={city}
+                  disabled={!canEdit}
+                  onChange={(e) => setCity(e.target.value)}
+                />
+              </Field>
+              <Field
                 id="profile-prefix"
-                value={prefix}
-                disabled={!canEdit}
-                onChange={(e) => setPrefix(e.target.value.toUpperCase())}
-                maxLength={5}
-              />
-            </Field>
+                label={t('settings.field_prefix')}
+                hint={t('settings.field_prefix_hint')}
+                className="sm:col-span-2"
+              >
+                <Input
+                  id="profile-prefix"
+                  value={prefix}
+                  disabled={!canEdit}
+                  onChange={(e) => setPrefix(e.target.value.toUpperCase())}
+                  maxLength={5}
+                  className="sm:max-w-[12rem]"
+                />
+              </Field>
+            </div>
             {status ? (
               <p
                 role="status"

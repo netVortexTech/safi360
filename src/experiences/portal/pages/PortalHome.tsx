@@ -1,8 +1,9 @@
-import { CalendarClock, CalendarPlus, ClipboardList, MapPin, Phone, PhoneCall, Search } from 'lucide-react';
+import { CalendarPlus, Phone, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Button } from '@/components/ui/button';
+import { formatPhone } from '@/lib/phone';
 import { ServiceCard } from '../components/ServiceCard';
 import { usePortal } from '../context';
 
@@ -14,12 +15,7 @@ export default function PortalHome() {
   const greeting = locale === 'en' ? tenant.branding.greeting_en : tenant.branding.greeting_sw;
   const featured = catalog.services.slice(0, 6);
 
-  const steps = [
-    { key: 'services', icon: ClipboardList },
-    { key: 'location', icon: MapPin },
-    { key: 'time', icon: CalendarClock },
-    { key: 'contact', icon: PhoneCall },
-  ] as const;
+  const steps = ['services', 'location', 'time', 'contact'] as const;
 
   return (
     <div className="space-y-12">
@@ -64,7 +60,7 @@ export default function PortalHome() {
             className="mt-6 inline-flex items-center gap-2 text-sm text-brand-foreground/80 hover:text-brand-foreground"
           >
             <Phone className="size-4" aria-hidden="true" />
-            {t('portal.hero.call', { phone: tenant.phone_e164 })}
+            {t('portal.hero.call', { phone: formatPhone(tenant.phone_e164) })}
           </a>
         </div>
       </section>
@@ -110,18 +106,13 @@ export default function PortalHome() {
           {t('portal.how.title')}
         </h2>
         <p className="mt-1.5 max-w-2xl text-body text-text-muted">{t('portal.how.body')}</p>
-        <ol className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => (
-            <li key={step.key} className="flex gap-3">
+            <li key={step} className="flex items-center gap-3">
               <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary-light text-sm font-semibold text-primary">
                 {i + 1}
               </span>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 text-sm font-semibold text-text">
-                  <step.icon className="size-4 text-text-subtle" aria-hidden="true" />
-                  {t(`portal.steps.${step.key}`)}
-                </div>
-              </div>
+              <span className="min-w-0 text-sm font-semibold text-text">{t(`portal.steps.${step}`)}</span>
             </li>
           ))}
         </ol>
@@ -140,7 +131,7 @@ export default function PortalHome() {
           <Button asChild size="lg" variant="secondary">
             <a href={`tel:${tenant.phone_e164}`}>
               <Phone aria-hidden="true" />
-              {t('portal.hero.call', { phone: tenant.phone_e164 })}
+              {t('portal.hero.call', { phone: formatPhone(tenant.phone_e164) })}
             </a>
           </Button>
         </div>

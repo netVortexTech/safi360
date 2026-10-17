@@ -1,7 +1,7 @@
 import { Bell, LogOut, Menu, Plus, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { OPS_BOTTOM_NAV, OPS_NAV, type NavGroup } from '@/app/layouts/nav';
 import { RouteLoading } from '@/app/RouteLoading';
 import { ErrorState } from '@/components/shared/ErrorState';
@@ -130,6 +130,14 @@ function Shell() {
   const tenant = useCurrentTenant();
   const tenantName = tenant.data?.name;
   const [moreOpen, setMoreOpen] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [term, setTerm] = useState('');
+
+  const submitSearch = () => {
+    const q = term.trim();
+    void navigate(q ? `/ops/tickets?q=${encodeURIComponent(q)}` : '/ops/tickets');
+  };
 
   return (
     <div className="flex min-h-dvh bg-surface-page">
@@ -172,6 +180,11 @@ function Shell() {
             />
             <Input
               type="search"
+              defaultValue={searchParams.get('q') ?? ''}
+              onChange={(e) => setTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') submitSearch();
+              }}
               placeholder={t('ops.search_placeholder')}
               className="h-10 rounded-lg border-border bg-surface-muted/70 pl-10 shadow-none hover:bg-surface-muted"
               aria-label={t('common.search')}
@@ -184,7 +197,18 @@ function Shell() {
                 {t('nav.create_booking')}
               </NavLink>
             </Button>
-            <Button variant="secondary" size="icon" aria-label={t('common.search')} className="md:hidden">
+            <Button asChild size="icon" aria-label={t('nav.create_booking')} className="md:hidden">
+              <NavLink to="/ops/bookings/new">
+                <Plus aria-hidden="true" />
+              </NavLink>
+            </Button>
+            <Button
+              variant="secondary"
+              size="icon"
+              aria-label={t('common.search')}
+              className="md:hidden"
+              onClick={() => void navigate('/ops/tickets')}
+            >
               <Search aria-hidden="true" />
             </Button>
             <Button variant="secondary" size="icon" aria-label={t('ops.notifications')} className="relative">

@@ -1,24 +1,24 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   AlertTriangle,
   ArrowRight,
   Banknote,
   Calendar,
   CheckCircle2,
-  Plus,
   Ticket,
   TrendingUp,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../tickets/hooks';
+import type { TicketRow } from '../tickets/types';
 import { useCurrentTenant } from '@/lib/tenant';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SourceChip } from '@/components/shared/SourceChip';
 import { TicketChip } from '@/components/shared/TicketChip';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { DataView, type DataColumn } from '@/components/shared/DataView';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { formatDay, formatTime } from '@/lib/dates';
@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 
 export function OpsDashboard() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { data: tenant } = useCurrentTenant();
   const { data, isLoading, error } = useDashboard();
 
@@ -36,6 +37,52 @@ export function OpsDashboard() {
   const bySource = useMemo(() => data?.by_source ?? [], [data]);
 
   const maxSourceCount = useMemo(() => Math.max(...bySource.map((s) => s.count), 1), [bySource]);
+
+  const recentColumns: DataColumn<TicketRow>[] = [
+    {
+      key: 'ticket',
+      header: t('ops.col.ticket'),
+      cell: (row) => <TicketChip ticketRef={row.ticket_ref} to={`/ops/tickets/${row.id}`} size="sm" />,
+    },
+    {
+      key: 'customer',
+      header: t('ops.col.customer'),
+      cell: (row) => (
+        <div>
+          <div className="font-medium text-text">{row.customer_name}</div>
+          <div className="tabular text-caption text-text-subtle">{row.customer_phone}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('ops.col.status'),
+      cell: (row) => <StatusBadge status={row.status} />,
+    },
+    {
+      key: 'when',
+      header: t('ops.col.when'),
+      cell: (row) =>
+        row.scheduled_start ? (
+          <span className="text-text-muted">
+            {formatDay(row.scheduled_start, 'en')}, {formatTime(row.scheduled_start, 'en')}
+          </span>
+        ) : (
+          <span className="text-text-subtle">—</span>
+        ),
+    },
+    {
+      key: 'source',
+      header: t('ops.col.source'),
+      cell: (row) => <SourceChip source={row.source} />,
+    },
+    {
+      key: 'total',
+      header: t('ops.col.total'),
+      align: 'right',
+      cell: (row) => <span className="tabular font-semibold">{formatTzs(row.total_tzs)}</span>,
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -69,14 +116,6 @@ export function OpsDashboard() {
         subtitle={t('ops.dashboard_subtitle', {
           date: formatDay(new Date(), 'en'),
         })}
-        actions={
-          <Button asChild>
-            <Link to="/ops/bookings/new">
-              <Plus aria-hidden="true" />
-              {t('nav.create_booking')}
-            </Link>
-          </Button>
-        }
       />
 
       {/* KPI Cards */}
@@ -199,14 +238,14 @@ export function OpsDashboard() {
         </CardHeader>
         <CardBody className="p-0">
           <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            <MoneyBlock label={t('ops.booked_value')} value={formatTzs(kpis?.booked_value_tzs ?? 0)} />
+            <MoneyBlock label={t('ops.kpi.booked_value')} value={formatTzs(kpis?.booked_value_tzs ?? 0)} />
             <MoneyBlock
-              label={t('ops.collected')}
+              label={t('ops.kpi.collected')}
               value={formatTzs(kpis?.collected_tzs ?? 0)}
               tone="text-success"
             />
             <MoneyBlock
-              label={t('ops.pending')}
+              label={t('ops.kpi.pending')}
               value={formatTzs(kpis?.pending_tzs ?? 0)}
               tone="text-warning"
             />
@@ -234,51 +273,34 @@ export function OpsDashboard() {
               description={t('empty.tickets_body')}
             />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-caption uppercase tracking-eyebrow text-text-subtle">
-                    <th className="px-5 py-3 font-medium">{t('ops.col.ticket')}</th>
-                    <th className="px-4 py-3 font-medium">{t('ops.col.customer')}</th>
-                    <th className="px-4 py-3 font-medium">{t('ops.col.status')}</th>
-                    <th className="px-4 py-3 font-medium">{t('ops.col.when')}</th>
-                    <th className="px-4 py-3 font-medium">{t('ops.col.source')}</th>
-                    <th className="px-5 py-3 text-right font-medium">{t('ops.col.total')}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {recentTickets.map((ticket) => (
-                    <tr key={ticket.id} className="transition-colors hover:bg-surface-muted/60">
-                      <td className="px-5 py-3.5">
-                        <TicketChip
-                          ticketRef={ticket.ticket_ref}
-                          to={`/ops/tickets/${ticket.id}`}
-                          size="sm"
-                        />
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <div className="font-medium text-text">{ticket.customer_name}</div>
-                        <div className="tabular text-caption text-text-subtle">{ticket.customer_phone}</div>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <StatusBadge status={ticket.status} />
-                      </td>
-                      <td className="px-4 py-3.5 text-text-muted">
-                        {ticket.scheduled_start
-                          ? `${formatDay(ticket.scheduled_start, 'en')}, ${formatTime(ticket.scheduled_start, 'en')}`
-                          : '—'}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <SourceChip source={ticket.source} />
-                      </td>
-                      <td className="tabular px-5 py-3.5 text-right font-semibold text-text">
-                        {formatTzs(ticket.total_tzs)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <DataView
+              state="data"
+              rows={recentTickets}
+              columns={recentColumns}
+              rowKey={(row) => row.id}
+              onRowClick={(row) => navigate(`/ops/tickets/${row.id}`)}
+              caption={t('ops.recent_tickets')}
+              renderCard={(row) => (
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <TicketChip ticketRef={row.ticket_ref} size="sm" />
+                    <StatusBadge status={row.status} />
+                  </div>
+                  <p className="mt-2 font-medium text-text">{row.customer_name}</p>
+                  <div className="mt-1 flex items-center justify-between">
+                    <SourceChip source={row.source} />
+                    <span className="tabular font-semibold">{formatTzs(row.total_tzs)}</span>
+                  </div>
+                  {row.scheduled_start && (
+                    <p className="mt-1.5 text-caption text-text-subtle">
+                      {formatDay(row.scheduled_start, 'en')} · {formatTime(row.scheduled_start, 'en')}
+                    </p>
+                  )}
+                </div>
+              )}
+              empty={null}
+              error={null}
+            />
           )}
         </CardBody>
       </Card>
