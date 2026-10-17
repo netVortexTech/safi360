@@ -15,6 +15,7 @@
     "copy": "Copy",
     "copied": "Copied",
     "search": "Search",
+    "menu": "Menu",
     "optional": "Optional",
     "required": "Required",
     "sandbox": "Sandbox",
@@ -70,6 +71,7 @@
   },
   "auth": {
     "ops_subtitle": "Operations portal",
+    "field_app": "Cleaner app",
     "sign_in_title": "Sign in",
     "sign_in_body": "Enter your work phone number. We will send a one-time code.",
     "send_code": "Send code",

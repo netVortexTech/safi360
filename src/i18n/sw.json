@@ -15,6 +15,7 @@
     "copy": "Nakili",
     "copied": "Imenakiliwa",
     "search": "Tafuta",
+    "menu": "Menyu",
     "optional": "Si lazima",
     "required": "Lazima",
     "sandbox": "Majaribio",
@@ -70,6 +71,7 @@
   },
   "auth": {
     "ops_subtitle": "Mfumo wa ofisi",
+    "field_app": "Programu ya wasafishaji",
     "sign_in_title": "Ingia",
     "sign_in_body": "Weka namba yako ya simu ya kazi. Tutakutumia msimbo wa mara moja.",
     "send_code": "Tuma msimbo",

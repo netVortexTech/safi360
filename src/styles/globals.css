@@ -3,52 +3,55 @@
 @tailwind utilities;
 
 /*
-  Safi360 design tokens (ui-spec + Design system.png).
+  Safi360 design tokens.
   Values are space-separated RGB channels so Tailwind opacity modifiers work:
   bg-primary/10 → rgb(14 124 123 / 0.1).
   This file is the ONLY place hex/RGB literals are allowed.
+  Direction: calm precision — a refined cool-neutral surface, an ink-navy shell,
+  a restrained teal accent and soft elevation. No component ever sees a hex value.
 */
 @layer base {
   :root {
     /* brand */
-    --primary: 14 124 123; /* #0E7C7B */
-    --primary-hover: 10 99 98; /* #0A6362 */
-    --primary-light: 230 244 243; /* #E6F4F3 */
+    --primary: 13 118 116; /* #0D7674 */
+    --primary-hover: 10 96 95; /* #0A605F */
+    --primary-light: 231 245 243; /* #E7F5F3 */
     --primary-foreground: 255 255 255;
-    --navy: 19 41 61; /* #13293D */
+    --navy: 14 27 45; /* #0E1B2D — ink shell */
     --navy-foreground: 255 255 255;
     --amber: 242 169 59; /* #F2A93B — attention only */
-    --amber-foreground: 19 41 61;
+    --amber-foreground: 26 20 8;
 
     /* tenant brand colour: overridden per tenant via inline style on the portal/field root.
        Falls back to primary so the UI is always accessible. */
     --brand: var(--primary);
     --brand-foreground: var(--primary-foreground);
 
-    /* semantic */
-    --success: 22 163 74; /* #16A34A */
-    --success-tint: 220 252 231; /* #DCFCE7 */
-    --success-text: 22 101 52; /* #166534 */
-    --warning: 217 119 6; /* #D97706 */
-    --warning-tint: 254 243 199; /* #FEF3C7 */
-    --warning-text: 146 64 14; /* #92400E */
-    --error: 220 38 38; /* #DC2626 */
-    --error-tint: 254 226 226; /* #FEE2E2 */
-    --error-text: 153 27 27; /* #991B1B */
-    --info: 37 99 235; /* #2563EB */
-    --info-tint: 219 234 254; /* #DBEAFE */
+    /* semantic (each has a tint for badges/banners and a dark text tone) */
+    --success: 16 163 74; /* #10A34A */
+    --success-tint: 227 246 234; /* #E3F6EA */
+    --success-text: 20 97 55; /* #146137 */
+    --warning: 202 122 12; /* #CA7A0C */
+    --warning-tint: 253 243 222; /* #FDF3DE */
+    --warning-text: 143 84 7; /* #8F5407 */
+    --error: 211 47 47; /* #D32F2F */
+    --error-tint: 254 233 233; /* #FEE9E9 */
+    --error-text: 155 28 28; /* #9B1C1C */
+    --info: 41 98 214; /* #2962D6 */
+    --info-tint: 228 237 254; /* #E4EDFE */
     --info-text: 30 64 175; /* #1E40AF */
 
-    /* neutrals */
-    --text: 15 23 42; /* #0F172A */
-    --text-muted: 51 65 85; /* #334155 */
-    --text-subtle: 100 116 139; /* #64748B — on white only */
-    --border: 203 213 225; /* #CBD5E1 */
+    /* neutrals — a cool, low-contrast ramp keeps surfaces calm and content primary */
+    --text: 12 19 33; /* #0C1321 */
+    --text-muted: 74 86 106; /* #4A566A */
+    --text-subtle: 122 134 153; /* #7A8699 */
+    --border: 228 231 237; /* #E4E7ED — soft hairline */
+    --border-strong: 210 216 226; /* #D2D8E2 — inputs, dividers */
     --surface: 255 255 255;
-    --surface-muted: 241 245 249; /* #F1F5F9 */
-    --surface-page: 248 250 252; /* #F8FAFC */
+    --surface-muted: 241 243 246; /* #F1F3F6 */
+    --surface-page: 246 247 249; /* #F6F7F9 */
 
-    --radius: 0.5rem;
+    --radius: 0.625rem;
   }
 
   * {
@@ -59,14 +62,24 @@
     font-family: Inter, ui-sans-serif, system-ui, sans-serif;
     font-feature-settings:
       'tnum' 1,
-      'cv11' 1;
+      'cv11' 1,
+      'ss01' 1;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     @apply bg-surface-page text-body text-text;
     min-height: 100dvh;
+  }
+
+  /* Headings read as one coherent voice: tight, confident, never shouting. */
+  h1,
+  h2,
+  h3 {
+    @apply text-balance;
   }
 
   /* Visible focus everywhere (ui-spec accessibility rule). */
@@ -84,8 +97,24 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  /* Sticky translucent bar. Used sparingly for app headers only — never as decoration. */
+  .bar-blur {
+    @apply bg-surface/85 backdrop-blur-md backdrop-saturate-150;
+  }
+
+  /* Soft radial wash for hero / empty canvases. Neutral so a tenant brand colour can layer on top. */
+  .canvas-wash {
+    background-image:
+      radial-gradient(120% 120% at 12% 0%, rgb(var(--primary) / 0.07) 0%, transparent 55%),
+      radial-gradient(100% 100% at 100% 0%, rgb(var(--amber) / 0.06) 0%, transparent 50%);
   }
 }
 
@@ -95,5 +124,9 @@
   }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* One consistent premium easing curve across the app. */
+  .ease-premium {
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 }

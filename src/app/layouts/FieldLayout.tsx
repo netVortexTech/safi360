@@ -34,12 +34,15 @@ export function FieldLayout() {
 
   return (
     <div className="min-h-dvh bg-surface-page" style={brandStyle(undefined)}>
-      <header className="safe-top bg-brand text-brand-foreground">
-        <div className="flex h-14 items-center justify-between px-4 text-base font-semibold">
-          <span>{t('app.name')}</span>
+      <header className="safe-top sticky top-0 z-20 bg-brand text-brand-foreground shadow-sm">
+        <div className="flex h-16 items-center gap-3 px-4 text-base font-semibold">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-foreground/15 text-sm font-bold">
+            S
+          </span>
+          <span className="truncate">{t('app.name')}</span>
         </div>
       </header>
-      <main className="p-4 pb-24">
+      <main className="mx-auto w-full max-w-2xl px-4 py-5 pb-28">
         <NetworkStatus />
         <Outlet />
       </main>

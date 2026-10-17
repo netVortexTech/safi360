@@ -16,7 +16,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(({ className, label
         ref={ref}
         id={id}
         type="checkbox"
-        className="mt-0.5 size-5 shrink-0 cursor-pointer rounded border-border accent-primary focus-visible:ring-2 focus-visible:ring-primary"
+        className="mt-0.5 size-5 shrink-0 cursor-pointer rounded-md border-border-strong accent-primary focus-visible:ring-2 focus-visible:ring-primary"
         {...props}
       />
       <span className="min-w-0">

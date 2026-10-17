@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation } from 'react-router-dom';
+import { AuthCard } from '@/components/shared/AuthCard';
 import { CodeInput } from '@/components/shared/CodeInput';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 import { SandboxBadge } from '@/components/shared/SandboxBadge';
@@ -66,100 +67,83 @@ export default function OpsLogin() {
   };
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-surface-page p-4">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-6 shadow-card">
-        <div className="mb-6 flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded bg-primary text-lg font-bold text-primary-foreground">
-            S
-          </span>
-          <div>
-            <div className="text-base font-semibold">{t('app.name')}</div>
-            <div className="text-xs text-text-subtle">{t('auth.ops_subtitle')}</div>
-          </div>
-        </div>
-
-        {step === 'phone' ? (
-          <form onSubmit={(e) => void sendCode(e)} noValidate>
-            <h1 className="mb-1 text-h1">{t('auth.sign_in_title')}</h1>
-            <p className="mb-5 text-sm text-text-muted">{t('auth.sign_in_body')}</p>
-            <PhoneInput
-              label={t('phone.label')}
-              value={phoneRaw}
-              onChange={(raw, e164) => {
-                setPhoneRaw(raw);
-                setPhoneE164(e164);
-              }}
-              error={phoneTouched && !phoneE164 ? t('phone.errors.too_short') : (error ?? undefined)}
-              required
-              autoFocus
-            />
-            <Button
-              type="submit"
-              className="mt-2 w-full"
-              loading={busy}
-              loadingLabel={t('auth.sending_code')}
-            >
-              {t('auth.send_code')}
-            </Button>
-          </form>
-        ) : (
-          <div>
-            <button
-              type="button"
-              onClick={() => {
-                setStep('phone');
-                setError(null);
-              }}
-              className="mb-3 inline-flex items-center gap-1 text-sm text-primary hover:underline"
-            >
-              <ArrowLeft className="size-4" aria-hidden="true" />
-              {t('auth.change_number')}
-            </button>
-            <h1 className="mb-1 text-h1">{t('auth.enter_code_title')}</h1>
-            <p className="mb-5 text-sm text-text-muted">
-              {t('auth.enter_code_body', { phone: phoneE164 ? formatPhone(phoneE164) : '' })}
-            </p>
-            <CodeInput
-              label={t('auth.code_label')}
-              value={code}
-              onChange={(v) => {
-                setCode(v);
-                setError(null);
-              }}
-              onComplete={(v) => void verify(v)}
-              error={error ?? undefined}
-              disabled={busy}
-              autoFocus
-            />
-            <Button
-              type="button"
-              className="mt-2 w-full"
-              onClick={() => void verify(code)}
-              loading={busy}
-              loadingLabel={t('auth.verifying')}
-              disabled={code.length < 6}
-            >
-              {t('auth.verify')}
-            </Button>
-            <Button
-              type="button"
-              variant="link"
-              className="mt-3 w-full"
-              onClick={(e) => void sendCode(e)}
-              disabled={busy}
-            >
-              {t('auth.resend_code')}
-            </Button>
-          </div>
-        )}
-
-        {isSandbox && (
-          <p className="mt-6 flex items-start gap-2 text-xs text-text-subtle">
-            <SandboxBadge />
-            <span>{t('auth.sandbox_hint')}</span>
+    <AuthCard subtitle={t('auth.ops_subtitle')}>
+      {step === 'phone' ? (
+        <form onSubmit={(e) => void sendCode(e)} noValidate>
+          <h1 className="mb-1 text-h1">{t('auth.sign_in_title')}</h1>
+          <p className="mb-5 text-sm text-text-muted">{t('auth.sign_in_body')}</p>
+          <PhoneInput
+            label={t('phone.label')}
+            value={phoneRaw}
+            onChange={(raw, e164) => {
+              setPhoneRaw(raw);
+              setPhoneE164(e164);
+            }}
+            error={phoneTouched && !phoneE164 ? t('phone.errors.too_short') : (error ?? undefined)}
+            required
+            autoFocus
+          />
+          <Button type="submit" className="mt-2 w-full" loading={busy} loadingLabel={t('auth.sending_code')}>
+            {t('auth.send_code')}
+          </Button>
+        </form>
+      ) : (
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              setStep('phone');
+              setError(null);
+            }}
+            className="mb-3 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            {t('auth.change_number')}
+          </button>
+          <h1 className="mb-1 text-h1">{t('auth.enter_code_title')}</h1>
+          <p className="mb-5 text-sm text-text-muted">
+            {t('auth.enter_code_body', { phone: phoneE164 ? formatPhone(phoneE164) : '' })}
           </p>
-        )}
-      </div>
-    </main>
+          <CodeInput
+            label={t('auth.code_label')}
+            value={code}
+            onChange={(v) => {
+              setCode(v);
+              setError(null);
+            }}
+            onComplete={(v) => void verify(v)}
+            error={error ?? undefined}
+            disabled={busy}
+            autoFocus
+          />
+          <Button
+            type="button"
+            className="mt-2 w-full"
+            onClick={() => void verify(code)}
+            loading={busy}
+            loadingLabel={t('auth.verifying')}
+            disabled={code.length < 6}
+          >
+            {t('auth.verify')}
+          </Button>
+          <Button
+            type="button"
+            variant="link"
+            className="mt-3 w-full"
+            onClick={(e) => void sendCode(e)}
+            disabled={busy}
+          >
+            {t('auth.resend_code')}
+          </Button>
+        </div>
+      )}
+
+      {isSandbox && (
+        <p className="mt-6 flex items-start gap-2 text-caption text-text-subtle">
+          <SandboxBadge />
+          <span>{t('auth.sandbox_hint')}</span>
+        </p>
+      )}
+    </AuthCard>
   );
 }

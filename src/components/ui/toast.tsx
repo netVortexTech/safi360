@@ -84,7 +84,7 @@ function ToastViewport({ items, onDismiss }: { items: ToastItem[]; onDismiss: (i
             key={item.id}
             role={item.tone === 'error' ? 'alert' : 'status'}
             className={cn(
-              'pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border bg-surface p-3 shadow-sheet',
+              'pointer-events-auto flex w-full max-w-sm animate-fade-up items-start gap-3 rounded-xl border bg-surface p-3.5 shadow-overlay',
               STYLE[item.tone],
             )}
             data-toast={item.tone}
@@ -98,7 +98,7 @@ function ToastViewport({ items, onDismiss }: { items: ToastItem[]; onDismiss: (i
               type="button"
               onClick={() => onDismiss(item.id)}
               aria-label={t('common.close')}
-              className="-m-1 rounded p-1 text-text-subtle hover:bg-surface-muted hover:text-text"
+              className="-m-1 rounded-lg p-1 text-text-subtle transition-colors hover:bg-surface-muted hover:text-text"
             >
               <X className="size-4" aria-hidden="true" />
             </button>

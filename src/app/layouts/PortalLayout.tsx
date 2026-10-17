@@ -45,12 +45,12 @@ export function PortalLayout() {
   if (catalog.isPending) {
     return (
       <div className="min-h-dvh bg-surface-page" style={brand} data-tenant={slug} aria-busy="true">
-        <header className="safe-top h-14 bg-brand" />
-        <main className="mx-auto max-w-2xl space-y-4 p-4">
+        <header className="safe-top h-16 bg-brand" />
+        <main className="mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-6">
           <span className="sr-only">{t('common.loading')}</span>
-          <Skeleton className="h-40 w-full rounded-lg" />
+          <Skeleton className="h-48 w-full rounded-2xl" />
           <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-28 w-full rounded-lg" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
         </main>
       </div>
     );
@@ -62,8 +62,8 @@ export function PortalLayout() {
       isPortalApiError(err) && (err.code === 'tenant_not_found' || err.code === 'tenant_suspended');
     return (
       <div className="min-h-dvh bg-surface-page" data-tenant={slug}>
-        <main className="mx-auto max-w-2xl p-4">
-          <h1 className="mb-4 text-h1">{slug}</h1>
+        <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+          <h1 className="mb-5 text-h1">{slug}</h1>
           <ErrorState
             title={
               known
@@ -87,8 +87,10 @@ export function PortalLayout() {
       end={end}
       className={({ isActive }) =>
         cn(
-          'rounded px-2 py-1 text-sm hover:bg-brand-foreground/10',
-          isActive ? 'font-semibold underline underline-offset-4' : 'opacity-90',
+          'whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-200 ease-premium',
+          isActive
+            ? 'bg-brand-foreground/15 text-brand-foreground'
+            : 'text-brand-foreground/85 hover:bg-brand-foreground/10 hover:text-brand-foreground',
         )
       }
     >
@@ -104,35 +106,55 @@ export function PortalLayout() {
         data-tenant={slug}
       >
         {!widget && (
-          <header className="safe-top bg-brand text-brand-foreground">
-            <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-4">
-              <NavLink to={`/${slug}`} className="truncate text-base font-semibold">
-                {tenant.branding.display_name || tenant.name}
-              </NavLink>
-              <nav aria-label="Main" className="flex items-center gap-1">
+          <header className="safe-top sticky top-0 z-30 border-b border-brand-foreground/10 bg-brand text-brand-foreground shadow-sm">
+            <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
+              <div className="flex h-16 items-center justify-between gap-3">
+                <NavLink
+                  to={`/${slug}`}
+                  className="flex min-w-0 items-center gap-2.5 text-base font-semibold"
+                >
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand-foreground/15 text-sm font-bold">
+                    {(tenant.branding.display_name || tenant.name).charAt(0)}
+                  </span>
+                  <span className="truncate">{tenant.branding.display_name || tenant.name}</span>
+                </NavLink>
+                <nav aria-label="Main" className="hidden items-center gap-1 sm:flex">
+                  {navItem(`/${slug}`, t('portal.nav.home'), true)}
+                  {navItem(`/${slug}/services`, t('portal.nav.services'))}
+                  {navItem(`/${slug}/book`, t('portal.nav.book'))}
+                  {navItem(`/${slug}/track`, t('portal.nav.track'))}
+                  <LanguageSwitch locale={locale} languages={tenant.settings.languages} className="ml-2" />
+                </nav>
+                <div className="sm:hidden">
+                  <LanguageSwitch locale={locale} languages={tenant.settings.languages} />
+                </div>
+              </div>
+              <nav
+                aria-label="Main"
+                className="-mx-1 flex items-center gap-1 overflow-x-auto pb-2.5 [scrollbar-width:none] sm:hidden [&::-webkit-scrollbar]:hidden"
+              >
                 {navItem(`/${slug}`, t('portal.nav.home'), true)}
                 {navItem(`/${slug}/services`, t('portal.nav.services'))}
                 {navItem(`/${slug}/book`, t('portal.nav.book'))}
                 {navItem(`/${slug}/track`, t('portal.nav.track'))}
-                <LanguageSwitch locale={locale} languages={tenant.settings.languages} className="ml-2" />
               </nav>
             </div>
           </header>
         )}
-        <main className={cn('mx-auto w-full max-w-2xl flex-1 p-4', widget && 'pb-8')}>
+        <main className={cn('mx-auto w-full max-w-3xl flex-1 px-4 py-6 sm:px-6 sm:py-8', widget && 'pb-8')}>
           <Outlet />
         </main>
         {!widget && (
-          <footer className="border-t border-border bg-surface">
-            <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-sm text-text-muted">
+          <footer className="mt-6 border-t border-border bg-surface">
+            <div className="mx-auto flex w-full max-w-3xl flex-col items-start gap-3 px-4 py-6 text-sm text-text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <a
                 href={`tel:${tenant.phone_e164}`}
-                className="inline-flex items-center gap-2 text-primary hover:underline"
+                className="inline-flex items-center gap-2 font-medium text-primary hover:underline"
               >
                 <Phone className="size-4" aria-hidden="true" />
                 {t('portal.footer.call', { phone: formatPhone(tenant.phone_e164) })}
               </a>
-              <span className="text-xs text-text-subtle">{t('portal.footer.powered_by')}</span>
+              <span className="text-caption text-text-subtle">{t('portal.footer.powered_by')}</span>
             </div>
           </footer>
         )}

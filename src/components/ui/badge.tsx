@@ -4,12 +4,12 @@ import { cn } from '@/lib/utils';
 
 // Tinted background + icon + text; never colour alone (ui-spec).
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-medium [&_svg]:size-3.5',
+  'inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-caption font-medium [&_svg]:size-3.5',
   {
     variants: {
       tone: {
         neutral: 'border-transparent bg-surface-muted text-text-muted',
-        outline: 'border-border bg-surface text-text-muted',
+        outline: 'border-border-strong bg-surface text-text-muted',
         primary: 'border-transparent bg-primary-light text-primary',
         success: 'border-transparent bg-success-tint text-success-text',
         warning: 'border-transparent bg-warning-tint text-warning-text',

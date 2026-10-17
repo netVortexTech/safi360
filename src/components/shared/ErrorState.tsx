@@ -23,16 +23,18 @@ export function ErrorState({ title, description, onRetry, retrying, offline, cla
     <div
       role="alert"
       className={cn(
-        'flex flex-col items-center justify-center rounded-lg border border-error/30 bg-error-tint/40 px-6 py-10 text-center',
+        'flex animate-fade-in flex-col items-center justify-center rounded-2xl border border-error/20 bg-error-tint/50 px-6 py-12 text-center',
         className,
       )}
       data-state="error"
     >
-      <Icon className="mb-3 size-8 text-error" aria-hidden="true" />
+      <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-surface text-error shadow-xs">
+        <Icon className="size-6" aria-hidden="true" />
+      </div>
       <h3 className="text-h3 text-text">
         {title ?? (offline ? t('errors.offline_title') : t('errors.generic_title'))}
       </h3>
-      <p className="mt-2 max-w-md text-body text-text-muted">
+      <p className="mt-2 max-w-md text-pretty text-body text-text-muted">
         {description ?? (offline ? t('errors.offline_body') : t('errors.generic_body'))}
       </p>
       {onRetry && (
