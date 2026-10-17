@@ -1,4 +1,5 @@
-import { Plus, UserCheck } from 'lucide-react';
+import { Plus, UserCheck, UserPlus } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { DataView, type DataColumn } from '@/components/shared/DataView';
@@ -7,18 +8,24 @@ import { ErrorState } from '@/components/shared/ErrorState';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { errorKey } from '@/lib/errors';
 import { formatTzs } from '@/lib/money';
 import { formatPhone } from '@/lib/phone';
 import { useZones } from '../../catalog/hooks';
 import type { StaffRow } from '../api';
-import { useStaff } from '../hooks';
+import { useCreateCleaner, useStaff } from '../hooks';
+import { QuickAddCleanerDialog } from '../QuickAddCleanerDialog';
 
 export default function StaffPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const staff = useStaff();
   const zones = useZones();
+  const { toast } = useToast();
+  const createCleaner = useCreateCleaner();
+  const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
 
   const zoneName = (id: string | null) =>
     zones.data?.find((z) => z.id === id)?.name ?? t('common.not_available');
@@ -59,9 +66,14 @@ export default function StaffPage() {
       key: 'status',
       header: t('catalog.col.status'),
       cell: (s) => (
-        <Badge tone={s.active ? 'success' : 'neutral'}>
-          {t(s.active ? 'common.active' : 'common.inactive')}
-        </Badge>
+        <div className="flex flex-wrap gap-1">
+          <Badge tone={s.active ? 'success' : 'neutral'}>
+            {t(s.active ? 'common.active' : 'common.inactive')}
+          </Badge>
+          <Badge tone={s.user_id ? 'info' : 'outline'}>
+            {t(s.user_id ? 'staff.linked' : 'staff.not_linked')}
+          </Badge>
+        </div>
       ),
     },
   ];
@@ -81,12 +93,18 @@ export default function StaffPage() {
         title={t('nav.staff')}
         subtitle={t('staff.subtitle')}
         actions={
-          <Button asChild>
-            <Link to="/ops/staff/new">
-              <Plus aria-hidden="true" />
-              {t('staff.add')}
-            </Link>
-          </Button>
+          <>
+            <Button variant="secondary" asChild>
+              <Link to="/ops/staff/new">
+                <Plus aria-hidden="true" />
+                {t('staff.add')}
+              </Link>
+            </Button>
+            <Button onClick={() => setAdding(true)}>
+              <UserPlus aria-hidden="true" />
+              {t('staff.quick_add')}
+            </Button>
+          </>
         }
       />
       <DataView
@@ -115,8 +133,13 @@ export default function StaffPage() {
                 {t(s.active ? 'common.active' : 'common.inactive')}
               </Badge>
             </div>
-            <div className="mt-2 text-sm text-text-muted">
-              {t('staff.skills_count', { count: s.skills.length })} · {zoneName(s.home_zone_id)}
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-text-muted">
+              <Badge tone={s.user_id ? 'info' : 'outline'}>
+                {t(s.user_id ? 'staff.linked' : 'staff.not_linked')}
+              </Badge>
+              <span>
+                {t('staff.skills_count', { count: s.skills.length })} · {zoneName(s.home_zone_id)}
+              </span>
             </div>
           </Link>
         )}
@@ -142,6 +165,29 @@ export default function StaffPage() {
             retrying={staff.isFetching}
           />
         }
+      />
+      <QuickAddCleanerDialog
+        open={adding}
+        busy={createCleaner.isPending}
+        error={addError}
+        onOpenChange={(o) => {
+          setAdding(o);
+          if (!o) setAddError(null);
+        }}
+        onSubmit={(values) => {
+          setAddError(null);
+          createCleaner.mutate(values, {
+            onSuccess: (result) => {
+              toast({
+                title: t(result.linked ? 'staff.quick_added_linked' : 'staff.quick_added', {
+                  name: result.staff.display_name,
+                }),
+              });
+              setAdding(false);
+            },
+            onError: (e) => setAddError(t(errorKey(e))),
+          });
+        }}
       />
     </>
   );

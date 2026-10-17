@@ -37,6 +37,14 @@ export function useSaveStaff() {
   });
 }
 
+export function useCreateCleaner() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { display_name: string; phone_e164: string }) => api.createCleaner(input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: teamKeys.all }),
+  });
+}
+
 export function useReplaceWeekly(staffId: string) {
   const qc = useQueryClient();
   return useMutation({

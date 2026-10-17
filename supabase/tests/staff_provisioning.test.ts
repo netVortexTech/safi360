@@ -130,3 +130,89 @@ describe('claim_staff_invite', () => {
     expect(still[0]?.user_id).toBe(SEED.ownerA);
   });
 });
+
+describe('invite_staff_by_phone', () => {
+  const newUser = 'cccccccc-0000-4000-8000-000000000060';
+
+  function invite(claims: object, phone: string, role: string) {
+    return db.attempt<{ invite_staff_by_phone: string }>(
+      'authenticated',
+      claims,
+      'select public.invite_staff_by_phone($1, $2::public.member_role) as invite_staff_by_phone',
+      [phone, role],
+    );
+  }
+
+  beforeAll(async () => {
+    await db.sql(
+      `insert into auth.users (id, phone, raw_user_meta_data) values ($1, '255754100060', '{"name":"Invitee"}')`,
+      [newUser],
+    );
+  });
+
+  it('lets an owner invite by phone and links the cleaner roster row', async () => {
+    const res = await invite(
+      { sub: SEED.ownerA, tenant_id: SEED.tenantA, tenant_role: 'OWNER' },
+      '+255754100060',
+      'CLEANER',
+    );
+    expect(res.ok).toBe(true);
+    expect(res.rows[0]?.invite_staff_by_phone).toBe(newUser);
+    const member = await db.sql<{ role: string }>(
+      `select role from public.memberships where tenant_id = $1 and user_id = $2`,
+      [SEED.tenantA, newUser],
+    );
+    expect(member[0]?.role).toBe('CLEANER');
+    const staff = await db.sql<{ user_id: string; display_name: string }>(
+      `select user_id, display_name from public.staff where tenant_id = $1 and phone_e164 = '+255754100060'`,
+      [SEED.tenantA],
+    );
+    expect(staff[0]).toEqual({ user_id: newUser, display_name: 'Invitee' });
+  });
+
+  it('rejects a cleaner caller, and manager may invite a dispatcher', async () => {
+    const denied = await invite(
+      { sub: SEED.ownerA, tenant_id: SEED.tenantA, tenant_role: 'CLEANER' },
+      '+255754100060',
+      'DISPATCHER',
+    );
+    expect(denied.ok).toBe(false);
+
+    const other = 'cccccccc-0000-4000-8000-000000000061';
+    await db.sql(`insert into auth.users (id, phone) values ($1, '255754100061')`, [other]);
+    const ok = await invite(
+      { sub: SEED.ownerA, tenant_id: SEED.tenantA, tenant_role: 'MANAGER' },
+      '+255754100061',
+      'DISPATCHER',
+    );
+    expect(ok.ok).toBe(true);
+  });
+
+  it('never grants OWNER and never edits your own membership', async () => {
+    const owner = await invite(
+      { sub: SEED.ownerA, tenant_id: SEED.tenantA, tenant_role: 'OWNER' },
+      '+255754100060',
+      'OWNER',
+    );
+    expect(owner.ok).toBe(false);
+    expect(owner.error).toContain('invalid_role');
+
+    const self = await invite(
+      { sub: SEED.ownerA, tenant_id: SEED.tenantA, tenant_role: 'OWNER' },
+      '+255754000001',
+      'MANAGER',
+    );
+    expect(self.ok).toBe(false);
+    expect(self.error).toContain('cannot_edit_self');
+  });
+
+  it('reports an unknown phone instead of failing silently', async () => {
+    const res = await invite(
+      { sub: SEED.ownerA, tenant_id: SEED.tenantA, tenant_role: 'OWNER' },
+      '+255754100099',
+      'CLEANER',
+    );
+    expect(res.ok).toBe(false);
+    expect(res.error).toContain('profile_not_found');
+  });
+});

@@ -99,55 +99,19 @@ export default function TeamSettings() {
     mutationFn: async () => {
       const needle = phone.trim();
       if (!needle) throw new Error('phone required');
-      const byE164 = await supabase.from('profiles').select('*').eq('phone_e164', needle).limit(1);
-      const e164rows = byE164.data as Record<string, unknown>[] | null;
-      let profile: Record<string, unknown> | null = e164rows?.[0] ?? null;
-      if (!profile) {
-        const byPhone = await supabase.from('profiles').select('*').eq('phone', needle).limit(1);
-        if (byPhone.error) throw byPhone.error;
-        const phoneRows = byPhone.data as Record<string, unknown>[] | null;
-        profile = phoneRows?.[0] ?? null;
-      }
-      if (!profile || !str(profile.id)) {
-        setLookupHint(t('settings.team_not_found_hint'));
-        throw new Error(t('settings.team_not_found_hint'));
+      // One SECURITY DEFINER call: finds the profile by phone (RLS would hide a
+      // not-yet-member), grants the role and links a cleaner roster row.
+      const res: { data: unknown; error: { message: string } | null } = await supabase.rpc(
+        'invite_staff_by_phone',
+        { p_phone_e164: needle, p_role: newRole },
+      );
+      if (res.error) {
+        if (res.error.message.includes('profile_not_found')) {
+          setLookupHint(t('settings.team_not_found_hint'));
+        }
+        throw new Error(res.error.message);
       }
       setLookupHint(null);
-      const ins = await supabase
-        .from('memberships')
-        .insert({ tenant_id: tenantId, user_id: str(profile.id), role: newRole });
-      if (ins.error) throw ins.error;
-
-      // A cleaner also needs a roster row (public.staff) linked to this login, otherwise
-      // RLS shows them no assignments. Reuse a roster row for the same phone if present.
-      if (newRole === 'CLEANER') {
-        const staffPhone = str(profile.phone_e164) || str(profile.phone) || needle;
-        const existing = await supabase
-          .from('staff')
-          .select('id, user_id')
-          .eq('tenant_id', tenantId)
-          .eq('phone_e164', staffPhone)
-          .maybeSingle();
-        if (existing.error) throw existing.error;
-        if (existing.data) {
-          const row = existing.data as Record<string, unknown>;
-          if (!str(row.user_id)) {
-            const upd = await supabase
-              .from('staff')
-              .update({ user_id: str(profile.id) })
-              .eq('id', str(row.id));
-            if (upd.error) throw upd.error;
-          }
-        } else {
-          const insStaff = await supabase.from('staff').insert({
-            tenant_id: tenantId,
-            user_id: str(profile.id),
-            display_name: str(profile.name) || staffPhone,
-            phone_e164: staffPhone,
-          });
-          if (insStaff.error) throw insStaff.error;
-        }
-      }
     },
     onSuccess: () => {
       setPhone('');

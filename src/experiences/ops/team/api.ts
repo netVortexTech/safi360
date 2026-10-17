@@ -79,6 +79,43 @@ export async function saveStaff(input: StaffInput): Promise<StaffRow> {
   return unwrap<StaffRow>(await query.select(STAFF_COLUMNS).single());
 }
 
+export interface CreateCleanerResult {
+  staff: StaffRow;
+  /** True when an existing account for this phone was linked and granted CLEANER access. */
+  linked: boolean;
+}
+
+/**
+ * One-tap "add cleaner": writes the roster row, then — if the phone already has an
+ * account — links that login and grants CLEANER access through the office RPC. When the
+ * phone has no account yet, access is granted automatically on their first cleaner-app
+ * login (claim_staff_invite).
+ */
+export async function createCleaner(input: {
+  display_name: string;
+  phone_e164: string;
+}): Promise<CreateCleanerResult> {
+  const inserted = unwrap<{ id: string }>(
+    await supabase
+      .from('staff')
+      .insert({ display_name: input.display_name, phone_e164: input.phone_e164 })
+      .select('id')
+      .single(),
+  );
+
+  const invite: { error: { message: string } | null } = await supabase.rpc('invite_staff_by_phone', {
+    p_phone_e164: input.phone_e164,
+    p_role: 'CLEANER',
+  });
+  // profile_not_found just means they have not signed in yet; nothing to link now.
+  const linked = !invite.error;
+
+  const staff = unwrap<StaffRow>(
+    await supabase.from('staff').select(STAFF_COLUMNS).eq('id', inserted.id).single(),
+  );
+  return { staff, linked };
+}
+
 export async function listAvailability(staffId: string): Promise<AvailabilityRow[]> {
   return unwrap<AvailabilityRow[]>(
     await supabase
