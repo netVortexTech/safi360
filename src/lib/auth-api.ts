@@ -12,11 +12,16 @@ export function authErrorKey(error: AuthError | Error | null | undefined): strin
   return 'auth.errors.generic';
 }
 
-/** Step 1: send a one-time code to a staff phone. */
-export async function requestOtp(phoneE164: string): Promise<void> {
+/**
+ * Step 1: send a one-time code to a staff phone.
+ * `shouldCreateUser` is false for office portals (a tenant must have added you first).
+ * The cleaner app passes true so a new employee can create their account, then the
+ * office links them to the company under Settings → Staff.
+ */
+export async function requestOtp(phoneE164: string, options?: { shouldCreateUser?: boolean }): Promise<void> {
   const { error } = await supabase.auth.signInWithOtp({
     phone: phoneE164,
-    options: { shouldCreateUser: false },
+    options: { shouldCreateUser: options?.shouldCreateUser ?? false },
   });
   if (error) throw error;
 }
@@ -25,4 +30,16 @@ export async function requestOtp(phoneE164: string): Promise<void> {
 export async function verifyOtp(phoneE164: string, code: string): Promise<void> {
   const { error } = await supabase.auth.verifyOtp({ phone: phoneE164, token: code, type: 'sms' });
   if (error) throw error;
+}
+
+/**
+ * Link the signed-in user to a staff roster row added by the office (matched by phone)
+ * and grant the CLEANER membership. Refreshes the session so the JWT picks up the new
+ * tenant claims. Returns true when an invite was claimed.
+ */
+export async function claimStaffInvite(): Promise<boolean> {
+  const res: { data: unknown; error: { message: string } | null } = await supabase.rpc('claim_staff_invite');
+  if (res.error) return false;
+  if (res.data) await supabase.auth.refreshSession();
+  return Boolean(res.data);
 }

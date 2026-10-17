@@ -74,6 +74,7 @@ export default function ProfileSettings() {
     onSuccess: () => {
       setStatus({ kind: 'ok', msg: t('settings.save_success') });
       void queryClient.invalidateQueries({ queryKey: ['tenant', tenantId] });
+      void queryClient.invalidateQueries({ queryKey: ['settings', 'channels', tenantId] });
       void detail.refetch();
     },
     onError: (e) => setStatus({ kind: 'err', msg: String(e) }),

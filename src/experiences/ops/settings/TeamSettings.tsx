@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Check, Copy } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { supabase } from '@/lib/supabase';
@@ -46,6 +47,19 @@ export default function TeamSettings() {
   const [lookupHint, setLookupHint] = useState<string | null>(null);
   const [deactivating, setDeactivating] = useState<Member | null>(null);
   const [status, setStatus] = useState<{ kind: 'ok' | 'err'; msg: string } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const fieldAppUrl = origin ? `${origin}/field/login` : '/field/login';
+  const copyFieldLink = async () => {
+    try {
+      await navigator.clipboard.writeText(fieldAppUrl);
+      setCopiedLink(true);
+      window.setTimeout(() => setCopiedLink(false), 2000);
+    } catch {
+      setCopiedLink(false);
+    }
+  };
 
   const members = useQuery({
     queryKey: ['settings', 'team', tenantId],
@@ -103,6 +117,37 @@ export default function TeamSettings() {
         .from('memberships')
         .insert({ tenant_id: tenantId, user_id: str(profile.id), role: newRole });
       if (ins.error) throw ins.error;
+
+      // A cleaner also needs a roster row (public.staff) linked to this login, otherwise
+      // RLS shows them no assignments. Reuse a roster row for the same phone if present.
+      if (newRole === 'CLEANER') {
+        const staffPhone = str(profile.phone_e164) || str(profile.phone) || needle;
+        const existing = await supabase
+          .from('staff')
+          .select('id, user_id')
+          .eq('tenant_id', tenantId)
+          .eq('phone_e164', staffPhone)
+          .maybeSingle();
+        if (existing.error) throw existing.error;
+        if (existing.data) {
+          const row = existing.data as Record<string, unknown>;
+          if (!str(row.user_id)) {
+            const upd = await supabase
+              .from('staff')
+              .update({ user_id: str(profile.id) })
+              .eq('id', str(row.id));
+            if (upd.error) throw upd.error;
+          }
+        } else {
+          const insStaff = await supabase.from('staff').insert({
+            tenant_id: tenantId,
+            user_id: str(profile.id),
+            display_name: str(profile.name) || staffPhone,
+            phone_e164: staffPhone,
+          });
+          if (insStaff.error) throw insStaff.error;
+        }
+      }
     },
     onSuccess: () => {
       setPhone('');
@@ -174,6 +219,27 @@ export default function TeamSettings() {
         />
       ) : (
         <>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.team_field_link_heading')}</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-3">
+              <p className="text-sm text-text-muted">{t('settings.team_field_link_body')}</p>
+              <Field id="team-field-link" label={t('settings.team_field_link_field')}>
+                <div className="flex gap-2">
+                  <Input id="team-field-link" readOnly value={fieldAppUrl} />
+                  <Button
+                    variant="secondary"
+                    onClick={() => void copyFieldLink()}
+                    aria-label={t('settings.copy')}
+                  >
+                    {copiedLink ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+                  </Button>
+                </div>
+              </Field>
+            </CardBody>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>{t('settings.team_add_heading')}</CardTitle>

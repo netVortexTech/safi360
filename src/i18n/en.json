@@ -94,7 +94,9 @@
       "invalid_code": "That code is not right. Check the SMS and try again.",
       "generic": "We could not sign you in. Please try again."
     },
-    "field_sign_in_body": "Sign in with your cleaner phone number."
+    "field_sign_in_body": "Sign in with your cleaner phone number.",
+    "field_pending_hint": "One more step: your office adds you under Settings → Staff, then you refresh and see your jobs.",
+    "check_again": "Check again"
   },
   "weekday": {
     "0": "Sunday",
@@ -1558,6 +1560,9 @@
     "field_booking_url": "Booking URL",
     "field_widget": "Widget embed",
     "field_whatsapp": "WhatsApp link",
+    "field_whatsapp_number": "Business WhatsApp number",
+    "field_whatsapp_number_hint": "Saved here and reused in the booking link, store link and booklet.",
+    "wa_open": "Open",
     "wa_prefill": "Hello, I would like to book a cleaning.",
     "no_phone_hint": "Add a company phone in Profile to enable WhatsApp.",
     "no_slug_hint": "No company slug yet.",
@@ -1571,10 +1576,13 @@
     "field_body_sw": "Body (Swahili)",
     "field_body_en": "Body (English)",
     "variables_heading": "Available variables",
-    "team_add_heading": "Add member",
-    "team_phone_hint": "They must already have an account with this phone number.",
+    "team_add_heading": "Add employee",
+    "team_phone_hint": "Enter the employee's phone. If they have not signed in yet, send them the cleaner app link first.",
     "team_add": "Add",
-    "team_not_found_hint": "No account found for this phone number. Ask them to sign up first.",
+    "team_not_found_hint": "No account for this phone yet. Send them the cleaner app link, they sign in, then add them here.",
+    "team_field_link_heading": "Cleaner app link",
+    "team_field_link_body": "Share this with your employees. They sign in with their phone, then you add them here as CLEANER to give them their jobs.",
+    "team_field_link_field": "Cleaner app URL",
     "team_list_heading": "Members",
     "team_empty_title": "No team members",
     "team_empty_body": "Add your first member by phone number.",

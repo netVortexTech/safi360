@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
-import { Copy, Check } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Check, Copy, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth';
+import { can } from '@/lib/permissions';
 import { useCurrentTenant } from '@/lib/tenant';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ErrorState } from '@/components/shared/ErrorState';
@@ -19,9 +21,15 @@ function str(v: unknown): string {
 
 export default function ChannelSettings() {
   const { t } = useTranslation();
+  const { claims } = useAuth();
+  const canEdit = can(claims.tenant_role, 'settings.edit');
   const tenant = useCurrentTenant();
+  const queryClient = useQueryClient();
   const tenantId = tenant.data?.id ?? null;
+
   const [copied, setCopied] = useState<string | null>(null);
+  const [waPhone, setWaPhone] = useState('');
+  const [saved, setSaved] = useState<string | null>(null);
 
   const detail = useQuery({
     queryKey: ['settings', 'channels', tenantId],
@@ -43,8 +51,33 @@ export default function ChannelSettings() {
     },
   });
 
+  useEffect(() => {
+    if (!detail.data) return;
+    setWaPhone(str(detail.data.phone_e164) || str(detail.data.phone));
+  }, [detail.data]);
+
+  const savePhone = useMutation({
+    mutationFn: async () => {
+      const value = waPhone.trim();
+      if (!value) throw new Error('phone required');
+      const res = await supabase
+        .from('tenants')
+        .update({ phone: value, phone_e164: value })
+        .eq('id', tenantId);
+      if (res.error) throw new Error(res.error.message);
+    },
+    onSuccess: () => {
+      setSaved(t('settings.save_success'));
+      window.setTimeout(() => setSaved(null), 3000);
+      void queryClient.invalidateQueries({ queryKey: ['settings', 'channels', tenantId] });
+      void queryClient.invalidateQueries({ queryKey: ['tenant', tenantId] });
+      void detail.refetch();
+    },
+    onError: (e) => setSaved(String(e)),
+  });
+
   const slug = str(detail.data?.slug) || tenant.data?.slug || '';
-  const phone = str(detail.data?.phone_e164) || str(detail.data?.phone);
+  const phone = str(detail.data?.phone_e164) || str(detail.data?.phone) || waPhone;
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
   const bookingUrl = useMemo(() => (slug ? `${origin}/${slug}` : ''), [origin, slug]);
@@ -54,7 +87,7 @@ export default function ChannelSettings() {
   );
   const waLink = useMemo(() => {
     const digits = phone.replace(/[^\d]/g, '');
-    if (!digits) return '';
+    if (digits.length < 10) return '';
     return `https://wa.me/${digits}?text=${encodeURIComponent(t('settings.wa_prefill'))}`;
   }, [phone, t]);
   const qrUrl = useMemo(
@@ -101,6 +134,36 @@ export default function ChannelSettings() {
               <CardTitle>{t('settings.booking_link_heading')}</CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
+              <Field
+                id="channel-wa-phone"
+                label={t('settings.field_whatsapp_number')}
+                hint={t('settings.field_whatsapp_number_hint')}
+              >
+                <div className="flex gap-2">
+                  <Input
+                    id="channel-wa-phone"
+                    value={waPhone}
+                    disabled={!canEdit}
+                    placeholder="+255…"
+                    onChange={(e) => setWaPhone(e.target.value)}
+                  />
+                  <Button
+                    onClick={() => {
+                      setSaved(null);
+                      savePhone.mutate();
+                    }}
+                    loading={savePhone.isPending}
+                    disabled={!canEdit || !waPhone.trim() || waPhone.trim() === phone}
+                  >
+                    {t('settings.save')}
+                  </Button>
+                </div>
+              </Field>
+              {saved ? (
+                <p role="status" className="text-sm text-success-text">
+                  {saved}
+                </p>
+              ) : null}
               <Field id="channel-url" label={t('settings.field_booking_url')}>
                 <div className="flex gap-2">
                   <Input id="channel-url" readOnly value={bookingUrl} />
@@ -129,6 +192,12 @@ export default function ChannelSettings() {
                 {waLink ? (
                   <div className="flex gap-2">
                     <Input id="channel-wa" readOnly value={waLink} />
+                    <Button variant="secondary" asChild>
+                      <a href={waLink} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink aria-hidden="true" />
+                        {t('settings.wa_open')}
+                      </a>
+                    </Button>
                     <Button
                       variant="secondary"
                       onClick={() => void copy('wa', waLink)}

@@ -8,7 +8,7 @@ import { PhoneInput } from '@/components/shared/PhoneInput';
 import { Button } from '@/components/ui/button';
 import { applyExperienceLocale } from '@/i18n';
 import { useAuth } from '@/lib/auth';
-import { authErrorKey, requestOtp, verifyOtp } from '@/lib/auth-api';
+import { authErrorKey, claimStaffInvite, requestOtp, verifyOtp } from '@/lib/auth-api';
 import { formatPhone } from '@/lib/phone';
 
 export default function FieldLogin() {
@@ -29,8 +29,39 @@ export default function FieldLogin() {
     applyExperienceLocale('sw');
   }, []);
 
+  // Defined before the early returns so the "pending" screen can retry claiming an
+  // invite the office may have added after this account first signed in.
+  const checkAgain = async () => {
+    setBusy(true);
+    try {
+      await claimStaffInvite();
+    } finally {
+      setBusy(false);
+    }
+  };
+
   if (auth.status === 'signed_in' && auth.claims.tenant_role === 'CLEANER') {
     return <Navigate to={from} replace />;
+  }
+
+  // Signed in but not linked to a company yet: the account exists (created on first
+  // login) but the office has not rostered them. Offer a retry in case they just added.
+  if (auth.status === 'signed_in') {
+    return (
+      <main className="min-h-dvh bg-surface-page p-4 text-text">
+        <div className="mx-auto mt-10 max-w-sm rounded-xl border border-border bg-surface p-6 shadow-card">
+          <h1 className="text-h1">{t('auth.no_access_title')}</h1>
+          <p className="mt-2 text-sm text-text-muted">{t('auth.no_access_body')}</p>
+          <p className="mt-2 text-sm text-text-muted">{t('auth.field_pending_hint')}</p>
+          <Button className="mt-6 w-full" loading={busy} onClick={() => void checkAgain()}>
+            {t('auth.check_again')}
+          </Button>
+          <Button variant="secondary" className="mt-2 w-full" onClick={() => void auth.signOut()}>
+            {t('auth.sign_out')}
+          </Button>
+        </div>
+      </main>
+    );
   }
 
   const sendCode = async (e: FormEvent) => {
@@ -40,7 +71,7 @@ export default function FieldLogin() {
     setBusy(true);
     setError(null);
     try {
-      await requestOtp(phoneE164);
+      await requestOtp(phoneE164, { shouldCreateUser: true });
       setStep('code');
       setCode('');
     } catch (err) {
@@ -56,8 +87,12 @@ export default function FieldLogin() {
     setError(null);
     try {
       await verifyOtp(phoneE164, value);
+      // If the office already rostered this phone, this links the account and grants
+      // the CLEANER membership; the refreshed session then shows their jobs.
+      await claimStaffInvite();
     } catch (err) {
       setError(t(authErrorKey(err as Error)));
+    } finally {
       setBusy(false);
     }
   };

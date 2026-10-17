@@ -56,7 +56,13 @@ insert into public.profiles (id, phone_e164, name, locale, is_super_admin) value
   ('aaaaaaaa-0000-4000-8000-000000000001', '+255754000001', 'Bahati Mwakyusa', 'sw', false),
   ('aaaaaaaa-0000-4000-8000-000000000002', '+255754000002', 'Zuhura Khamis',   'sw', false),
   ('aaaaaaaa-0000-4000-8000-000000000003', '+255754000003', 'Safi360 Admin',   'en', true)
-on conflict (id) do nothing;
+-- The auth-user trigger (0028) may have created minimal profiles already; let the seed's
+-- explicit values win so is_super_admin and names are exact.
+on conflict (id) do update set
+  phone_e164 = excluded.phone_e164,
+  name       = excluded.name,
+  locale     = excluded.locale,
+  is_super_admin = excluded.is_super_admin;
 
 insert into public.memberships (tenant_id, user_id, role) values
   ('11111111-1111-4111-8111-111111111111', 'aaaaaaaa-0000-4000-8000-000000000001', 'OWNER'),

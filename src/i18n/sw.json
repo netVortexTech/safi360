@@ -94,7 +94,9 @@
       "invalid_code": "Msimbo huo si sahihi. Angalia SMS kisha jaribu tena.",
       "generic": "Hatukuweza kukuingiza. Tafadhali jaribu tena."
     },
-    "field_sign_in_body": "Ingia kwa nambari ya simu ya mfanyakazi."
+    "field_sign_in_body": "Ingia kwa nambari ya simu ya mfanyakazi.",
+    "field_pending_hint": "Hatua moja zaidi: ofisi yako ikuongeze kwenye Mipangilio → Wafanyakazi, kisha uonyeshe upya ili kuona kazi zako.",
+    "check_again": "Angalia tena"
   },
   "weekday": {
     "0": "Jumapili",
@@ -1558,6 +1560,9 @@
     "field_booking_url": "Kiungo cha kuhifadhi",
     "field_widget": "Kijitabu cha tovuti",
     "field_whatsapp": "Kiungo cha WhatsApp",
+    "field_whatsapp_number": "Namba ya WhatsApp ya biashara",
+    "field_whatsapp_number_hint": "Huhifadhiwa hapa na kutumika kwenye kiungo cha kuhifadhi, duka na kijitabu.",
+    "wa_open": "Fungua",
     "wa_prefill": "Habari, ningependa kuhifadhi usafi.",
     "no_phone_hint": "Weka simu ya kampuni kwenye Wasifu ili kuwezesha WhatsApp.",
     "no_slug_hint": "Hakuna kiungo cha kampuni bado.",
@@ -1571,10 +1576,13 @@
     "field_body_sw": "Maandishi (Kiswahili)",
     "field_body_en": "Maandishi (Kiingereza)",
     "variables_heading": "Vigezo vinavyopatikana",
-    "team_add_heading": "Ongeza mwanachama",
-    "team_phone_hint": "Lazima wawe na akaunti yenye namba hii ya simu.",
+    "team_add_heading": "Ongeza mfanyakazi",
+    "team_phone_hint": "Weka namba ya simu ya mfanyakazi. Kama hajaingia bado, mtumie kiungo cha programu ya wafanyakazi kwanza.",
     "team_add": "Ongeza",
-    "team_not_found_hint": "Hakuna akaunti yenye namba hii. Waombe wajisajili kwanza.",
+    "team_not_found_hint": "Hakuna akaunti yenye namba hii bado. Mtumie kiungo cha programu ya wafanyakazi, aingie, kisha umuongeze hapa.",
+    "team_field_link_heading": "Kiungo cha programu ya wafanyakazi",
+    "team_field_link_body": "Shiriki hiki kwa wafanyakazi wako. Wanaingia kwa simu zao, kisha unawaongeza hapa kama CLEANER ili waone kazi zao.",
+    "team_field_link_field": "Kiungo cha programu",
     "team_list_heading": "Wanachama",
     "team_empty_title": "Hakuna wanatimu",
     "team_empty_body": "Ongeza mwanachama wa kwanza kwa namba ya simu.",
