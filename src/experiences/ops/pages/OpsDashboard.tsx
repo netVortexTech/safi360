@@ -1,6 +1,15 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Banknote, Calendar, CheckCircle2, Plus, Ticket, TrendingUp } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  Banknote,
+  Calendar,
+  CheckCircle2,
+  Plus,
+  Ticket,
+  TrendingUp,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../tickets/hooks';
 import { useCurrentTenant } from '@/lib/tenant';
@@ -14,6 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { formatDay, formatTime } from '@/lib/dates';
 import { formatTzs } from '@/lib/money';
+import { cn } from '@/lib/utils';
 
 export function OpsDashboard() {
   const { t } = useTranslation();
@@ -30,13 +40,13 @@ export function OpsDashboard() {
   if (isLoading) {
     return (
       <div className="space-y-6" aria-busy="true">
-        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-12 w-64" />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => (
-            <Skeleton key={i} className="h-24" />
+            <Skeleton key={i} className="h-28 rounded-xl" />
           ))}
         </div>
-        <Skeleton className="h-64" />
+        <Skeleton className="h-64 rounded-xl" />
       </div>
     );
   }
@@ -54,6 +64,7 @@ export function OpsDashboard() {
   return (
     <div className="space-y-6">
       <PageHeader
+        eyebrow={t('nav.overview')}
         title={t('ops.dashboard_title')}
         subtitle={t('ops.dashboard_subtitle', {
           date: formatDay(new Date(), 'en'),
@@ -71,25 +82,25 @@ export function OpsDashboard() {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4" role="list" aria-label="Key metrics">
         <KpiCard
-          icon={<Calendar className="size-5" aria-hidden="true" />}
+          icon={<Calendar className="size-[18px]" aria-hidden="true" />}
           label={t('ops.kpi.todays_jobs')}
           value={String(kpis?.todays_jobs ?? 0)}
           tone="primary"
         />
         <KpiCard
-          icon={<TrendingUp className="size-5" aria-hidden="true" />}
+          icon={<TrendingUp className="size-[18px]" aria-hidden="true" />}
           label={t('ops.kpi.booked_value')}
           value={formatTzs(kpis?.booked_value_tzs ?? 0)}
           tone="info"
         />
         <KpiCard
-          icon={<Banknote className="size-5" aria-hidden="true" />}
+          icon={<Banknote className="size-[18px]" aria-hidden="true" />}
           label={t('ops.kpi.collected')}
           value={formatTzs(kpis?.collected_tzs ?? 0)}
           tone="success"
         />
         <KpiCard
-          icon={<AlertTriangle className="size-5" aria-hidden="true" />}
+          icon={<AlertTriangle className="size-[18px]" aria-hidden="true" />}
           label={t('ops.kpi.needs_action')}
           value={String(kpis?.needs_action ?? 0)}
           tone="warning"
@@ -102,27 +113,30 @@ export function OpsDashboard() {
           <CardHeader>
             <CardTitle>{t('ops.needs_action')}</CardTitle>
           </CardHeader>
-          <CardBody>
+          <CardBody className="p-3 sm:p-4">
             {needsAction.length === 0 ? (
-              <div className="py-8 text-center text-text-subtle">
-                <CheckCircle2 className="mx-auto mb-2 size-8 text-success" aria-hidden="true" />
-                <p className="text-body">{t('ops.all_clear')}</p>
+              <div className="flex flex-col items-center py-10 text-center">
+                <span className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-success-tint text-success">
+                  <CheckCircle2 className="size-6" aria-hidden="true" />
+                </span>
+                <p className="text-body text-text-muted">{t('ops.all_clear')}</p>
               </div>
             ) : (
-              <ul className="space-y-3" data-testid="needs-action-list">
+              <ul className="space-y-1.5" data-testid="needs-action-list">
                 {needsAction.map((item, i) => (
                   <li
                     key={`${item.booking_id}-${i}`}
-                    className="flex items-center gap-3 rounded-lg border border-border p-3"
+                    className="group flex items-center gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-surface-muted/60"
                   >
-                    <div
-                      className={`size-2 shrink-0 rounded-full ${
-                        item.priority === 'high' ? 'bg-error' : 'bg-warning'
-                      }`}
+                    <span
+                      className={cn(
+                        'size-2 shrink-0 rounded-full',
+                        item.priority === 'high' ? 'bg-error' : 'bg-amber',
+                      )}
                       aria-hidden="true"
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <TicketChip
                           ticketRef={item.ticket_ref}
                           to={`/ops/tickets/${item.booking_id}`}
@@ -136,9 +150,10 @@ export function OpsDashboard() {
                     </div>
                     <Link
                       to={`/ops/tickets/${item.booking_id}`}
-                      className="shrink-0 text-sm text-primary hover:underline"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary-light"
                     >
                       {t('common.view')}
+                      <ArrowRight className="size-3.5" aria-hidden="true" />
                     </Link>
                   </li>
                 ))}
@@ -154,18 +169,18 @@ export function OpsDashboard() {
           </CardHeader>
           <CardBody>
             {bySource.length === 0 ? (
-              <p className="py-4 text-center text-sm text-text-subtle">{t('ops.no_bookings_yet')}</p>
+              <p className="py-6 text-center text-sm text-text-subtle">{t('ops.no_bookings_yet')}</p>
             ) : (
-              <ul className="space-y-3" data-testid="source-chart">
+              <ul className="space-y-3.5" data-testid="source-chart">
                 {bySource.map((s) => (
                   <li key={s.source}>
-                    <div className="mb-1 flex items-center justify-between text-sm">
+                    <div className="mb-1.5 flex items-center justify-between gap-2 text-sm">
                       <SourceChip source={s.source} />
-                      <span className="tabular text-text-muted">{s.count}</span>
+                      <span className="tabular font-medium text-text">{s.count}</span>
                     </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-surface-muted">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-surface-muted">
                       <div
-                        className="h-full rounded-full bg-primary transition-all"
+                        className="h-full rounded-full bg-primary transition-[width] duration-500 ease-premium"
                         style={{ width: `${(s.count / maxSourceCount) * 100}%` }}
                       />
                     </div>
@@ -182,20 +197,19 @@ export function OpsDashboard() {
         <CardHeader>
           <CardTitle>{t('ops.booked_vs_collected')}</CardTitle>
         </CardHeader>
-        <CardBody>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-caption text-text-subtle">{t('ops.booked_value')}</p>
-              <p className="tabular mt-1 text-h2 text-text">{formatTzs(kpis?.booked_value_tzs ?? 0)}</p>
-            </div>
-            <div>
-              <p className="text-caption text-text-subtle">{t('ops.collected')}</p>
-              <p className="tabular mt-1 text-h2 text-success">{formatTzs(kpis?.collected_tzs ?? 0)}</p>
-            </div>
-            <div>
-              <p className="text-caption text-text-subtle">{t('ops.pending')}</p>
-              <p className="tabular mt-1 text-h2 text-warning">{formatTzs(kpis?.pending_tzs ?? 0)}</p>
-            </div>
+        <CardBody className="p-0">
+          <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            <MoneyBlock label={t('ops.booked_value')} value={formatTzs(kpis?.booked_value_tzs ?? 0)} />
+            <MoneyBlock
+              label={t('ops.collected')}
+              value={formatTzs(kpis?.collected_tzs ?? 0)}
+              tone="text-success"
+            />
+            <MoneyBlock
+              label={t('ops.pending')}
+              value={formatTzs(kpis?.pending_tzs ?? 0)}
+              tone="text-warning"
+            />
           </div>
         </CardBody>
       </Card>
@@ -204,8 +218,15 @@ export function OpsDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>{t('ops.recent_tickets')}</CardTitle>
+          <Link
+            to="/ops/tickets"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+          >
+            {t('ops.view_all_tickets')}
+            <ArrowRight className="size-3.5" aria-hidden="true" />
+          </Link>
         </CardHeader>
-        <CardBody>
+        <CardBody className="p-0">
           {recentTickets.length === 0 ? (
             <EmptyState
               icon={<Ticket aria-hidden="true" />}
@@ -216,41 +237,43 @@ export function OpsDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-left text-text-subtle">
-                    <th className="pb-2 pr-4 font-medium">{t('ops.col.ticket')}</th>
-                    <th className="pb-2 pr-4 font-medium">{t('ops.col.customer')}</th>
-                    <th className="pb-2 pr-4 font-medium">{t('ops.col.status')}</th>
-                    <th className="pb-2 pr-4 font-medium">{t('ops.col.when')}</th>
-                    <th className="pb-2 pr-4 font-medium">{t('ops.col.source')}</th>
-                    <th className="pb-2 text-right font-medium">{t('ops.col.total')}</th>
+                  <tr className="border-b border-border text-left text-caption uppercase tracking-eyebrow text-text-subtle">
+                    <th className="px-5 py-3 font-medium">{t('ops.col.ticket')}</th>
+                    <th className="px-4 py-3 font-medium">{t('ops.col.customer')}</th>
+                    <th className="px-4 py-3 font-medium">{t('ops.col.status')}</th>
+                    <th className="px-4 py-3 font-medium">{t('ops.col.when')}</th>
+                    <th className="px-4 py-3 font-medium">{t('ops.col.source')}</th>
+                    <th className="px-5 py-3 text-right font-medium">{t('ops.col.total')}</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-border">
                   {recentTickets.map((ticket) => (
-                    <tr key={ticket.id} className="border-b border-border/50 last:border-0">
-                      <td className="py-3 pr-4">
+                    <tr key={ticket.id} className="transition-colors hover:bg-surface-muted/60">
+                      <td className="px-5 py-3.5">
                         <TicketChip
                           ticketRef={ticket.ticket_ref}
                           to={`/ops/tickets/${ticket.id}`}
                           size="sm"
                         />
                       </td>
-                      <td className="py-3 pr-4">
+                      <td className="px-4 py-3.5">
                         <div className="font-medium text-text">{ticket.customer_name}</div>
-                        <div className="text-xs text-text-subtle">{ticket.customer_phone}</div>
+                        <div className="tabular text-caption text-text-subtle">{ticket.customer_phone}</div>
                       </td>
-                      <td className="py-3 pr-4">
+                      <td className="px-4 py-3.5">
                         <StatusBadge status={ticket.status} />
                       </td>
-                      <td className="py-3 pr-4 text-text-subtle">
+                      <td className="px-4 py-3.5 text-text-muted">
                         {ticket.scheduled_start
                           ? `${formatDay(ticket.scheduled_start, 'en')}, ${formatTime(ticket.scheduled_start, 'en')}`
                           : '—'}
                       </td>
-                      <td className="py-3 pr-4">
+                      <td className="px-4 py-3.5">
                         <SourceChip source={ticket.source} />
                       </td>
-                      <td className="tabular py-3 text-right font-medium">{formatTzs(ticket.total_tzs)}</td>
+                      <td className="tabular px-5 py-3.5 text-right font-semibold text-text">
+                        {formatTzs(ticket.total_tzs)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -273,6 +296,15 @@ export function OpsDashboard() {
   );
 }
 
+function MoneyBlock({ label, value, tone }: { label: string; value: string; tone?: string }) {
+  return (
+    <div className="px-5 py-5 text-center sm:text-left">
+      <p className="text-caption uppercase tracking-eyebrow text-text-subtle">{label}</p>
+      <p className={cn('tabular mt-1.5 text-h1 text-text', tone)}>{value}</p>
+    </div>
+  );
+}
+
 function KpiCard({
   icon,
   label,
@@ -285,17 +317,21 @@ function KpiCard({
   tone: 'primary' | 'success' | 'warning' | 'info';
 }) {
   const tones = {
-    primary: 'text-primary',
-    success: 'text-success',
-    warning: 'text-warning',
-    info: 'text-info',
+    primary: 'bg-primary-light text-primary',
+    success: 'bg-success-tint text-success',
+    warning: 'bg-warning-tint text-warning',
+    info: 'bg-info-tint text-info',
   };
   return (
-    <Card role="listitem">
-      <CardBody className="p-4">
-        <div className={`mb-2 ${tones[tone]}`}>{icon}</div>
-        <p className="text-caption text-text-subtle">{label}</p>
-        <p className="tabular mt-1 text-h2 text-text">{value}</p>
+    <Card interactive role="listitem">
+      <CardBody className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-caption uppercase tracking-eyebrow text-text-subtle">{label}</p>
+          <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', tones[tone])}>
+            {icon}
+          </span>
+        </div>
+        <p className="tabular mt-3 text-h1 text-text">{value}</p>
       </CardBody>
     </Card>
   );
@@ -339,22 +375,23 @@ function SetupChecklist({ tenant }: { tenant: { settings?: Record<string, unknow
   ];
 
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-1">
       {items.map((item) => (
-        <li key={item.key} className="flex items-center gap-3">
-          <div
-            className={`flex size-5 items-center justify-center rounded-full border-2 ${
-              item.done ? 'border-success bg-success text-white' : 'border-border'
-            }`}
-            aria-hidden="true"
-          >
-            {item.done && <CheckCircle2 className="size-3" />}
-          </div>
+        <li key={item.key}>
           <Link
             to={item.to}
-            className={`text-sm ${item.done ? 'text-text-muted line-through' : 'text-text hover:underline'}`}
+            className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-surface-muted/60"
           >
-            {item.label}
+            <span
+              className={cn(
+                'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
+                item.done ? 'border-success bg-success text-white' : 'border-border',
+              )}
+              aria-hidden="true"
+            >
+              {item.done && <CheckCircle2 className="size-3" />}
+            </span>
+            <span className={item.done ? 'text-text-subtle line-through' : 'text-text'}>{item.label}</span>
           </Link>
         </li>
       ))}

@@ -640,6 +640,10 @@
       "services_title": "Tunachosafisha",
       "call": "Piga {{phone}}"
     },
+    "how": {
+      "title": "Jinsi kuweka oda kunavyofanya kazi",
+      "body": "Hatua nne fupi. Unapata namba ya tiketi na unaweza kufuatilia kila taarifa."
+    },
     "services": {
       "title": "Huduma na bei",
       "subtitle": "Kila bei huhesabiwa kwa njia ile ile kwa kila mtu.",
@@ -912,7 +916,9 @@
     "bookings_by_source": "Oda kwa chanzo",
     "no_bookings_yet": "Hakuna oda bado",
     "booked_vs_collected": "Oda dhidi ya zilizochangwa",
+    "pending": "Inayosubiri",
     "recent_tickets": "Tiketi za hivi karibuni",
+    "view_all_tickets": "Ona tiketi zote",
     "setup_checklist": "Orodha ya usakaji wa siku ya kwanza",
     "checklist": {
       "services": "Ongeza huduma na bei",
@@ -1194,6 +1200,9 @@
   },
   "field": {
     "today_title": "Kazi za leo",
+    "jobs_count": "Kazi {{count}}",
+    "no_jobs_today": "Hakuna kazi zako za leo.",
+    "service_fallback": "Huduma ya usafi",
     "foundation_notice": "Programu ya wasafishaji inaandaliwa.",
     "upcoming_title": "Kazi zinazokuja",
     "history_title": "Historia",
@@ -1201,6 +1210,7 @@
     "no_upcoming": "Hakuna kazi zinazokuja.",
     "no_history": "Bado hakuna kazi zilizokamilika.",
     "no_alerts": "Hakuna taarifa kwa sasa.",
+    "alert_overdue": "{{name}} amechelewa tangu {{time}}",
     "start_travel": "Anza safari",
     "mark_arrived": "Nimefika",
     "capture_before": "Piga picha kabla",

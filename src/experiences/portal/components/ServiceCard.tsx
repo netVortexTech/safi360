@@ -31,13 +31,16 @@ export function ServiceCard({ service, locale, bookTo, detailTo, compact }: Serv
   const review = service.pricing_type === 'INSPECTION_REQUIRED' || service.pricing_type === 'CUSTOM_QUOTE';
   return (
     <article
-      className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 shadow-card"
+      className="group flex h-full flex-col gap-3 rounded-xl border border-border bg-surface p-5 shadow-card transition-[box-shadow,border-color,transform] duration-300 ease-premium hover:-translate-y-0.5 hover:border-border-strong hover:shadow-lifted"
       data-testid="service-card"
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-h3">
+        <h3 className="text-h3 text-text">
           {detailTo ? (
-            <Link to={detailTo} className="hover:underline">
+            <Link
+              to={detailTo}
+              className="rounded transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
               {pick(service, locale)}
             </Link>
           ) : (
@@ -46,21 +49,21 @@ export function ServiceCard({ service, locale, bookTo, detailTo, compact }: Serv
         </h3>
         {review && <Badge tone="warning">{t('quote.summary.requires_review')}</Badge>}
       </div>
-      {!compact && description && <p className="text-sm text-text-muted">{description}</p>}
+      {!compact && description && <p className="text-pretty text-sm text-text-muted">{description}</p>}
       <p className="tabular text-base font-semibold text-text">{priceLabel(service, locale, t)}</p>
-      <p className="flex flex-wrap gap-3 text-xs text-text-subtle">
+      <p className="flex flex-wrap gap-x-4 gap-y-1 text-caption text-text-subtle">
         {duration != null && (
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-center gap-1.5">
             <Clock className="size-3.5" aria-hidden="true" />
             {t('portal.services.duration', { minutes: duration })}
           </span>
         )}
-        <span className="inline-flex items-center gap-1">
+        <span className="inline-flex items-center gap-1.5">
           <Users className="size-3.5" aria-hidden="true" />
           {t('portal.services.crew', { count: service.crew_size })}
         </span>
       </p>
-      <Button asChild variant="brand" className="mt-1 self-start">
+      <Button asChild variant="brand" className="mt-auto self-stretch sm:self-start">
         <Link to={bookTo}>{t('portal.services.book_this')}</Link>
       </Button>
     </article>

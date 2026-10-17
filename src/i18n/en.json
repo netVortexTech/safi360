@@ -640,6 +640,10 @@
       "services_title": "What we clean",
       "call": "Call {{phone}}"
     },
+    "how": {
+      "title": "How booking works",
+      "body": "Four short steps. You get a ticket number and can track every update."
+    },
     "services": {
       "title": "Services & prices",
       "subtitle": "Every price is calculated the same way for everyone.",
@@ -912,7 +916,9 @@
     "bookings_by_source": "Bookings by source",
     "no_bookings_yet": "No bookings yet",
     "booked_vs_collected": "Booked vs collected",
+    "pending": "Outstanding",
     "recent_tickets": "Recent tickets",
+    "view_all_tickets": "View all tickets",
     "setup_checklist": "First-day setup checklist",
     "checklist": {
       "services": "Add your services and prices",
@@ -1194,6 +1200,9 @@
   },
   "field": {
     "today_title": "Today's jobs",
+    "jobs_count": "{{count}} jobs",
+    "no_jobs_today": "No jobs for you today.",
+    "service_fallback": "Cleaning service",
     "foundation_notice": "The cleaner app is being set up.",
     "upcoming_title": "Upcoming jobs",
     "history_title": "History",
@@ -1201,6 +1210,7 @@
     "no_upcoming": "No upcoming jobs.",
     "no_history": "No completed jobs yet.",
     "no_alerts": "No alerts right now.",
+    "alert_overdue": "{{name}} is overdue since {{time}}",
     "start_travel": "Start travel",
     "mark_arrived": "I have arrived",
     "capture_before": "Take before photos",

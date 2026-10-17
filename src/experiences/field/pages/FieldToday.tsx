@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { ErrorState } from '@/components/shared/ErrorState';
 import { dayKey } from '@/lib/dates';
 import { useFieldJobs } from '../hooks';
 import { JobCard } from '../components/JobCard';
@@ -13,18 +14,30 @@ export default function FieldToday() {
   );
 
   if (jobs.isLoading) {
-    return <div className="h-40 animate-pulse rounded-xl bg-surface-muted" aria-busy="true" />;
+    return (
+      <div className="space-y-3" aria-busy="true">
+        <div className="h-8 w-40 animate-pulse rounded-lg bg-surface-muted" />
+        <div className="h-32 animate-pulse rounded-xl bg-surface-muted" />
+        <div className="h-32 animate-pulse rounded-xl bg-surface-muted" />
+      </div>
+    );
   }
   if (jobs.error) {
-    return <p className="text-center text-error">{String(jobs.error)}</p>;
+    return (
+      <ErrorState
+        onRetry={() => void jobs.refetch()}
+        retrying={jobs.isFetching}
+        description={t('errors.generic_body')}
+      />
+    );
   }
 
   const items = todaysJobs.length ? todaysJobs : activeJobs;
   return (
-    <div className="space-y-4">
+    <div className="animate-fade-in space-y-5">
       <header>
         <h1 className="text-h1">{t('field.today_title')}</h1>
-        <p className="mt-1 text-sm text-text-muted">{items.length} jobs</p>
+        <p className="mt-1 text-sm text-text-muted">{t('field.jobs_count', { count: items.length })}</p>
       </header>
       {items.length ? (
         <section className="space-y-3">
@@ -33,8 +46,8 @@ export default function FieldToday() {
           ))}
         </section>
       ) : (
-        <div className="rounded-xl border border-border bg-surface p-6 text-center text-text-muted">
-          No jobs today.
+        <div className="rounded-2xl border border-dashed border-border-strong bg-surface px-6 py-12 text-center">
+          <p className="text-body text-text-muted">{t('field.no_jobs_today')}</p>
         </div>
       )}
     </div>
