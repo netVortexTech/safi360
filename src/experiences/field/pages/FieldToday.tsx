@@ -1,4 +1,6 @@
+import { CalendarCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { dayKey } from '@/lib/dates';
 import { useFieldJobs } from '../hooks';
@@ -46,9 +48,7 @@ export default function FieldToday() {
           ))}
         </section>
       ) : (
-        <div className="rounded-2xl border border-dashed border-border-strong bg-surface px-6 py-12 text-center">
-          <p className="text-body text-text-muted">{t('field.no_jobs_today')}</p>
-        </div>
+        <EmptyState icon={<CalendarCheck aria-hidden="true" />} title={t('field.no_jobs_today')} />
       )}
     </div>
   );
