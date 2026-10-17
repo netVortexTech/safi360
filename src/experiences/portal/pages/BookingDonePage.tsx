@@ -52,20 +52,24 @@ export default function BookingDonePage() {
 
   return (
     <div className="space-y-6" data-testid="booking-done" data-variant={variant}>
-      <section className="rounded-lg border border-border bg-surface p-6 text-center">
+      <section className="rounded-2xl border border-border bg-surface px-6 py-8 text-center shadow-card sm:px-8 sm:py-10">
         <span
-          className={`mx-auto mb-4 flex size-14 items-center justify-center rounded-full ${TONE[variant]}`}
+          className={`mx-auto mb-5 flex size-16 items-center justify-center rounded-full ring-8 ring-surface-muted ${TONE[variant]}`}
         >
-          <Icon className="size-7" aria-hidden="true" />
+          <Icon className="size-8" aria-hidden="true" />
         </span>
         <h1 className="text-display">{t(`portal.done.${variant}_title`)}</h1>
-        <p className="mx-auto mt-2 max-w-prose text-sm text-text-muted">{t(`portal.done.${variant}_body`)}</p>
-        <p className="mt-6 text-xs uppercase tracking-wide text-text-subtle">{t('portal.done.ticket')}</p>
-        <div className="mt-1 flex justify-center">
+        <p className="mx-auto mt-2 max-w-prose text-pretty text-body text-text-muted">
+          {t(`portal.done.${variant}_body`)}
+        </p>
+        <p className="mt-7 text-caption uppercase tracking-eyebrow text-text-subtle">
+          {t('portal.done.ticket')}
+        </p>
+        <div className="mt-1.5 flex justify-center">
           <TicketChip ticketRef={last.ticket_ref} size="display" />
         </div>
-        <p className="mt-1 text-xs text-text-subtle">{t('portal.done.ticket_hint')}</p>
-        <div className="mt-4 flex justify-center">
+        <p className="mt-1.5 text-caption text-text-subtle">{t('portal.done.ticket_hint')}</p>
+        <div className="mt-5 flex justify-center">
           <StatusBadge status={status} />
         </div>
       </section>
@@ -88,7 +92,7 @@ export default function BookingDonePage() {
         />
       )}
 
-      <dl className="divide-y divide-border rounded-lg border border-border bg-surface px-4">
+      <dl className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface px-4 shadow-card">
         <div className="flex justify-between gap-4 py-3 text-sm">
           <dt className="text-text-muted">{t('portal.done.when')}</dt>
           <dd className="text-right">

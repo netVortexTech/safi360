@@ -103,10 +103,7 @@ export function TicketsPage() {
   ];
 
   const renderCard = (row: TicketRow) => (
-    <Card
-      className="cursor-pointer transition-shadow hover:shadow-md"
-      onClick={() => navigate(`/ops/tickets/${row.id}`)}
-    >
+    <Card interactive className="cursor-pointer" onClick={() => navigate(`/ops/tickets/${row.id}`)}>
       <CardBody className="p-4">
         <div className="flex items-start justify-between gap-2">
           <TicketChip ticketRef={row.ticket_ref} size="sm" />
@@ -114,14 +111,14 @@ export function TicketsPage() {
         </div>
         <div className="mt-2">
           <p className="font-medium text-text">{row.customer_name}</p>
-          <p className="text-sm text-text-subtle">{row.customer_phone}</p>
+          <p className="tabular text-sm text-text-subtle">{row.customer_phone}</p>
         </div>
         <div className="mt-2 flex items-center justify-between">
           <SourceChip source={row.source} />
           <span className="tabular font-semibold">{formatTzs(row.total_tzs)}</span>
         </div>
         {row.scheduled_start && (
-          <p className="mt-2 text-xs text-text-subtle">
+          <p className="mt-2 text-caption text-text-subtle">
             {formatDay(row.scheduled_start, 'en')} · {formatTime(row.scheduled_start, 'en')}
           </p>
         )}
@@ -132,6 +129,7 @@ export function TicketsPage() {
   return (
     <div>
       <PageHeader
+        eyebrow={t('nav.overview')}
         title={t('nav.tickets')}
         subtitle={t('ops.tickets_subtitle')}
         actions={
@@ -140,7 +138,7 @@ export function TicketsPage() {
               <SlidersHorizontal aria-hidden="true" />
               {t('common.filters')}
               {activeFilterCount > 0 && (
-                <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-xs text-white">
+                <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
                   {activeFilterCount}
                 </span>
               )}
@@ -155,20 +153,27 @@ export function TicketsPage() {
         }
       />
 
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search
-          className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-subtle"
-          aria-hidden="true"
-        />
-        <Input
-          type="search"
-          placeholder={t('ops.search_placeholder')}
-          value={filters.search}
-          onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-          className="pl-10"
-          aria-label={t('common.search')}
-        />
+      {/* Search + result count */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search
+            className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-text-subtle"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            placeholder={t('ops.search_placeholder')}
+            value={filters.search}
+            onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+            className="pl-10"
+            aria-label={t('common.search')}
+          />
+        </div>
+        {!isLoading && !error && data && (
+          <p className="shrink-0 text-sm text-text-muted sm:text-right">
+            {t('ops.results_count', { count: data.length })}
+          </p>
+        )}
       </div>
 
       {/* Filters */}

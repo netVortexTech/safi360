@@ -929,6 +929,8 @@
     },
     "tickets_subtitle": "Every booking, from any channel",
     "no_tickets_title": "No tickets found",
+    "results_count_one": "{{count}} result",
+    "results_count_other": "{{count}} results",
     "no_tickets_body": "Try adjusting your search or filters.",
     "no_customers_title": "No customers yet",
     "no_customers_body": "Customers appear here when they book.",

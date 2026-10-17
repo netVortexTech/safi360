@@ -61,17 +61,23 @@ export function SettingsTabs({ className }: { className?: string }) {
   const visible = settingsTabs.filter((tab) => can(role, tab.perm));
   if (visible.length === 0) return null;
   return (
-    <nav aria-label={t('settings.title')} className={cn('flex flex-wrap gap-2', className)}>
+    <nav
+      aria-label={t('settings.title')}
+      className={cn(
+        '-mb-1 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        className,
+      )}
+    >
       {visible.map((tab) => (
         <NavLink
           key={tab.to}
           to={tab.to}
           className={({ isActive }) =>
             cn(
-              'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
+              'whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors duration-200 ease-premium',
               isActive
                 ? 'border-primary bg-primary-light text-primary'
-                : 'border-border bg-surface text-text-muted hover:bg-surface-muted',
+                : 'border-border bg-surface text-text-muted hover:border-border-strong hover:bg-surface-muted hover:text-text',
             )
           }
         >
@@ -98,7 +104,7 @@ export default function SettingsPage() {
         <div className="grid gap-3 md:grid-cols-2">
           {visible.map((tab) => (
             <Link key={tab.to} to={tab.to}>
-              <Card className="transition-colors hover:border-primary/50">
+              <Card interactive>
                 <CardBody className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium text-text">{t(tab.labelKey)}</p>

@@ -929,6 +929,8 @@
     },
     "tickets_subtitle": "Kila oda, kutoka chanzo chochote",
     "no_tickets_title": "Hakuna tiketi zilizopatikana",
+    "results_count_one": "Matokeo {{count}}",
+    "results_count_other": "Matokeo {{count}}",
     "no_tickets_body": "Jaribu kubadilisha utafutaji au machujio.",
     "no_customers_title": "Hakuna wateja bado",
     "no_customers_body": "Wateja wataonekana hapa wakati wa kuweka oda.",

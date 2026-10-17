@@ -81,8 +81,9 @@ export function CodeInput({
             aria-label={`${label} ${i + 1}/${length}`}
             aria-invalid={error ? true : undefined}
             className={cn(
-              'tabular size-12 rounded border border-border bg-surface text-center text-xl text-text',
-              'focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
+              'tabular h-12 w-full min-w-0 max-w-12 flex-1 rounded border border-border-strong bg-surface text-center text-xl text-text shadow-xs',
+              'transition-[border-color,box-shadow] duration-200 ease-premium',
+              'focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25',
               'disabled:bg-surface-muted',
               error && 'border-error',
             )}

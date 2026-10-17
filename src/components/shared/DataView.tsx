@@ -29,8 +29,9 @@ export interface DataViewProps<T> {
 }
 
 /**
- * Table ≥768px, cards below (ui-spec responsive rule). Loading/error/empty are real
- * branches driven by the query state, never a spinner over stale data.
+ * Table ≥768px, cards below. Loading/error/empty are real branches driven by the query
+ * state, never a spinner over stale data. The loading branch mirrors the two layouts so
+ * there is no shift once data arrives.
  */
 export function DataView<T>({
   state,
@@ -50,10 +51,37 @@ export function DataView<T>({
 
   if (state === 'loading') {
     return (
-      <div className={cn('space-y-2', className)} aria-busy="true" data-state="loading">
-        {Array.from({ length: skeletonRows }, (_, i) => (
-          <Skeleton key={i} className="h-14 w-full rounded-lg" />
-        ))}
+      <div data-state="loading" aria-busy="true" className={className}>
+        <div className="hidden md:block">
+          <Table>
+            <caption className="sr-only">{caption}</caption>
+            <THead>
+              <tr>
+                {columns.map((c) => (
+                  <TH key={c.key}>
+                    <span className="inline-block h-3 w-16 rounded bg-surface/70" />
+                  </TH>
+                ))}
+              </tr>
+            </THead>
+            <TBody>
+              {Array.from({ length: skeletonRows }, (_, i) => (
+                <TR key={i}>
+                  {columns.map((c) => (
+                    <TD key={c.key}>
+                      <span className="block h-4 w-full max-w-[10rem] rounded bg-surface-muted" />
+                    </TD>
+                  ))}
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        </div>
+        <div className="space-y-3 md:hidden">
+          {Array.from({ length: skeletonRows }, (_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -76,8 +104,22 @@ export function DataView<T>({
             {rows.map((row) => (
               <TR
                 key={rowKey(row)}
-                className={cn(onRowClick && 'cursor-pointer')}
+                className={cn(
+                  onRowClick && 'cursor-pointer focus-visible:bg-surface-muted/60 focus-visible:outline-none',
+                )}
+                tabIndex={onRowClick ? 0 : undefined}
+                aria-label={onRowClick ? caption : undefined}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
+                onKeyDown={
+                  onRowClick
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onRowClick(row);
+                        }
+                      }
+                    : undefined
+                }
               >
                 {columns.map((c) => (
                   <TD key={c.key} className={cn(c.align === 'right' && 'tabular text-right', c.className)}>
@@ -89,7 +131,7 @@ export function DataView<T>({
           </TBody>
         </Table>
       </div>
-      <ul className="space-y-2 md:hidden" aria-label={caption}>
+      <ul className="animate-fade-in space-y-3 md:hidden" aria-label={caption}>
         {rows.map((row) => (
           <li key={rowKey(row)}>{renderCard(row)}</li>
         ))}
