@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CodeInput } from '@/components/shared/CodeInput';
@@ -8,7 +8,7 @@ import { PhoneInput } from '@/components/shared/PhoneInput';
 import { Button } from '@/components/ui/button';
 import { applyExperienceLocale } from '@/i18n';
 import { useAuth } from '@/lib/auth';
-import { authErrorKey, claimStaffInvite, requestOtp, verifyOtp } from '@/lib/auth-api';
+import { authErrorKey, claimStaffInvite, refreshSessionClaims, requestOtp, verifyOtp } from '@/lib/auth-api';
 import { formatPhone } from '@/lib/phone';
 
 export default function FieldLogin() {
@@ -28,6 +28,16 @@ export default function FieldLogin() {
   useEffect(() => {
     applyExperienceLocale('sw');
   }, []);
+
+  // On the "no company yet" screen, re-mint the token once on mount so access the office
+  // granted since the last login shows up by simply reopening the app — no sign-out needed.
+  const retriedRef = useRef(false);
+  useEffect(() => {
+    if (auth.status !== 'signed_in' || auth.claims.tenant_role === 'CLEANER') return;
+    if (retriedRef.current) return;
+    retriedRef.current = true;
+    void refreshSessionClaims();
+  }, [auth.status, auth.claims.tenant_role]);
 
   // Defined before the early returns so the "pending" screen can retry claiming an
   // invite the office may have added after this account first signed in.

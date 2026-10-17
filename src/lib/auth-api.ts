@@ -34,12 +34,28 @@ export async function verifyOtp(phoneE164: string, code: string): Promise<void> 
 
 /**
  * Link the signed-in user to a staff roster row added by the office (matched by phone)
- * and grant the CLEANER membership. Refreshes the session so the JWT picks up the new
- * tenant claims. Returns true when an invite was claimed.
+ * and grant the CLEANER membership.
+ *
+ * The session is ALWAYS refreshed afterwards, not only when a roster row was claimed:
+ * the office may have granted access directly (Settings → Team), in which case there is
+ * nothing left to claim but the current token still carries the old, empty tenant claims.
+ * Without this refresh the employee stays stuck on the "no company yet" screen until they
+ * sign out and back in. Returns true when a roster invite was actually claimed.
  */
 export async function claimStaffInvite(): Promise<boolean> {
+  let claimed = false;
   const res: { data: unknown; error: { message: string } | null } = await supabase.rpc('claim_staff_invite');
-  if (res.error) return false;
-  if (res.data) await supabase.auth.refreshSession();
-  return Boolean(res.data);
+  if (!res.error) claimed = Boolean(res.data);
+  // Best-effort: a failed refresh just leaves the existing (still valid) token in place.
+  await supabase.auth.refreshSession();
+  return claimed;
+}
+
+/**
+ * Re-mint the access token and let the auth listener pick up any new tenant claims. Used
+ * by the cleaner app's "check again" so access granted while the screen was open appears
+ * without signing out. Never claims a roster invite — see claimStaffInvite for that.
+ */
+export async function refreshSessionClaims(): Promise<void> {
+  await supabase.auth.refreshSession();
 }
