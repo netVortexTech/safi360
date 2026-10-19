@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,15 @@ export interface PageHeaderProps {
 }
 
 export function PageHeader({ title, subtitle, breadcrumbs, badges, actions, className }: PageHeaderProps) {
+  // Browser tab mirrors the page title, so history and open tabs stay tellable apart.
+  useEffect(() => {
+    if (typeof title !== 'string' || !title) return;
+    const previous = document.title;
+    document.title = `${title} · Safi360`;
+    return () => {
+      document.title = previous;
+    };
+  }, [title]);
   return (
     <header className={cn('mb-6', className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (

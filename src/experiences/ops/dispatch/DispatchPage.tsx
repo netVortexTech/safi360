@@ -344,7 +344,8 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
         <div className="flex gap-2 border-t border-border pt-4">
           <Button
             onClick={handleAssign}
-            disabled={!selectedStaff || createAssignment.isPending}
+            disabled={!selectedStaff}
+            loading={createAssignment.isPending}
             className="flex-1"
           >
             {t('ops.assign')}
@@ -361,7 +362,7 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
             size="sm"
             className="w-full"
             onClick={() => handleTransition('ASSIGNED')}
-            disabled={transition.isPending}
+            loading={transition.isPending}
           >
             {t('ops.mark_assigned')}
           </Button>

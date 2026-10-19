@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ChevronRight, Clock, MapPin, Phone, Wrench } from '@/components/ui/icons';
+import { AlertTriangle, ArrowLeft, ChevronRight, Clock, MapPin, Phone, Wrench } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
@@ -257,6 +257,10 @@ export default function JobDetail() {
         Back to jobs
       </Link>
       <article className="space-y-4">
+        <Link to="/field" className="inline-flex items-center gap-2 text-sm font-medium text-primary">
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t('field.nav_today', { defaultValue: 'Today' })}
+        </Link>
+
         <header className="rounded-xl bg-surface p-4 shadow-card">
           <div className="flex items-start justify-between gap-3">
             <div>

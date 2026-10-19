@@ -616,7 +616,9 @@
       "team_lead": "Kiongozi wa timu",
       "team_lead_hint": "Hubeba simu ya timu na kuthibitisha picha.",
       "active_hint": "Wasafishaji wasiotumika hawapendekezwi kamwe kwa oda mpya."
-    }
+    },
+    "remove_leave_title": "Ondoa likizo hii?",
+    "remove_leave_body": "Msafishaji ataweza kupangiwa kazi tena tarehe hizi."
   },
   "portal": {
     "home_title": "Weka oda ya usafi",

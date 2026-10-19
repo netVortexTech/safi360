@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { Field } from '@/components/shared/Field';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ export interface LeaveListProps {
 export function LeaveList({ rows, locale, saving, onAdd, onDelete }: LeaveListProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [removing, setRemoving] = useState<AvailabilityRow | null>(null);
   const dated = rows.filter((r) => r.date != null).sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''));
   const form = useForm<LeaveValues>({
     resolver: zodResolver(leaveSchema),
@@ -85,7 +87,7 @@ export function LeaveList({ rows, locale, saving, onAdd, onDelete }: LeaveListPr
                   variant="ghost"
                   size="icon"
                   aria-label={t('common.remove')}
-                  onClick={() => onDelete(r.id)}
+                  onClick={() => setRemoving(r)}
                   disabled={saving}
                 >
                   <Trash2 aria-hidden="true" />
@@ -95,6 +97,24 @@ export function LeaveList({ rows, locale, saving, onAdd, onDelete }: LeaveListPr
           </ul>
         )}
       </CardBody>
+
+      <ConfirmDialog
+        open={removing != null}
+        onOpenChange={(o) => {
+          if (!o) setRemoving(null);
+        }}
+        title={t('staff.remove_leave_title')}
+        description={t('staff.remove_leave_body')}
+        confirmLabel={t('common.remove')}
+        destructive
+        loading={saving}
+        onConfirm={() => {
+          if (removing) {
+            onDelete(removing.id);
+            setRemoving(null);
+          }
+        }}
+      />
 
       <Dialog open={open} onOpenChange={(o) => !saving && setOpen(o)}>
         <DialogContent>

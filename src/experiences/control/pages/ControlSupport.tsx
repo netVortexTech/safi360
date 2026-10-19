@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
@@ -234,7 +235,7 @@ export default function ControlSupport() {
                   />
                 </Field>
                 {replyMutation.error ? (
-                  <p className="text-sm text-error">{String(replyMutation.error)}</p>
+                  <p className="text-sm text-error">{t(errorKey(replyMutation.error))}</p>
                 ) : null}
                 <div className="flex gap-2">
                   <Button

@@ -616,7 +616,9 @@
       "team_lead": "Team lead",
       "team_lead_hint": "Carries the phone for the crew and signs off photos.",
       "active_hint": "Inactive cleaners are never offered for new bookings."
-    }
+    },
+    "remove_leave_title": "Remove this leave?",
+    "remove_leave_body": "The cleaner becomes bookable again for these dates."
   },
   "portal": {
     "home_title": "Book a cleaning",
