@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -810,7 +811,7 @@ export function TicketDetailPage() {
       {showRecordPayment && (
         <ManualPaymentDialog
           busy={recordPayment.isPending}
-          error={recordPayment.error ? String(recordPayment.error) : null}
+          error={recordPayment.error ? t(errorKey(recordPayment.error)) : null}
           bookingId={ticket.id}
           bookingLabel={ticket.ticket_ref}
           suggestedAmount={Math.max(ticket.total_tzs - ticket.paid_tzs, 0)}

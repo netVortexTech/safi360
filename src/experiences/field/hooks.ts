@@ -168,6 +168,7 @@ export function useFieldEvents(id: string) {
 export function useFieldTransition() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { errorHandled: true },
     mutationFn: async (vars: { booking_id: string; to: BookingStatus; reason?: string }) => {
       const { data, error } = await supabase.rpc('transition_booking', {
         p_booking_id: vars.booking_id,
@@ -189,6 +190,7 @@ export function useFieldTransition() {
 export function useOpenFieldException() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { errorHandled: true },
     mutationFn: async (vars: { booking_id: string; category: string; reason: string }) => {
       const { data, error } = await supabase.rpc('open_exception', {
         p_booking_id: vars.booking_id,
@@ -209,6 +211,7 @@ export function useOpenFieldException() {
 export function useAddFieldJobEvent() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { errorHandled: true },
     mutationFn: async (vars: {
       booking_id: string;
       kind: string;

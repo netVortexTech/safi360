@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
@@ -127,7 +128,7 @@ export default function BrandingSettings() {
         <Skeleton className="h-72" />
       ) : detail.isError ? (
         <ErrorState
-          description={String(detail.error)}
+          description={t(errorKey(detail.error))}
           onRetry={() => void detail.refetch()}
           retrying={detail.isFetching}
         />

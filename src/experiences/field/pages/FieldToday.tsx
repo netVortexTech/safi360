@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { dayKey } from '@/lib/dates';
+import { ErrorState } from '@/components/shared/ErrorState';
 import { useFieldJobs } from '../hooks';
 import { JobCard } from '../components/JobCard';
 
@@ -16,7 +17,7 @@ export default function FieldToday() {
     return <div className="h-40 animate-pulse rounded-xl bg-surface-muted" aria-busy="true" />;
   }
   if (jobs.error) {
-    return <p className="text-center text-error">{String(jobs.error)}</p>;
+    return <ErrorState onRetry={() => void jobs.refetch()} />;
   }
 
   const items = todaysJobs.length ? todaysJobs : activeJobs;

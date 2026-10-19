@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
+import { errorKey } from '@/lib/errors';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/ui/toast';
@@ -181,7 +182,7 @@ export default function InvoiceDetailPage() {
       {showRecordPayment && (
         <ManualPaymentDialog
           busy={recordPayment.isPending}
-          error={recordPayment.error ? String(recordPayment.error) : null}
+          error={recordPayment.error ? t(errorKey(recordPayment.error)) : null}
           bookingId={invoice.id}
           bookingLabel={invoice.ticket_ref}
           suggestedAmount={balance}

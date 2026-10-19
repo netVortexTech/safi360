@@ -210,7 +210,8 @@
     "money": {
       "integer": "Enter whole shillings, no decimals.",
       "nonnegative": "Amount cannot be negative.",
-      "too_large": "Amount is too large."
+      "too_large": "Amount is too large.",
+      "positive": "Enter an amount greater than zero."
     },
     "slug": {
       "too_short": "Too short.",

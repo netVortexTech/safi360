@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
@@ -116,7 +117,7 @@ export default function PaymentsPage() {
             {canManual ? <Button onClick={() => setManualOpen(true)}>Record manual payment</Button> : null}
           </div>
           {ledger.isLoading ? <div className="h-40 animate-pulse rounded bg-surface-muted" /> : null}
-          {ledger.error ? <p className="text-error">{String(ledger.error)}</p> : null}
+          {ledger.error ? <p className="text-error">{t(errorKey(ledger.error))}</p> : null}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -174,7 +175,7 @@ export default function PaymentsPage() {
       {manualOpen ? (
         <ManualPaymentDialog
           busy={recordManual.isPending}
-          error={recordManual.error ? String(recordManual.error) : null}
+          error={recordManual.error ? t(errorKey(recordManual.error)) : null}
           onClose={() => setManualOpen(false)}
           onSubmit={(vars) => {
             void recordManual.mutateAsync(vars).then(() => {

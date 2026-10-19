@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { errorKey } from '@/lib/errors';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Circle } from '@/components/ui/icons';
@@ -76,7 +77,7 @@ export default function OnboardingSettings() {
         <Skeleton className="h-64" />
       ) : checks.isError ? (
         <ErrorState
-          description={String(checks.error)}
+          description={t(errorKey(checks.error))}
           onRetry={() => void checks.refetch()}
           retrying={checks.isFetching}
         />

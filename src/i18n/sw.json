@@ -210,7 +210,8 @@
     "money": {
       "integer": "Weka shilingi kamili, bila desimali.",
       "nonnegative": "Kiasi hakiwezi kuwa hasi.",
-      "too_large": "Kiasi ni kikubwa mno."
+      "too_large": "Kiasi ni kikubwa mno.",
+      "positive": "Weka kiasi zaidi ya sifuri."
     },
     "slug": {
       "too_short": "Fupi mno.",

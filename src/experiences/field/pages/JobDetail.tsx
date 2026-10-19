@@ -14,6 +14,8 @@ import {
   useOpenFieldException,
   useAddFieldJobEvent,
 } from '../hooks';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { errorKey } from '@/lib/errors';
 import { compressImage } from '../compression';
 import { listPhotos, queuePhoto, updatePhoto } from '../queue';
 import { uploadQueuedPhoto } from '../uploads';
@@ -41,6 +43,7 @@ export default function JobDetail() {
   const [reportOpen, setReportOpen] = useState(false);
   const [issueCategory, setIssueCategory] = useState('customer_absent');
   const [issueReason, setIssueReason] = useState('');
+  const [issueTouched, setIssueTouched] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const beforeInput = useRef<HTMLInputElement>(null);
   const afterInput = useRef<HTMLInputElement>(null);
@@ -79,7 +82,7 @@ export default function JobDetail() {
 
   if (jobQuery.isLoading) return <div className="h-48 animate-pulse rounded-xl bg-surface-muted" />;
   if (jobQuery.error || !job)
-    return <p className="text-center text-error">{String(jobQuery.error ?? 'Job not found')}</p>;
+    return <ErrorState onRetry={() => void jobQuery.refetch()} />;
 
   const primaryLabel = () => {
     switch (job.status) {
@@ -154,7 +157,7 @@ export default function JobDetail() {
           break;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Action failed');
+      setError(t(errorKey(err)));
     } finally {
       setBusy(false);
     }
@@ -212,7 +215,7 @@ export default function JobDetail() {
       await qc.invalidateQueries({ queryKey: ['field', 'events', job.booking_id] });
       toast({ title: t('field.photos_uploaded') });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
+      setError(t(errorKey(err)));
     } finally {
       setUpload(null);
       setBusy(false);
@@ -220,6 +223,10 @@ export default function JobDetail() {
   };
 
   const submitIssue = async () => {
+    if (issueReason.trim().length < 3) {
+      setIssueTouched(true);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -232,7 +239,7 @@ export default function JobDetail() {
       setIssueReason('');
       toast({ title: t('field.issue_reported') });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Issue failed');
+      setError(t(errorKey(err)));
     } finally {
       setBusy(false);
     }
@@ -399,7 +406,10 @@ export default function JobDetail() {
         <section className="rounded-xl bg-surface p-4 shadow-card">
           <button
             type="button"
-            onClick={() => setReportOpen(true)}
+            onClick={() => {
+              setIssueTouched(false);
+              setReportOpen(true);
+            }}
             className="w-full rounded-xl border border-warning/40 bg-warning/5 px-4 py-3 text-sm font-medium text-warning"
           >
             Report an issue
@@ -424,14 +434,25 @@ export default function JobDetail() {
               <option value="missing_equipment">Missing equipment</option>
               <option value="extra_work">Extra work needed</option>
             </select>
-            <label className="mt-4 block text-sm font-medium">Details</label>
+            <label htmlFor="issue-details" className="mt-4 block text-sm font-medium">
+              Details
+            </label>
             <textarea
+              id="issue-details"
               value={issueReason}
               onChange={(e) => setIssueReason(e.target.value)}
+              onBlur={() => setIssueTouched(true)}
               rows={4}
-              className="mt-1 w-full rounded-lg border border-border bg-surface p-3"
+              aria-invalid={issueTouched && issueReason.trim().length < 3 ? true : undefined}
+              aria-describedby={issueTouched && issueReason.trim().length < 3 ? 'issue-details-error' : undefined}
+              className={`mt-1 w-full rounded-lg border bg-surface p-3 ${issueTouched && issueReason.trim().length < 3 ? 'border-error' : 'border-border'}`}
               required
             />
+            {issueTouched && issueReason.trim().length < 3 && (
+              <p id="issue-details-error" className="mt-1 text-sm text-error" role="alert">
+                {t('validation.reason_required')}
+              </p>
+            )}
             <div className="mt-4 flex gap-3">
               <button
                 type="button"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -95,7 +96,7 @@ export default function ProfileSettings() {
         <Skeleton className="h-64" />
       ) : tenant.isError || detail.isError ? (
         <ErrorState
-          description={String(tenant.error ?? detail.error)}
+          description={t(errorKey(tenant.error ?? detail.error))}
           onRetry={() => {
             void tenant.refetch();
             void detail.refetch();

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Copy } from '@/components/ui/icons';
@@ -177,7 +178,7 @@ export default function TeamSettings() {
         <Skeleton className="h-64" />
       ) : members.isError ? (
         <ErrorState
-          description={String(members.error)}
+          description={t(errorKey(members.error))}
           onRetry={() => void members.refetch()}
           retrying={members.isFetching}
         />

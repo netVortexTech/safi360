@@ -50,12 +50,19 @@ export function ManualPaymentDialog({
               <Input id="manual-booking" value={bookingId} onChange={(e) => setBookingId(e.target.value)} />
             )}
           </Field>
-          <Field id="manual-amount" label={t('ops.manual_amount')} required>
+          <Field
+            id="manual-amount"
+            label={t('ops.manual_amount')}
+            required
+            error={amount !== '' && !(Number(amount) > 0) ? t('validation.money.positive') : undefined}
+          >
             <Input
               id="manual-amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              invalid={amount !== '' && !(Number(amount) > 0)}
+              aria-describedby={amount !== '' && !(Number(amount) > 0) ? 'manual-amount-error' : undefined}
             />
           </Field>
           <Field id="manual-method" label={t('ops.manual_method')}>
@@ -74,7 +81,7 @@ export function ManualPaymentDialog({
             {t('common.cancel')}
           </Button>
           <Button
-            disabled={busy || !bookingId || !amount || !reason}
+            disabled={busy || !bookingId || !(Number(amount) > 0) || !reason}
             loading={busy}
             onClick={() => onSubmit({ booking_id: bookingId, amount_tzs: Number(amount), method, reason })}
           >
