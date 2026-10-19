@@ -34,9 +34,13 @@ function fromBase64Url(text: string): Uint8Array {
 }
 
 export function randomCode(): string {
+  // Rejection sampling: draw again above the largest multiple of 10^6 so every
+  // code is exactly equally likely (a bare modulo slightly favours low codes).
+  const space = 10 ** OTP_LENGTH;
+  const limit = 2 ** 32 - (2 ** 32 % space);
   const buf = new Uint32Array(1);
-  crypto.getRandomValues(buf);
-  return String((buf[0] ?? 0) % 10 ** OTP_LENGTH).padStart(OTP_LENGTH, '0');
+  do crypto.getRandomValues(buf); while ((buf[0] ?? 0) >= limit);
+  return String((buf[0] ?? 0) % space).padStart(OTP_LENGTH, '0');
 }
 
 export function randomSalt(): string {

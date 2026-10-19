@@ -102,7 +102,7 @@ export default function ControlSupport() {
     }) => {
       const { error } = await supabase
         .from('support_messages')
-        .insert({ request_id: requestId, tenant_id: tenantId, body, is_staff: true });
+        .insert({ request_id: requestId, tenant_id: tenantId, body, is_staff: true, author_id: auth.userId });
       if (error) throw error;
     },
     onSuccess: () => {
