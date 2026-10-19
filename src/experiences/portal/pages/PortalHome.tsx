@@ -1,4 +1,4 @@
-import { CalendarPlus, Search } from 'lucide-react';
+import { CalendarPlus, Search } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { EmptyState } from '@/components/shared/EmptyState';

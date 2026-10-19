@@ -1,4 +1,4 @@
-import { AlertTriangle, RefreshCw, WifiOff } from 'lucide-react';
+import { AlertTriangle, RefreshCw, WifiOff } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';

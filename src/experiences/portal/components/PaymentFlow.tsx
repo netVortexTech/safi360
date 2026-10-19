@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, XCircle } from '@/components/ui/icons';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { PaymentOutcome } from '@shared/payments/provider';

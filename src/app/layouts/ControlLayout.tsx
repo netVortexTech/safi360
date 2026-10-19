@@ -1,4 +1,4 @@
-import { LogOut, Menu } from 'lucide-react';
+import { LogOut, Menu } from '@/components/ui/icons';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';

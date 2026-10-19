@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { Check } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 

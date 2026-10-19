@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Clock, MapPin, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, MapPin, Users } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { useCalendarEvents } from '../tickets/hooks';
 import { PageHeader } from '@/components/shared/PageHeader';

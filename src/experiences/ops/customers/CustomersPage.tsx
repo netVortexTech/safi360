@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Users } from 'lucide-react';
+import { Search, Users } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { useCustomers } from './hooks';
 import { PageHeader } from '@/components/shared/PageHeader';

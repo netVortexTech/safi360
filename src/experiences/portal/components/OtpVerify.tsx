@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2 } from '@/components/ui/icons';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CodeInput } from '@/components/shared/CodeInput';

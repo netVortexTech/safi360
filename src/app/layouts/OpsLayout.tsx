@@ -1,4 +1,4 @@
-import { Bell, LogOut, Menu, Plus, Search } from 'lucide-react';
+import { Bell, LogOut, Menu, Plus, Search } from '@/components/ui/icons';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';

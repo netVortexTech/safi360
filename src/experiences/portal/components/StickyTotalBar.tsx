@@ -1,4 +1,4 @@
-import { ChevronUp } from 'lucide-react';
+import { ChevronUp } from '@/components/ui/icons';
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { QuoteResult } from '@shared/pricing/types';

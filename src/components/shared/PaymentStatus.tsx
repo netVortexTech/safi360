@@ -7,8 +7,8 @@ import {
   RotateCcw,
   Send,
   XCircle,
-  type LucideIcon,
-} from 'lucide-react';
+  type Icon,
+} from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import type { PaymentStatus as PaymentStatusEnum } from '@shared/enums';
 import { Badge, type BadgeProps } from '@/components/ui/badge';
@@ -18,7 +18,7 @@ type Tone = NonNullable<BadgeProps['tone']>;
 /** Display states: the six enum values plus two UI-only states shown in the design system. */
 export type PaymentDisplayStatus = PaymentStatusEnum | 'NOT_REQUESTED' | 'MANUAL';
 
-const STYLE: Record<PaymentDisplayStatus, { tone: Tone; icon: LucideIcon }> = {
+const STYLE: Record<PaymentDisplayStatus, { tone: Tone; icon: Icon }> = {
   PENDING: { tone: 'warning', icon: Clock },
   SUCCESS: { tone: 'success', icon: Check },
   FAILED: { tone: 'error', icon: XCircle },

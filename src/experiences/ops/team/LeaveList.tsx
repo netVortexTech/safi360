@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarOff, Plus, Trash2 } from 'lucide-react';
+import { CalendarOff, Plus, Trash2 } from '@/components/ui/icons';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';

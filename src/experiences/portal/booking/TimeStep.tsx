@@ -1,4 +1,4 @@
-import { CalendarCheck } from 'lucide-react';
+import { CalendarCheck } from '@/components/ui/icons';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorState } from '@/components/shared/ErrorState';

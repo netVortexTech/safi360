@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle2, Circle } from 'lucide-react';
+import { CheckCircle2, Circle } from '@/components/ui/icons';
 import { supabase } from '@/lib/supabase';
 import { useCurrentTenant } from '@/lib/tenant';
 import { PageHeader } from '@/components/shared/PageHeader';

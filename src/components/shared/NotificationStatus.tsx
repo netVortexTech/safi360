@@ -1,11 +1,11 @@
-import { Check, CheckCheck, Clock, Eye, XCircle, type LucideIcon } from 'lucide-react';
+import { Check, CheckCheck, Clock, Eye, XCircle, type Icon } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import type { NotificationStatus as NotificationStatusEnum } from '@shared/enums';
 import { Badge, type BadgeProps } from '@/components/ui/badge';
 
 type Tone = NonNullable<BadgeProps['tone']>;
 
-const STYLE: Record<NotificationStatusEnum, { tone: Tone; icon: LucideIcon }> = {
+const STYLE: Record<NotificationStatusEnum, { tone: Tone; icon: Icon }> = {
   queued: { tone: 'neutral', icon: Clock },
   sent: { tone: 'info', icon: Check },
   delivered: { tone: 'success', icon: CheckCheck },

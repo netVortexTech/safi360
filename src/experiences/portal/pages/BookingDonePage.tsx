@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, Hourglass } from 'lucide-react';
+import { CheckCircle2, Clock, Hourglass } from '@/components/ui/icons';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';

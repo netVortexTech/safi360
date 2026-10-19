@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Filter, Plus, Search, SlidersHorizontal } from 'lucide-react';
+import { Filter, Plus, Search, SlidersHorizontal } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from './hooks';
 import { emptyTicketFilters, type TicketFilters } from './types';

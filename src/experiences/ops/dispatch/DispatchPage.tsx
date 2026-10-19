@@ -11,7 +11,7 @@ import {
   Users,
   Wifi,
   WifiOff,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import {
   useAssignmentCandidates,

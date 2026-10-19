@@ -1,4 +1,4 @@
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from '@/components/ui/icons';
 import { Controller, useFieldArray, useFormContext, type FieldError as RhfFieldError } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { PricingType } from '@shared/enums';

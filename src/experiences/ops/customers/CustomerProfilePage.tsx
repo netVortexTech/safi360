@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { AlertTriangle, Calendar, CreditCard, MapPin, Phone, User } from 'lucide-react';
+import { AlertTriangle, Calendar, CreditCard, MapPin, Phone, User } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import {
   useCustomer,

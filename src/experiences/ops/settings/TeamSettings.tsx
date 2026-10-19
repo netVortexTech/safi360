@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy } from '@/components/ui/icons';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { supabase } from '@/lib/supabase';

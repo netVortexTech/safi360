@@ -1,4 +1,4 @@
-import { FlaskConical } from 'lucide-react';
+import { FlaskConical } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { isSandbox } from '@/lib/env';

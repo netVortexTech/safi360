@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, Clock, MapPin, Phone, Wrench } from 'lucide-react';
+import { AlertTriangle, ChevronRight, Clock, MapPin, Phone, Wrench } from '@/components/ui/icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';

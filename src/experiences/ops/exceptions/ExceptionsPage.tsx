@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Clock, XCircle } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {

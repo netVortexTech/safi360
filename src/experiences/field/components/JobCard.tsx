@@ -1,4 +1,4 @@
-import { Clock, MapPin, Phone, Wrench } from 'lucide-react';
+import { Clock, MapPin, Phone, Wrench } from '@/components/ui/icons';
 import { Link } from 'react-router-dom';
 import type { FieldJob } from '../hooks';
 

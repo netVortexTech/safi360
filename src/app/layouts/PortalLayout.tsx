@@ -1,4 +1,4 @@
-import { Phone } from 'lucide-react';
+import { Phone } from '@/components/ui/icons';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useLocation, useMatch, useParams } from 'react-router-dom';

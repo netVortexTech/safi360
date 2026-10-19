@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight } from '@/components/ui/icons';
 import { useAuth } from '@/lib/auth';
 import { can, type Permission } from '@/lib/permissions';
 import { cn } from '@/lib/utils';

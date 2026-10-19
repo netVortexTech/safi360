@@ -14,7 +14,7 @@ import {
   Search,
   Share2,
   UserPlus,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '@/lib/supabase';
 import { useSearchCustomers } from '../customers/hooks';

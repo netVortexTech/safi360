@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Banknote, Printer } from 'lucide-react';
+import { ArrowLeft, Banknote, Printer } from '@/components/ui/icons';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { useCurrentTenant } from '@/lib/tenant';
