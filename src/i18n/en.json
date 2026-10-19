@@ -1188,7 +1188,15 @@
     },
     "bookings_count": "bookings",
     "no_match_title": "No results",
-    "no_match_body": "Try different search terms or filters."
+    "no_match_body": "Try different search terms or filters.",
+    "toast_status_updated": "Status updated",
+    "toast_rescheduled": "Booking rescheduled",
+    "toast_payment_recorded": "Payment recorded",
+    "toast_assigned": "Cleaner assigned",
+    "toast_assignment_removed": "Assignment removed",
+    "toast_duplicate_dismissed": "Duplicate dismissed",
+    "toast_customers_merged": "Customers merged",
+    "toast_note_added": "Note added"
   },
   "field": {
     "today_title": "Today's jobs",
@@ -1211,7 +1219,10 @@
     "nav_today": "Today",
     "nav_upcoming": "Upcoming",
     "nav_history": "History",
-    "nav_alerts": "Alerts"
+    "nav_alerts": "Alerts",
+    "issue_reported": "Issue reported to the office",
+    "photos_uploaded": "Photos uploaded",
+    "uploading_photo": "Uploading photo {{current}} of {{total}}…"
   },
   "control": {
     "title": "Control center",
@@ -1459,7 +1470,8 @@
       "created": "Started",
       "load_error": "Could not load impersonation data"
     },
-    "login_body": "Sign in with your Safi360 team phone number."
+    "login_body": "Sign in with your Safi360 team phone number.",
+    "toast_saved": "Saved"
   },
   "privacy": {
     "title": "Privacy Notice",

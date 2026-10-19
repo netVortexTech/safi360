@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { formatTzs } from '@/lib/money';
 import { formatDay } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -14,6 +16,8 @@ import { ManualPaymentDialog } from './ManualPaymentDialog';
 import type { PaymentLedgerRow } from './hooks';
 
 export default function PaymentsPage() {
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const auth = useAuth();
   const role = auth.claims.tenant_role;
   const canView = can(role, 'payment.view');
@@ -173,7 +177,10 @@ export default function PaymentsPage() {
           error={recordManual.error ? String(recordManual.error) : null}
           onClose={() => setManualOpen(false)}
           onSubmit={(vars) => {
-            void recordManual.mutateAsync(vars).then(() => setManualOpen(false));
+            void recordManual.mutateAsync(vars).then(() => {
+              toast({ title: t('ops.toast_payment_recorded') });
+              setManualOpen(false);
+            });
           }}
         />
       ) : null}

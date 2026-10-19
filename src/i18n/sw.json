@@ -1188,7 +1188,15 @@
     },
     "bookings_count": "oda",
     "no_match_title": "Hakuna matokeo",
-    "no_match_body": "Jaribu maneno tofauti au machujio."
+    "no_match_body": "Jaribu maneno tofauti au machujio.",
+    "toast_status_updated": "Hali imesasishwa",
+    "toast_rescheduled": "Oda imepangwa upya",
+    "toast_payment_recorded": "Malipo yamerekodiwa",
+    "toast_assigned": "Msafishaji amepangiwa",
+    "toast_assignment_removed": "Mgawo umeondolewa",
+    "toast_duplicate_dismissed": "Nakala rudufu imeondolewa",
+    "toast_customers_merged": "Wateja wameunganishwa",
+    "toast_note_added": "Kidokezo kimeongezwa"
   },
   "field": {
     "today_title": "Kazi za leo",
@@ -1211,7 +1219,10 @@
     "nav_today": "Leo",
     "nav_upcoming": "Zinazokuja",
     "nav_history": "Historia",
-    "nav_alerts": "Taarifa"
+    "nav_alerts": "Taarifa",
+    "issue_reported": "Tatizo limeripotiwa ofisini",
+    "photos_uploaded": "Picha zimepakiwa",
+    "uploading_photo": "Inapakia picha {{current}} kati ya {{total}}…"
   },
   "control": {
     "title": "Kituo cha udhibiti",
@@ -1459,7 +1470,8 @@
       "created": "Ilianza",
       "load_error": "Imeshindwa kupakia data za kujifanya"
     },
-    "login_body": "Ingia kwa namba ya simu ya timu ya Safi360."
+    "login_body": "Ingia kwa namba ya simu ya timu ya Safi360.",
+    "toast_saved": "Imehifadhiwa"
   },
   "privacy": {
     "title": "Taarifa ya Faragha",

@@ -14,6 +14,7 @@ import { TicketChip } from '@/components/shared/TicketChip';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -28,6 +29,7 @@ import type { CustomerDuplicate } from '../tickets/types';
 export function CustomerProfilePage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [mergeTarget, setMergeTarget] = useState<CustomerDuplicate | null>(null);
 
   const { data: customer, isLoading, error, refetch } = useCustomer(id ?? '');
@@ -190,7 +192,12 @@ export function CustomerProfilePage() {
                           variant="ghost"
                           size="sm"
                           loading={resolveDuplicate.isPending && resolveDuplicate.variables?.id === dup.id}
-                          onClick={() => resolveDuplicate.mutate({ id: dup.id, action: 'DISMISSED' })}
+                          onClick={() =>
+                            resolveDuplicate.mutate(
+                              { id: dup.id, action: 'DISMISSED' },
+                              { onSuccess: () => toast({ title: t('ops.toast_duplicate_dismissed') }) },
+                            )
+                          }
                         >
                           {t('ops.dismiss')}
                         </Button>
@@ -309,7 +316,12 @@ export function CustomerProfilePage() {
           if (mergeTarget) {
             resolveDuplicate.mutate(
               { id: mergeTarget.id, action: 'MERGED' },
-              { onSuccess: () => setMergeTarget(null) },
+              {
+                onSuccess: () => {
+                  toast({ title: t('ops.toast_customers_merged') });
+                  setMergeTarget(null);
+                },
+              },
             );
           }
         }}

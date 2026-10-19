@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useToast } from '@/components/ui/toast';
 import { ArrowLeft, Banknote, Printer } from '@/components/ui/icons';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
@@ -24,6 +25,7 @@ const stateTone = { paid: 'success', partial: 'warning', unpaid: 'error' } as co
 
 export default function InvoiceDetailPage() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { id } = useParams<{ id: string }>();
   const { claims } = useAuth();
   const { data: invoice, isLoading, error, refetch } = useInvoice(id ?? '');
@@ -186,6 +188,7 @@ export default function InvoiceDetailPage() {
           onClose={() => setShowRecordPayment(false)}
           onSubmit={(vars) => {
             void recordPayment.mutateAsync(vars).then(() => {
+              toast({ title: t('ops.toast_payment_recorded') });
               setShowRecordPayment(false);
               void refetch();
             });

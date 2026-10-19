@@ -40,6 +40,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorState } from '@/components/shared/ErrorState';
@@ -109,6 +110,7 @@ type Tab = 'timeline' | 'audit';
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { claims } = useAuth();
   const role = claims.tenant_role;
   const [tab, setTab] = useState<Tab>('timeline');
@@ -597,6 +599,7 @@ export function TicketDetailPage() {
                           { booking_id: ticket.id, to: 'CLOSED', reason: 'Completion approved by office' },
                           {
                             onSuccess: () => {
+                              toast({ title: t('ops.toast_status_updated') });
                               void refetch();
                             },
                           },
@@ -758,6 +761,7 @@ export function TicketDetailPage() {
               },
               {
                 onSuccess: () => {
+                  toast({ title: t('ops.toast_rescheduled') });
                   setShowReschedule(false);
                   void refetch();
                 },
@@ -788,6 +792,7 @@ export function TicketDetailPage() {
                     { booking_id: ticket.id, to: 'CONFIRMED' },
                     {
                       onSuccess: () => {
+                        toast({ title: t('ops.toast_status_updated') });
                         setShowConfirm(false);
                         void refetch();
                       },
@@ -812,6 +817,7 @@ export function TicketDetailPage() {
           onClose={() => setShowRecordPayment(false)}
           onSubmit={(vars) => {
             void recordPayment.mutateAsync(vars).then(() => {
+              toast({ title: t('ops.toast_payment_recorded') });
               setShowRecordPayment(false);
               void refetch();
               void refetchPayments();
@@ -835,6 +841,7 @@ export function TicketDetailPage() {
             { booking_id: ticket.id, to: 'CANCELLED', reason },
             {
               onSuccess: () => {
+                toast({ title: t('ops.toast_status_updated') });
                 setShowCancel(false);
                 void refetch();
               },
@@ -858,6 +865,7 @@ export function TicketDetailPage() {
             { booking_id: ticket.id, to: 'NO_SHOW', reason },
             {
               onSuccess: () => {
+                toast({ title: t('ops.toast_status_updated') });
                 setShowNoShow(false);
                 void refetch();
               },
@@ -922,6 +930,7 @@ export function TicketDetailPage() {
                       { booking_id: ticket.id, note: noteText, customer_visible: noteVisible },
                       {
                         onSuccess: () => {
+                          toast({ title: t('ops.toast_note_added') });
                           setShowNote(false);
                           setNoteText('');
                         },

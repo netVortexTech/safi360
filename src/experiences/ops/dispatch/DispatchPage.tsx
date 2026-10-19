@@ -23,6 +23,7 @@ import {
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -206,6 +207,7 @@ function DispatchCard({
 
 function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () => void }) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [selectedStaff, setSelectedStaff] = useState<string | null>(null);
 
   const { data: candidates, isLoading } = useAssignmentCandidates(
@@ -229,12 +231,20 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
         ends_at: item.scheduled_end,
         is_lead: item.assignee_ids.length === 0,
       },
-      { onSuccess: () => setSelectedStaff(null) },
+      {
+        onSuccess: () => {
+          toast({ title: t('ops.toast_assigned') });
+          setSelectedStaff(null);
+        },
+      },
     );
   };
 
   const handleTransition = (to: 'ASSIGNED' | 'EN_ROUTE' | 'ARRIVED' | 'IN_PROGRESS' | 'COMPLETED') => {
-    void transition.mutate({ booking_id: item.booking_id, to }, { onSuccess: () => {} });
+    void transition.mutate(
+      { booking_id: item.booking_id, to },
+      { onSuccess: () => toast({ title: t('ops.toast_status_updated') }) },
+    );
   };
 
   return (
@@ -270,7 +280,11 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
                     variant="ghost"
                     size="sm"
                     loading={cancelAssignment.isPending}
-                    onClick={() => cancelAssignment.mutate(assignee.assignment_id)}
+                    onClick={() =>
+                      cancelAssignment.mutate(assignee.assignment_id, {
+                        onSuccess: () => toast({ title: t('ops.toast_assignment_removed') }),
+                      })
+                    }
                   >
                     {t('common.remove')}
                   </Button>

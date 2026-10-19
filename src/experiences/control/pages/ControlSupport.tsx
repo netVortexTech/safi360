@@ -7,6 +7,7 @@ import { formatDay } from '@/lib/dates';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Field } from '@/components/shared/Field';
@@ -42,6 +43,7 @@ function isMissingTable(err: unknown): boolean {
 export default function ControlSupport() {
   const auth = useAuth();
   const { t, i18n } = useTranslation();
+  const { toast } = useToast();
   const locale = i18n.language === 'sw' ? 'sw' : 'en';
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -103,6 +105,7 @@ export default function ControlSupport() {
       if (error) throw error;
     },
     onSuccess: () => {
+      toast({ title: t('control.toast_saved') });
       setReply('');
       void queryClient.invalidateQueries({ queryKey: ['control', 'support-messages', selectedId] });
     },

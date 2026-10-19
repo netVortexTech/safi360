@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ChevronRight, Clock, Loader2, MapPin, Phone, Wrench } from '@/components/ui/icons';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/components/ui/toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
@@ -19,6 +22,8 @@ const statuses = ['ASSIGNED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED']
 
 export default function JobDetail() {
   const { id = '' } = useParams<{ id: string }>();
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const auth = useAuth();
   const qc = useQueryClient();
   const jobQuery = useFieldJob(id);
@@ -30,6 +35,7 @@ export default function JobDetail() {
 
   const [beforeCount, setBeforeCount] = useState(0);
   const [afterCount, setAfterCount] = useState(0);
+  const [upload, setUpload] = useState<{ current: number; total: number; pct: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
@@ -162,7 +168,9 @@ export default function JobDetail() {
       const tenantId = auth.claims.tenant_id ?? 'tenant';
       const staffId = job.staff_id;
       const uploadedPaths: string[] = [];
-      for (const file of Array.from(files)) {
+      const fileList = Array.from(files);
+      for (const [index, file] of fileList.entries()) {
+        setUpload({ current: index + 1, total: fileList.length, pct: 0 });
         const compressed = await compressImage(file);
         const clientId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const photo = {
@@ -186,6 +194,7 @@ export default function JobDetail() {
         await updatePhoto(clientId, { status: 'uploading', progress: 40 });
         const remotePath = await uploadQueuedPhoto(photo, tenantId, (progress) => {
           void updatePhoto(clientId, { progress });
+          setUpload((state) => (state ? { ...state, pct: progress } : state));
         });
         uploadedPaths.push(remotePath);
         await updatePhoto(clientId, { status: 'uploaded', remotePath, progress: 100 });
@@ -201,9 +210,11 @@ export default function JobDetail() {
         },
       });
       await qc.invalidateQueries({ queryKey: ['field', 'events', job.booking_id] });
+      toast({ title: t('field.photos_uploaded') });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
+      setUpload(null);
       setBusy(false);
     }
   };
@@ -219,6 +230,7 @@ export default function JobDetail() {
       });
       setReportOpen(false);
       setIssueReason('');
+      toast({ title: t('field.issue_reported') });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Issue failed');
     } finally {
@@ -351,6 +363,14 @@ export default function JobDetail() {
             className="hidden"
             onChange={(e) => void handleCapture('after', e.target.files)}
           />
+          {upload && (
+            <div className="mt-3 space-y-1">
+              <p className="text-xs text-text-muted">
+                {t('field.uploading_photo', { current: upload.current, total: upload.total })}
+              </p>
+              <Progress value={upload.pct} label={t('field.uploading_photo', { current: upload.current, total: upload.total })} />
+            </div>
+          )}
           <p className="mt-2 text-xs text-text-muted">
             Before: {beforeCount} photo(s), after: {afterCount} photo(s). Camera photos required before
             completion.

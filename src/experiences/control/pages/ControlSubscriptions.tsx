@@ -8,6 +8,7 @@ import { formatDay } from '@/lib/dates';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Field } from '@/components/shared/Field';
@@ -89,6 +90,7 @@ function SubscriptionsBody(props: {
   queryClient: QueryClient;
 }) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const {
     search,
     setSearch,
@@ -132,6 +134,7 @@ function SubscriptionsBody(props: {
       if (error) throw error;
     },
     onSuccess: () => {
+      toast({ title: t('control.toast_saved') });
       void queryClient.invalidateQueries({ queryKey: ['control', 'tenants'] });
       setChangeTarget(null);
     },
