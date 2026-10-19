@@ -75,10 +75,14 @@ export default {
       keyframes: {
         'accordion-down': { from: { height: '0' }, to: { height: 'var(--radix-accordion-content-height)' } },
         'accordion-up': { from: { height: 'var(--radix-accordion-content-height)' }, to: { height: '0' } },
+        // Indeterminate bar: the child is one third of the track, so 400% of its own
+        // width carries it fully across and off the right edge.
+        progress: { from: { transform: 'translateX(-100%)' }, to: { transform: 'translateX(400%)' } },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        progress: 'progress 1.2s ease-in-out infinite',
       },
     },
   },

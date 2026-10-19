@@ -189,6 +189,7 @@ export function CustomerProfilePage() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          loading={resolveDuplicate.isPending && resolveDuplicate.variables?.id === dup.id}
                           onClick={() => resolveDuplicate.mutate({ id: dup.id, action: 'DISMISSED' })}
                         >
                           {t('ops.dismiss')}
@@ -303,6 +304,7 @@ export function CustomerProfilePage() {
         })}
         confirmLabel={t('ops.merge')}
         destructive
+        loading={resolveDuplicate.isPending}
         onConfirm={() => {
           if (mergeTarget) {
             resolveDuplicate.mutate(

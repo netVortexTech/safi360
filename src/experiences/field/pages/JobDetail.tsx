@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { AlertTriangle, ChevronRight, Clock, MapPin, Phone, Wrench } from '@/components/ui/icons';
+import { AlertTriangle, ChevronRight, Clock, Loader2, MapPin, Phone, Wrench } from '@/components/ui/icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
@@ -329,8 +329,10 @@ export default function JobDetail() {
             type="button"
             onClick={() => void primaryAction()}
             disabled={busy || job.status === 'COMPLETED' || job.status === 'CLOSED'}
-            className="touch-target w-full rounded-xl bg-primary px-4 py-4 text-base font-semibold text-primary-foreground disabled:opacity-50"
+            aria-busy={busy || undefined}
+            className="touch-target flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-4 text-base font-semibold text-primary-foreground disabled:opacity-50"
           >
+            {busy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
             {primaryLabel() ?? 'Done'}
           </button>
           <input
@@ -422,8 +424,10 @@ export default function JobDetail() {
                 type="button"
                 onClick={() => void submitIssue()}
                 disabled={busy}
-                className="touch-target flex-1 rounded-lg bg-error px-4 py-3 text-white"
+                aria-busy={busy || undefined}
+                className="touch-target flex flex-1 items-center justify-center gap-2 rounded-lg bg-error px-4 py-3 text-white disabled:opacity-50"
               >
+                {busy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
                 Send
               </button>
             </div>

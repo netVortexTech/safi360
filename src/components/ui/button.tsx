@@ -5,7 +5,8 @@ import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded font-medium transition-colors ' +
+  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded font-medium ' +
+    'transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-150 active:scale-[0.97] ' +
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ' +
     'disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
@@ -16,7 +17,7 @@ const buttonVariants = cva(
         secondary: 'border border-border bg-surface text-text hover:bg-surface-muted',
         tertiary: 'border border-primary/40 bg-surface text-primary hover:bg-primary-light',
         ghost: 'text-text hover:bg-surface-muted',
-        link: 'h-auto px-0 text-primary underline-offset-4 hover:underline',
+        link: 'h-auto px-0 text-primary underline-offset-4 hover:underline active:scale-100 active:opacity-70',
         destructive: 'bg-error text-primary-foreground hover:bg-error-text',
       },
       size: {

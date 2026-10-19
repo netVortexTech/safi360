@@ -1,6 +1,7 @@
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import { GlobalFetchIndicator } from '@/components/shared/GlobalFetchIndicator';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider, type AuthState } from '@/lib/auth';
 import { makeQueryClient } from '@/lib/query-client';
@@ -18,7 +19,10 @@ export function AppProviders({ children, auth, queryClient }: AppProvidersProps)
     <ErrorBoundary>
       <QueryClientProvider client={client}>
         <AuthProvider initialState={auth}>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <GlobalFetchIndicator />
+            {children}
+          </ToastProvider>
         </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>

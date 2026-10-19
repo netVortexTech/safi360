@@ -1,10 +1,19 @@
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from '@/components/ui/icons';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useFieldJobs } from '../hooks';
 
 export default function FieldAlerts() {
   const { t } = useTranslation();
   const jobs = useFieldJobs();
+  if (jobs.isLoading) {
+    return (
+      <section className="space-y-4" aria-busy="true">
+        <h1 className="text-h1">{t('field.alerts_title', { defaultValue: 'Alerts' })}</h1>
+        <Skeleton className="h-40 rounded-xl" />
+      </section>
+    );
+  }
   const now = new Date().toISOString();
   const alerts = (jobs.data ?? []).filter(
     (job) => !['COMPLETED', 'CLOSED'].includes(job.status) && job.scheduled_start < now,
