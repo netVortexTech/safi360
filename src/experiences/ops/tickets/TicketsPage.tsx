@@ -140,7 +140,7 @@ export function TicketsPage() {
               <SlidersHorizontal aria-hidden="true" />
               {t('common.filters')}
               {activeFilterCount > 0 && (
-                <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-xs text-white">
+                <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                   {activeFilterCount}
                 </span>
               )}

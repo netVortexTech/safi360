@@ -427,9 +427,9 @@ export function CreateBookingPage() {
                   className={cn(
                     'flex size-8 items-center justify-center rounded-full text-sm font-medium transition-colors',
                     isCurrent
-                      ? 'bg-primary text-white'
+                      ? 'bg-primary text-primary-foreground'
                       : isCompleted
-                        ? 'bg-success text-white'
+                        ? 'bg-success text-primary-foreground'
                         : 'bg-surface-muted text-text-subtle',
                   )}
                   aria-current={isCurrent ? 'step' : undefined}

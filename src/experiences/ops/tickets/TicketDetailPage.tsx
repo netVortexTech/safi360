@@ -304,6 +304,7 @@ export function TicketDetailPage() {
               <CardTitle>{t('ops.items_price')}</CardTitle>
             </CardHeader>
             <CardBody>
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-text-subtle">
@@ -354,6 +355,7 @@ export function TicketDetailPage() {
                   )}
                 </tfoot>
               </table>
+              </div>
 
               {/* Quotes */}
               {quotes && quotes.length > 0 && (
@@ -900,7 +902,7 @@ export function TicketDetailPage() {
 
       {/* Add note dialog */}
       {showNote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>{t('ops.add_note')}</CardTitle>
@@ -1008,7 +1010,7 @@ function Timeline({ events, customerVisibleOnly }: { events: JobEventRow[]; cust
         <li key={event.id} className="relative">
           <div
             className={cn(
-              'absolute -left-[1.3rem] top-1 size-3 rounded-full border-2 border-white',
+              'absolute -left-[1.3rem] top-1 size-3 rounded-full border-2 border-surface',
               event.customer_visible ? 'bg-primary' : 'bg-text-subtle',
             )}
             aria-hidden="true"
@@ -1077,7 +1079,7 @@ function ConfirmBookingDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{t('ops.confirm_booking_title')}</CardTitle>
@@ -1130,7 +1132,7 @@ function RescheduleDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{t('ops.reschedule_title')}</CardTitle>
@@ -1176,7 +1178,7 @@ function FlagReviewDialog({
   const [reason, setReason] = useState('');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{t('ops.flag_needs_review')}</CardTitle>

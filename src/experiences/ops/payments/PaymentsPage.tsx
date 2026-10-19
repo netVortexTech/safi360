@@ -155,7 +155,7 @@ export default function PaymentsPage() {
       </Card>
 
       {selected ? (
-        <div className="fixed inset-0 z-50 bg-black/50 p-4" onClick={() => setSelected(null)}>
+        <div className="fixed inset-0 z-50 bg-navy/60 p-4" onClick={() => setSelected(null)}>
           <div
             className="mx-auto mt-10 max-w-lg rounded-xl bg-surface p-5"
             onClick={(e) => e.stopPropagation()}

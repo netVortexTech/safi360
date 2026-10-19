@@ -190,7 +190,7 @@ function WeekView({ days, eventsByDay }: { days: Date[]; eventsByDay: Map<string
   const today = dayKey(new Date());
 
   return (
-    <div className="grid grid-cols-7 gap-2">
+    <div className="grid gap-2 md:grid-cols-7">
       {days.map((day) => {
         const key = dayKey(day);
         const dayEvents = eventsByDay.get(key) ?? [];

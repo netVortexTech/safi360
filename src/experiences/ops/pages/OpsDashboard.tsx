@@ -344,7 +344,7 @@ function SetupChecklist({ tenant }: { tenant: { settings?: Record<string, unknow
         <li key={item.key} className="flex items-center gap-3">
           <div
             className={`flex size-5 items-center justify-center rounded-full border-2 ${
-              item.done ? 'border-success bg-success text-white' : 'border-border'
+              item.done ? 'border-success bg-success text-primary-foreground' : 'border-border'
             }`}
             aria-hidden="true"
           >

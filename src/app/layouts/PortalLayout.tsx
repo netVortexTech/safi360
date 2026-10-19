@@ -105,8 +105,8 @@ export function PortalLayout() {
       >
         {!widget && (
           <header className="safe-top bg-brand text-brand-foreground">
-            <div className="mx-auto flex h-14 max-w-2xl items-center justify-between gap-3 px-4">
-              <NavLink to={`/${slug}`} className="truncate text-base font-semibold">
+            <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-3 px-4 py-2 sm:h-14 sm:flex-nowrap sm:py-0">
+              <NavLink to={`/${slug}`} className="min-w-0 max-w-full truncate text-base font-semibold">
                 {tenant.branding.display_name || tenant.name}
               </NavLink>
               <nav aria-label="Main" className="flex items-center gap-1">

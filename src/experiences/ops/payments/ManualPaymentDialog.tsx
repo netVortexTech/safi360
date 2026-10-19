@@ -37,7 +37,7 @@ export function ManualPaymentDialog({
   const [reason, setReason] = useState('');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
       <div className="w-full max-w-md rounded-xl bg-surface p-5">
         <h2 className="text-h2">{t('ops.record_payment')}</h2>
         <p className="mt-1 text-sm text-text-muted">{t('ops.record_payment_body')}</p>

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ChevronRight, Clock, Loader2, MapPin, Phone, Wrench } from '@/components/ui/icons';
+import { AlertTriangle, ChevronRight, Clock, MapPin, Phone, Wrench } from '@/components/ui/icons';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/toast';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -344,16 +345,15 @@ export default function JobDetail() {
               Step {Math.min(statusIndex + 1, statuses.length)} of {statuses.length}
             </span>
           </div>
-          <button
-            type="button"
+          <Button
+            size="field"
+            className="w-full rounded-xl font-semibold"
             onClick={() => void primaryAction()}
-            disabled={busy || job.status === 'COMPLETED' || job.status === 'CLOSED'}
-            aria-busy={busy || undefined}
-            className="touch-target flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-4 text-base font-semibold text-primary-foreground disabled:opacity-50"
+            disabled={job.status === 'COMPLETED' || job.status === 'CLOSED'}
+            loading={busy}
           >
-            {busy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
             {primaryLabel() ?? 'Done'}
-          </button>
+          </Button>
           <input
             ref={beforeInput}
             type="file"
@@ -418,7 +418,7 @@ export default function JobDetail() {
       </article>
 
       {reportOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-black/50 p-4 sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-end bg-navy/60 p-4 sm:items-center">
           <div className="w-full rounded-2xl bg-surface p-5 shadow-xl">
             <h2 className="flex items-center gap-2 text-h2">
               <AlertTriangle className="size-5 text-warning" /> Report issue
@@ -454,23 +454,18 @@ export default function JobDetail() {
               </p>
             )}
             <div className="mt-4 flex gap-3">
-              <button
-                type="button"
-                onClick={() => setReportOpen(false)}
-                className="touch-target flex-1 rounded-lg border border-border px-4 py-3"
-              >
+              <Button variant="secondary" size="field" className="flex-1 rounded-lg" onClick={() => setReportOpen(false)}>
                 Cancel
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="destructive"
+                size="field"
+                className="flex-1 rounded-lg"
                 onClick={() => void submitIssue()}
-                disabled={busy}
-                aria-busy={busy || undefined}
-                className="touch-target flex flex-1 items-center justify-center gap-2 rounded-lg bg-error px-4 py-3 text-white disabled:opacity-50"
+                loading={busy}
               >
-                {busy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
                 Send
-              </button>
+              </Button>
             </div>
           </div>
         </div>
