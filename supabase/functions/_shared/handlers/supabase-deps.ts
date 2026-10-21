@@ -176,7 +176,7 @@ export function bookingDeps(admin: SupabaseClient, req: Request, env: FunctionEn
   if (!tokenSecret) throw new Error('otp_token_secret_missing');
   const sandbox = env.APP_ENV !== 'production';
 
-  /** Staff claims straight from the request JWT (the DB verifies them). */
+  /** Staff claims decoded from the request JWT; verifyStaffAuth() proves the token. */
   const staffClaims = (): {
     tenant_id?: string | undefined;
     tenant_role?: string | undefined;
@@ -215,6 +215,18 @@ export function bookingDeps(admin: SupabaseClient, req: Request, env: FunctionEn
 
   return {
     ...base,
+    // Defence in depth: the gateway's verify_jwt already rejects forged tokens, but if a
+    // function were ever deployed with --no-verify-jwt the decoded claims below would be
+    // attacker-controlled. GoTrue re-checks signature and expiry here.
+    verifyStaffAuth: async () => {
+      const auth = req.headers.get('authorization') ?? '';
+      const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+      if (!token) throw new Error('tenant_required');
+      const { data, error } = await admin.auth.getUser(token);
+      if (error || !data.user || data.user.id !== staffClaims().sub) {
+        throw new Error('tenant_required');
+      }
+    },
     staffTenantId,
     staffTenantRole: () => staffClaims().tenant_role,
     staffUserId: () => staffClaims().sub ?? '',

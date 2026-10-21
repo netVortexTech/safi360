@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Clock, MapPin, MessageCircle, Phone, Wrench } from 'lucide-react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle, ArrowLeft, ChevronRight, Clock, MapPin, Phone, Wrench } from '@/components/ui/icons';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/components/ui/toast';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { formatDateTime } from '@/lib/dates';
 import {
   useFieldJob,
   useFieldEvents,
@@ -13,36 +15,18 @@ import {
   useOpenFieldException,
   useAddFieldJobEvent,
 } from '../hooks';
+import { ErrorState } from '@/components/shared/ErrorState';
+import { errorKey } from '@/lib/errors';
 import { compressImage } from '../compression';
 import { listPhotos, queuePhoto, updatePhoto } from '../queue';
 import { uploadQueuedPhoto } from '../uploads';
-import { StatusBadge } from '@/components/shared/StatusBadge';
-import { ErrorState } from '@/components/shared/ErrorState';
-import { Field } from '@/components/shared/Field';
-import { Button } from '@/components/ui/button';
-import { Select } from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 
 const statuses = ['ASSIGNED', 'EN_ROUTE', 'ARRIVED', 'IN_PROGRESS', 'COMPLETED'] as const;
 
-const ISSUE_CATEGORIES = ['customer_absent', 'no_access', 'missing_equipment', 'extra_work'] as const;
-
-/** Codes this screen raises itself; anything else is surfaced verbatim (network/Supabase text). */
-const KNOWN_ERRORS = ['photos_required', 'action_failed', 'upload_failed', 'issue_failed'] as const;
-
 export default function JobDetail() {
   const { id = '' } = useParams<{ id: string }>();
-  const { t, i18n } = useTranslation();
-  const locale = i18n.resolvedLanguage === 'en' ? 'en' : 'sw';
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const auth = useAuth();
   const qc = useQueryClient();
   const jobQuery = useFieldJob(id);
@@ -54,11 +38,13 @@ export default function JobDetail() {
 
   const [beforeCount, setBeforeCount] = useState(0);
   const [afterCount, setAfterCount] = useState(0);
+  const [upload, setUpload] = useState<{ current: number; total: number; pct: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
-  const [issueCategory, setIssueCategory] = useState<string>('customer_absent');
+  const [issueCategory, setIssueCategory] = useState('customer_absent');
   const [issueReason, setIssueReason] = useState('');
+  const [issueTouched, setIssueTouched] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const beforeInput = useRef<HTMLInputElement>(null);
   const afterInput = useRef<HTMLInputElement>(null);
@@ -95,37 +81,22 @@ export default function JobDetail() {
     void listPhotos(id, 'after').then((photos) => setAfterCount(photos.length));
   }, [id]);
 
-  if (jobQuery.isLoading) {
-    return (
-      <div className="space-y-4" aria-busy="true">
-        <Skeleton className="h-6 w-32" />
-        <Skeleton className="h-40 rounded-2xl" />
-        <Skeleton className="h-56 rounded-2xl" />
-      </div>
-    );
-  }
+  if (jobQuery.isLoading) return <div className="h-48 animate-pulse rounded-xl bg-surface-muted" />;
+  if (jobQuery.error || !job)
+    return <ErrorState onRetry={() => void jobQuery.refetch()} />;
 
-  if (!job) {
-    return (
-      <ErrorState
-        title={t('field.job_not_found')}
-        {...(jobQuery.error ? { onRetry: () => void jobQuery.refetch() } : {})}
-      />
-    );
-  }
-
-  const primaryLabel = (): string | null => {
+  const primaryLabel = () => {
     switch (job.status) {
       case 'ASSIGNED':
-        return accepted ? t('field.start_travel') : t('field.accept_job');
+        return accepted ? 'Start travel' : 'Accept job';
       case 'EN_ROUTE':
-        return t('field.mark_arrived');
+        return 'I have arrived';
       case 'ARRIVED':
-        return beforeCount > 0 ? t('field.start_cleaning') : t('field.capture_before');
+        return beforeCount > 0 ? 'Start cleaning' : 'Take before photos';
       case 'IN_PROGRESS':
-        return afterCount > 0 ? t('field.complete_job') : t('field.capture_after');
+        return afterCount > 0 ? 'Complete job' : 'Take after photos';
       case 'COMPLETED':
-        return t('field.submit_review');
+        return 'Submitted for review';
       default:
         return null;
     }
@@ -187,7 +158,7 @@ export default function JobDetail() {
           break;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'action_failed');
+      setError(t(errorKey(err)));
     } finally {
       setBusy(false);
     }
@@ -201,7 +172,9 @@ export default function JobDetail() {
       const tenantId = auth.claims.tenant_id ?? 'tenant';
       const staffId = job.staff_id;
       const uploadedPaths: string[] = [];
-      for (const file of Array.from(files)) {
+      const fileList = Array.from(files);
+      for (const [index, file] of fileList.entries()) {
+        setUpload({ current: index + 1, total: fileList.length, pct: 0 });
         const compressed = await compressImage(file);
         const clientId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const photo = {
@@ -225,6 +198,7 @@ export default function JobDetail() {
         await updatePhoto(clientId, { status: 'uploading', progress: 40 });
         const remotePath = await uploadQueuedPhoto(photo, tenantId, (progress) => {
           void updatePhoto(clientId, { progress });
+          setUpload((state) => (state ? { ...state, pct: progress } : state));
         });
         uploadedPaths.push(remotePath);
         await updatePhoto(clientId, { status: 'uploaded', remotePath, progress: 100 });
@@ -240,14 +214,20 @@ export default function JobDetail() {
         },
       });
       await qc.invalidateQueries({ queryKey: ['field', 'events', job.booking_id] });
+      toast({ title: t('field.photos_uploaded') });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'upload_failed');
+      setError(t(errorKey(err)));
     } finally {
+      setUpload(null);
       setBusy(false);
     }
   };
 
   const submitIssue = async () => {
+    if (issueReason.trim().length < 3) {
+      setIssueTouched(true);
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -258,8 +238,9 @@ export default function JobDetail() {
       });
       setReportOpen(false);
       setIssueReason('');
+      toast({ title: t('field.issue_reported') });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'issue_failed');
+      setError(t(errorKey(err)));
     } finally {
       setBusy(false);
     }
@@ -267,110 +248,115 @@ export default function JobDetail() {
 
   const address = job.address;
   const statusIndex = Math.max(0, statuses.indexOf(job.status as (typeof statuses)[number]));
-  const progress = ((statusIndex + 1) / statuses.length) * 100;
   const beforeLinks = (photoLinksQuery.data ?? []).filter((item) => photoPathsBefore.includes(item.path));
   const afterLinks = (photoLinksQuery.data ?? []).filter((item) => photoPathsAfter.includes(item.path));
-  const photoTotal = beforeLinks.length + afterLinks.length;
-  const errorText =
-    error && (KNOWN_ERRORS as readonly string[]).includes(error) ? t(`field.errors.${error}`) : error;
-  const done = job.status === 'COMPLETED' || job.status === 'CLOSED';
-  const useSw = locale === 'sw';
-  const issueCategories = ISSUE_CATEGORIES.map((value) => ({
-    value,
-    label: t(`field.issue_${value}`),
-  }));
 
   return (
-    <div className="animate-fade-in space-y-4 pb-4">
-      <Link
-        to="/field"
-        className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary-hover"
-      >
-        <ChevronLeft className="size-4" aria-hidden="true" />
-        {t('field.back_to_jobs')}
+    <div className="space-y-4">
+      <Link to="/field" className="text-sm text-primary">
+        Back to jobs
       </Link>
-
       <article className="space-y-4">
-        <header className="rounded-2xl border border-border bg-surface p-4 shadow-card">
+        <Link to="/field" className="inline-flex items-center gap-2 text-sm font-medium text-primary">
+          <ArrowLeft className="size-4" aria-hidden="true" /> {t('field.nav_today', { defaultValue: 'Today' })}
+        </Link>
+
+        <header className="rounded-xl bg-surface p-4 shadow-card">
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="tabular text-caption text-text-subtle">{job.ticket_ref}</p>
-              <h1 className="mt-0.5 truncate text-h1">{job.customer_first_name}</h1>
+            <div>
+              <p className="text-sm text-text-muted">{job.ticket_ref}</p>
+              <h1 className="mt-1 text-h1">{job.customer_first_name}</h1>
             </div>
-            <StatusBadge status={job.status} className="shrink-0" />
+            <span className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold">
+              {job.status.replace(/_/g, ' ')}
+            </span>
           </div>
-          {job.customer_phone ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button
-                asChild
-                variant="secondary"
-                size="md"
-                className="border-success/30 bg-success-tint/60 text-success-text hover:border-success/40 hover:bg-success-tint"
-              >
-                <a href={`tel:${job.customer_phone}`}>
-                  <Phone aria-hidden="true" />
-                  {t('field.call')}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {job.customer_phone ? (
+              <>
+                <a
+                  href={`tel:${job.customer_phone}`}
+                  className="inline-flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm font-medium text-success"
+                >
+                  <Phone className="size-4" /> Call
                 </a>
-              </Button>
-              <Button
-                asChild
-                variant="secondary"
-                size="md"
-                className="border-success/30 bg-success-tint/60 text-success-text hover:border-success/40 hover:bg-success-tint"
-              >
                 <a
                   href={`https://wa.me/${job.customer_phone.replace(/\D/g, '')}`}
                   target="_blank"
                   rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm font-medium text-success"
                 >
-                  <MessageCircle aria-hidden="true" />
-                  {t('field.whatsapp')}
+                  WhatsApp
                 </a>
-              </Button>
-            </div>
-          ) : null}
+              </>
+            ) : null}
+          </div>
         </header>
 
-        {errorText ? (
-          <p
-            role="alert"
-            className="rounded-xl border border-error/25 bg-error-tint/60 px-4 py-3 text-sm font-medium text-error-text"
-          >
-            {errorText}
+        {error ? (
+          <p role="alert" className="rounded-lg border border-error/30 bg-error/5 p-3 text-sm text-error">
+            {error}
           </p>
         ) : null}
 
-        <section className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-h3">{t('field.progress')}</h2>
-            <span className="text-caption text-text-subtle">
-              {t('field.progress_step', {
-                n: Math.min(statusIndex + 1, statuses.length),
-                total: statuses.length,
-              })}
+        <section className="rounded-xl bg-surface p-4 shadow-card">
+          <h2 className="flex items-center gap-2 text-h3">
+            <MapPin className="size-5" /> Location
+          </h2>
+          <p className="mt-2 text-sm">{address.landmark ?? address.area ?? 'Location pending'}</p>
+          <p className="mt-1 text-sm text-text-muted">
+            {[address.area, address.street].filter(Boolean).join(', ')}
+          </p>
+          {address.lat != null && address.lng != null ? (
+            <a
+              href={`https://maps.google.com/?q=${address.lat},${address.lng}`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary"
+            >
+              Open in Maps <ChevronRight className="size-4" />
+            </a>
+          ) : null}
+          <p className="mt-3 text-sm">
+            <Clock className="inline size-4" /> {new Date(job.scheduled_start).toLocaleString()}
+          </p>
+        </section>
+
+        <section className="rounded-xl bg-surface p-4 shadow-card">
+          <h2 className="flex items-center gap-2 text-h3">
+            <Wrench className="size-5" /> Services
+          </h2>
+          <ul className="mt-3 space-y-2 text-sm">
+            {job.services.map((service, index) => (
+              <li key={index} className="flex justify-between gap-3">
+                <span>{service.label_en || service.label_sw}</span>
+                <span className="text-text-muted">x{service.qty}</span>
+              </li>
+            ))}
+          </ul>
+          {job.customer_note ? (
+            <p className="mt-3 text-sm text-text-muted">Customer note: {job.customer_note}</p>
+          ) : null}
+          {job.instructions ? (
+            <p className="mt-3 text-sm text-text-muted">Instructions: {job.instructions}</p>
+          ) : null}
+        </section>
+
+        <section className="rounded-xl bg-surface p-4 shadow-card">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-h3">Progress</h2>
+            <span className="text-xs text-text-muted">
+              Step {Math.min(statusIndex + 1, statuses.length)} of {statuses.length}
             </span>
-          </div>
-          <div
-            className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-muted"
-            role="progressbar"
-            aria-valuemin={1}
-            aria-valuemax={statuses.length}
-            aria-valuenow={Math.min(statusIndex + 1, statuses.length)}
-          >
-            <div
-              className="h-full rounded-full bg-primary transition-[width] duration-500 ease-premium"
-              style={{ width: `${done ? 100 : progress}%` }}
-            />
           </div>
           <Button
             size="field"
-            className="mt-4 w-full"
+            className="w-full rounded-xl font-semibold"
             onClick={() => void primaryAction()}
-            disabled={done}
+            disabled={job.status === 'COMPLETED' || job.status === 'CLOSED'}
             loading={busy}
-            loadingLabel={t('common.loading')}
           >
-            {primaryLabel() ?? t('field.done')}
+            {primaryLabel() ?? 'Done'}
           </Button>
           <input
             ref={beforeInput}
@@ -388,151 +374,106 @@ export default function JobDetail() {
             className="hidden"
             onChange={(e) => void handleCapture('after', e.target.files)}
           />
-          <p className="mt-3 text-caption text-text-muted">
-            {t('field.photos_summary', { before: beforeCount, after: afterCount })} ·{' '}
-            {t('field.camera_required')}
-          </p>
-        </section>
-
-        <section className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-          <h2 className="flex items-center gap-2 text-h3">
-            <MapPin className="size-5 text-text-subtle" aria-hidden="true" />
-            {t('field.location')}
-          </h2>
-          <p className="mt-2 font-medium text-text">
-            {address.landmark ?? address.area ?? t('field.location_pending')}
-          </p>
-          {[address.area, address.street].filter(Boolean).length > 0 ? (
-            <p className="mt-0.5 text-sm text-text-muted">
-              {[address.area, address.street].filter(Boolean).join(', ')}
-            </p>
-          ) : null}
-          <p className="mt-3 flex items-center gap-2 text-sm text-text-muted">
-            <Clock className="size-4 shrink-0 text-text-subtle" aria-hidden="true" />
-            <span className="tabular">{formatDateTime(job.scheduled_start, locale)}</span>
-          </p>
-          {address.lat != null && address.lng != null ? (
-            <a
-              href={`https://maps.google.com/?q=${address.lat},${address.lng}`}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary-hover"
-            >
-              {t('field.open_in_maps')}
-              <ChevronRight className="size-4" aria-hidden="true" />
-            </a>
-          ) : null}
-        </section>
-
-        <section className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-          <h2 className="flex items-center gap-2 text-h3">
-            <Wrench className="size-5 text-text-subtle" aria-hidden="true" />
-            {t('field.services')}
-          </h2>
-          <ul className="mt-3 divide-y divide-border">
-            {job.services.map((service, index) => (
-              <li key={index} className="flex items-center justify-between gap-3 py-2 text-sm">
-                <span className="min-w-0 truncate">
-                  {useSw ? service.label_sw || service.label_en : service.label_en || service.label_sw}
-                </span>
-                <span className="tabular shrink-0 font-medium text-text-muted">×{service.qty}</span>
-              </li>
-            ))}
-          </ul>
-          {job.customer_note ? (
-            <p className="mt-3 rounded-xl bg-surface-muted px-3 py-2 text-sm text-text-muted">
-              <span className="font-medium text-text">{t('field.customer_note')}: </span>
-              {job.customer_note}
-            </p>
-          ) : null}
-          {job.instructions ? (
-            <p className="mt-2 rounded-xl bg-surface-muted px-3 py-2 text-sm text-text-muted">
-              <span className="font-medium text-text">{t('field.instructions')}: </span>
-              {job.instructions}
-            </p>
-          ) : null}
-        </section>
-
-        <section className="rounded-2xl border border-border bg-surface p-4 shadow-card">
-          <h2 className="text-h3">{t('field.evidence')}</h2>
-          {photoTotal > 0 ? (
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {[...beforeLinks, ...afterLinks].map((item) => (
-                <a
-                  key={item.path}
-                  href={item.url ?? '#'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="overflow-hidden rounded-lg border border-border"
-                >
-                  <img
-                    src={item.url ?? ''}
-                    alt={t('field.photo_alt')}
-                    loading="lazy"
-                    className="aspect-square w-full object-cover"
-                  />
-                </a>
-              ))}
+          {upload && (
+            <div className="mt-3 space-y-1">
+              <p className="text-xs text-text-muted">
+                {t('field.uploading_photo', { current: upload.current, total: upload.total })}
+              </p>
+              <Progress value={upload.pct} label={t('field.uploading_photo', { current: upload.current, total: upload.total })} />
             </div>
-          ) : (
-            <p className="mt-2 text-sm text-text-muted">{t('field.no_photos')}</p>
           )}
+          <p className="mt-2 text-xs text-text-muted">
+            Before: {beforeCount} photo(s), after: {afterCount} photo(s). Camera photos required before
+            completion.
+          </p>
         </section>
 
-        <Button
-          variant="secondary"
-          size="field"
-          className="w-full border-warning/30 bg-warning-tint/50 text-warning-text hover:border-warning/40 hover:bg-warning-tint"
-          onClick={() => setReportOpen(true)}
-        >
-          {t('field.report_issue')}
-        </Button>
+        <section className="rounded-xl bg-surface p-4 shadow-card">
+          <h2 className="text-h3">Evidence</h2>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {[...beforeLinks, ...afterLinks].map((item) => (
+              <a key={item.path} href={item.url ?? '#'} target="_blank" rel="noreferrer">
+                <img
+                  src={item.url ?? ''}
+                  alt="job evidence"
+                  loading="lazy"
+                  className="aspect-square w-full rounded-lg object-cover"
+                />
+              </a>
+            ))}
+          </div>
+          {beforeLinks.length + afterLinks.length === 0 ? (
+            <p className="text-sm text-text-muted">No photos uploaded yet.</p>
+          ) : null}
+        </section>
+
+        <section className="rounded-xl bg-surface p-4 shadow-card">
+          <button
+            type="button"
+            onClick={() => {
+              setIssueTouched(false);
+              setReportOpen(true);
+            }}
+            className="w-full rounded-xl border border-warning/40 bg-warning/5 px-4 py-3 text-sm font-medium text-warning"
+          >
+            Report an issue
+          </button>
+        </section>
       </article>
 
-      <Dialog open={reportOpen} onOpenChange={setReportOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('field.report_issue')}</DialogTitle>
-            <DialogDescription>{t('field.report_body')}</DialogDescription>
-          </DialogHeader>
-          <Field id="issue-category" label={t('field.issue_category')}>
-            <Select
-              id="issue-category"
+      {reportOpen ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-navy/60 p-4 sm:items-center">
+          <div className="w-full rounded-2xl bg-surface p-5 shadow-xl">
+            <h2 className="flex items-center gap-2 text-h2">
+              <AlertTriangle className="size-5 text-warning" /> Report issue
+            </h2>
+            <label className="mt-4 block text-sm font-medium">Category</label>
+            <select
               value={issueCategory}
               onChange={(e) => setIssueCategory(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-surface p-3"
             >
-              {issueCategories.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field id="issue-reason" label={t('field.issue_details')} required>
-            <Textarea
-              id="issue-reason"
-              rows={4}
+              <option value="customer_absent">Customer absent</option>
+              <option value="no_access">No access</option>
+              <option value="missing_equipment">Missing equipment</option>
+              <option value="extra_work">Extra work needed</option>
+            </select>
+            <label htmlFor="issue-details" className="mt-4 block text-sm font-medium">
+              Details
+            </label>
+            <textarea
+              id="issue-details"
               value={issueReason}
               onChange={(e) => setIssueReason(e.target.value)}
+              onBlur={() => setIssueTouched(true)}
+              rows={4}
+              aria-invalid={issueTouched && issueReason.trim().length < 3 ? true : undefined}
+              aria-describedby={issueTouched && issueReason.trim().length < 3 ? 'issue-details-error' : undefined}
+              className={`mt-1 w-full rounded-lg border bg-surface p-3 ${issueTouched && issueReason.trim().length < 3 ? 'border-error' : 'border-border'}`}
               required
             />
-          </Field>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setReportOpen(false)}>
-              {t('common.cancel')}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => void submitIssue()}
-              disabled={!issueReason.trim()}
-              loading={busy}
-              loadingLabel={t('common.loading')}
-            >
-              {t('field.issue_send')}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            {issueTouched && issueReason.trim().length < 3 && (
+              <p id="issue-details-error" className="mt-1 text-sm text-error" role="alert">
+                {t('validation.reason_required')}
+              </p>
+            )}
+            <div className="mt-4 flex gap-3">
+              <Button variant="secondary" size="field" className="flex-1 rounded-lg" onClick={() => setReportOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                size="field"
+                className="flex-1 rounded-lg"
+                onClick={() => void submitIssue()}
+                loading={busy}
+              >
+                Send
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

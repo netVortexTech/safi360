@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BellRing, CheckCircle2, Clock, Repeat } from 'lucide-react';
+import { BellRing, CheckCircle2, Clock, Repeat } from '@/components/ui/icons';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

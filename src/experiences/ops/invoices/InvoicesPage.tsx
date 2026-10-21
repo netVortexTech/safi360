@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FileText, Printer } from 'lucide-react';
+import { FileText, Printer } from '@/components/ui/icons';
 import type { BookingStatus } from '@shared/enums';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';

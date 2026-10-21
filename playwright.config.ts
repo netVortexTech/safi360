@@ -11,8 +11,10 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['Pixel 5'] } },
+    // PLAYWRIGHT_CHANNEL=chrome runs on the installed Chrome where the bundled
+    // Chromium is unavailable (e.g. macOS versions Playwright no longer ships for).
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: process.env.PLAYWRIGHT_CHANNEL } },
+    { name: 'mobile', use: { ...devices['Pixel 5'], channel: process.env.PLAYWRIGHT_CHANNEL } },
   ],
   webServer: {
     // --host 127.0.0.1: on Windows/Node ≥ 17 "localhost" binds IPv6 only (::1) and the

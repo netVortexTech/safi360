@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from '@/components/ui/icons';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { PageHeader } from '@/components/shared/PageHeader';

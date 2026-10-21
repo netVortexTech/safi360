@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download } from 'lucide-react';
+import { Download } from '@/components/ui/icons';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { formatTzs } from '@/lib/money';

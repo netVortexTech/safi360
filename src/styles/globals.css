@@ -92,6 +92,13 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Every enabled button visibly presses the instant it is clicked (ui-spec principle 1).
+     Elements with their own Tailwind transform utilities override this by layer order. */
+  button:not(:disabled):active,
+  [role='button']:not([aria-disabled='true']):active {
+    transform: scale(0.97);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Copy, ExternalLink } from 'lucide-react';
+import { Check, Copy, ExternalLink } from '@/components/ui/icons';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
@@ -123,7 +124,7 @@ export default function ChannelSettings() {
         <Skeleton className="h-64" />
       ) : detail.isError ? (
         <ErrorState
-          description={String(detail.error)}
+          description={t(errorKey(detail.error))}
           onRetry={() => void detail.refetch()}
           retrying={detail.isFetching}
         />

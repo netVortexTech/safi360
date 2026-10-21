@@ -69,6 +69,7 @@ export function useRecordManualPayment() {
   const qc = useQueryClient();
   const actorMeta = useActorMeta();
   return useMutation({
+    meta: { errorHandled: true },
     mutationFn: async (vars: { booking_id: string; amount_tzs: number; method: string; reason: string }) => {
       const { data, error } = await supabase.rpc('record_manual_payment', {
         p_booking_id: vars.booking_id,

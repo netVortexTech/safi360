@@ -62,6 +62,11 @@ export default tseslint.config(
           selector: 'TemplateElement[value.raw=/#[0-9a-fA-F]{3,8}\\b/]',
           message: 'No hex colours in components. Use a Tailwind token or CSS variable.',
         },
+        {
+          selector:
+            'Literal[value=/\\b(bg|text|border|ring|fill|stroke)-(white|black|gray|slate|zinc|neutral|stone|red|orange|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)([-\\/][0-9]+)?\\b/]',
+          message: "No raw Tailwind palette colours in components. Use a token (bg-primary, text-error-text, bg-navy/60, …).",
+        },
       ],
     },
   },

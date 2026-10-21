@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { createBrowserRouter, Navigate, RouterProvider, type RouteObject } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router-dom';
 import { ControlLayout } from '@/app/layouts/ControlLayout';
 import { FieldLayout } from '@/app/layouts/FieldLayout';
 import { OpsLayout } from '@/app/layouts/OpsLayout';
@@ -19,6 +19,7 @@ const PortalBookingDone = lazy(() => import('@/experiences/portal/pages/BookingD
 const PortalTrack = lazy(() => import('@/experiences/portal/pages/TrackPage'));
 const PortalTrackBooking = lazy(() => import('@/experiences/portal/pages/TrackBookingPage'));
 const OpsDashboard = lazy(() => import('@/experiences/ops/pages/OpsDashboard'));
+const LandingPage = lazy(() => import('@/experiences/landing/LandingPage'));
 const OpsLogin = lazy(() => import('@/experiences/ops/pages/OpsLogin'));
 const ServicesPage = lazy(() => import('@/experiences/ops/catalog/pages/ServicesPage'));
 const ServiceEditorPage = lazy(() => import('@/experiences/ops/catalog/pages/ServiceEditorPage'));
@@ -69,7 +70,7 @@ const withSuspense = (node: ReactNode) => <Suspense fallback={<RouteLoading />}>
 
 // Reserved first segments are matched before the tenant slug catch-all.
 export const routes: RouteObject[] = [
-  { path: '/', element: <Navigate to="/ops" replace /> },
+  { path: '/', element: withSuspense(<LandingPage />), errorElement: <RouteError /> },
   { path: '/ops/login', element: withSuspense(<OpsLogin />), errorElement: <RouteError /> },
   {
     path: '/ops',

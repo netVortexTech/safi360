@@ -1,4 +1,4 @@
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { Minus, Plus, Trash2 } from '@/components/ui/icons';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PRICING_RULE_SCHEMAS } from '@shared/pricing/rules';

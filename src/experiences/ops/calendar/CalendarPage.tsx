@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Clock, MapPin, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Clock, MapPin, Users } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { useCalendarEvents } from '../tickets/hooks';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -190,7 +190,7 @@ function WeekView({ days, eventsByDay }: { days: Date[]; eventsByDay: Map<string
   const today = dayKey(new Date());
 
   return (
-    <div className="grid grid-cols-7 gap-2">
+    <div className="grid gap-2 md:grid-cols-7">
       {days.map((day) => {
         const key = dayKey(day);
         const dayEvents = eventsByDay.get(key) ?? [];

@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, THead, TBody, TR, TH, TD } from '@/components/ui/table';
@@ -64,6 +65,7 @@ async function countWhere(table: string, tenantId: string): Promise<number> {
 
 export default function ControlCompanyDetail() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { id } = useParams<{ id: string }>();
   const auth = useAuth();
   const queryClient = useQueryClient();
@@ -122,6 +124,7 @@ export default function ControlCompanyDetail() {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
+      toast({ title: t('control.toast_saved') });
       setSuspendOpen(false);
       void queryClient.invalidateQueries({ queryKey: ['control', 'tenant', id] });
       void queryClient.invalidateQueries({ queryKey: ['control', 'tenants'] });

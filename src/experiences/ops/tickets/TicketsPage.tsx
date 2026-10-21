@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Filter, Search, SlidersHorizontal } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Filter, Plus, Search, SlidersHorizontal } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { useTickets } from './hooks';
 import { emptyTicketFilters, type TicketFilters } from './types';
@@ -26,18 +26,8 @@ import type { TicketRow } from './types';
 export function TicketsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [params, setParams] = useSearchParams();
-  const [filters, setFilters] = useState<TicketFilters>(() => ({
-    ...emptyTicketFilters,
-    search: params.get('q') ?? '',
-  }));
+  const [filters, setFilters] = useState<TicketFilters>({ ...emptyTicketFilters });
   const [showFilters, setShowFilters] = useState(false);
-
-  // The global ops search box lives in the shell header; keep this list in step with it.
-  useEffect(() => {
-    const q = params.get('q') ?? '';
-    setFilters((f) => (f.search === q ? f : { ...f, search: q }));
-  }, [params]);
 
   const { data, isLoading, error, refetch } = useTickets(filters);
 
@@ -113,7 +103,10 @@ export function TicketsPage() {
   ];
 
   const renderCard = (row: TicketRow) => (
-    <Card interactive className="cursor-pointer" onClick={() => navigate(`/ops/tickets/${row.id}`)}>
+    <Card
+      className="cursor-pointer transition-shadow hover:shadow-md"
+      onClick={() => navigate(`/ops/tickets/${row.id}`)}
+    >
       <CardBody className="p-4">
         <div className="flex items-start justify-between gap-2">
           <TicketChip ticketRef={row.ticket_ref} size="sm" />
@@ -121,14 +114,14 @@ export function TicketsPage() {
         </div>
         <div className="mt-2">
           <p className="font-medium text-text">{row.customer_name}</p>
-          <p className="tabular text-sm text-text-subtle">{row.customer_phone}</p>
+          <p className="text-sm text-text-subtle">{row.customer_phone}</p>
         </div>
         <div className="mt-2 flex items-center justify-between">
           <SourceChip source={row.source} />
           <span className="tabular font-semibold">{formatTzs(row.total_tzs)}</span>
         </div>
         {row.scheduled_start && (
-          <p className="mt-2 text-caption text-text-subtle">
+          <p className="mt-2 text-xs text-text-subtle">
             {formatDay(row.scheduled_start, 'en')} · {formatTime(row.scheduled_start, 'en')}
           </p>
         )}
@@ -139,55 +132,43 @@ export function TicketsPage() {
   return (
     <div>
       <PageHeader
-        eyebrow={t('nav.overview')}
         title={t('nav.tickets')}
         subtitle={t('ops.tickets_subtitle')}
         actions={
-          <Button variant="secondary" onClick={() => setShowFilters(!showFilters)}>
-            <SlidersHorizontal aria-hidden="true" />
-            {t('common.filters')}
-            {activeFilterCount > 0 && (
-              <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" onClick={() => setShowFilters(!showFilters)}>
+              <SlidersHorizontal aria-hidden="true" />
+              {t('common.filters')}
+              {activeFilterCount > 0 && (
+                <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+            <Button asChild>
+              <Link to="/ops/bookings/new">
+                <Plus aria-hidden="true" />
+                {t('nav.create_booking')}
+              </Link>
+            </Button>
+          </div>
         }
       />
 
-      {/* Search + result count */}
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search
-            className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-text-subtle"
-            aria-hidden="true"
-          />
-          <Input
-            type="search"
-            placeholder={t('ops.search_placeholder')}
-            value={filters.search}
-            onChange={(e) => {
-              const value = e.target.value;
-              setFilters((f) => ({ ...f, search: value }));
-              setParams(
-                (prev) => {
-                  const next = new URLSearchParams(prev);
-                  if (value) next.set('q', value);
-                  else next.delete('q');
-                  return next;
-                },
-                { replace: true },
-              );
-            }}
-            className="pl-10"
-            aria-label={t('common.search')}
-          />
-        </div>
-        {!isLoading && !error && data && (
-          <p className="shrink-0 text-sm text-text-muted sm:text-right">
-            {t('ops.results_count', { count: data.length })}
-          </p>
-        )}
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search
+          className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-subtle"
+          aria-hidden="true"
+        />
+        <Input
+          type="search"
+          placeholder={t('ops.search_placeholder')}
+          value={filters.search}
+          onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+          className="pl-10"
+          aria-label={t('common.search')}
+        />
       </div>
 
       {/* Filters */}

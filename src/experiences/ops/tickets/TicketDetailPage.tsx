@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -19,7 +20,7 @@ import {
   UserCheck,
   Users,
   XCircle,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import {
   useAddNote,
@@ -40,6 +41,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ErrorState } from '@/components/shared/ErrorState';
@@ -109,6 +111,7 @@ type Tab = 'timeline' | 'audit';
 export function TicketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { claims } = useAuth();
   const role = claims.tenant_role;
   const [tab, setTab] = useState<Tab>('timeline');
@@ -301,6 +304,7 @@ export function TicketDetailPage() {
               <CardTitle>{t('ops.items_price')}</CardTitle>
             </CardHeader>
             <CardBody>
+              <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-text-subtle">
@@ -351,6 +355,7 @@ export function TicketDetailPage() {
                   )}
                 </tfoot>
               </table>
+              </div>
 
               {/* Quotes */}
               {quotes && quotes.length > 0 && (
@@ -597,6 +602,7 @@ export function TicketDetailPage() {
                           { booking_id: ticket.id, to: 'CLOSED', reason: 'Completion approved by office' },
                           {
                             onSuccess: () => {
+                              toast({ title: t('ops.toast_status_updated') });
                               void refetch();
                             },
                           },
@@ -758,6 +764,7 @@ export function TicketDetailPage() {
               },
               {
                 onSuccess: () => {
+                  toast({ title: t('ops.toast_rescheduled') });
                   setShowReschedule(false);
                   void refetch();
                 },
@@ -788,6 +795,7 @@ export function TicketDetailPage() {
                     { booking_id: ticket.id, to: 'CONFIRMED' },
                     {
                       onSuccess: () => {
+                        toast({ title: t('ops.toast_status_updated') });
                         setShowConfirm(false);
                         void refetch();
                       },
@@ -805,13 +813,14 @@ export function TicketDetailPage() {
       {showRecordPayment && (
         <ManualPaymentDialog
           busy={recordPayment.isPending}
-          error={recordPayment.error ? String(recordPayment.error) : null}
+          error={recordPayment.error ? t(errorKey(recordPayment.error)) : null}
           bookingId={ticket.id}
           bookingLabel={ticket.ticket_ref}
           suggestedAmount={Math.max(ticket.total_tzs - ticket.paid_tzs, 0)}
           onClose={() => setShowRecordPayment(false)}
           onSubmit={(vars) => {
             void recordPayment.mutateAsync(vars).then(() => {
+              toast({ title: t('ops.toast_payment_recorded') });
               setShowRecordPayment(false);
               void refetch();
               void refetchPayments();
@@ -835,6 +844,7 @@ export function TicketDetailPage() {
             { booking_id: ticket.id, to: 'CANCELLED', reason },
             {
               onSuccess: () => {
+                toast({ title: t('ops.toast_status_updated') });
                 setShowCancel(false);
                 void refetch();
               },
@@ -858,6 +868,7 @@ export function TicketDetailPage() {
             { booking_id: ticket.id, to: 'NO_SHOW', reason },
             {
               onSuccess: () => {
+                toast({ title: t('ops.toast_status_updated') });
                 setShowNoShow(false);
                 void refetch();
               },
@@ -891,7 +902,7 @@ export function TicketDetailPage() {
 
       {/* Add note dialog */}
       {showNote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>{t('ops.add_note')}</CardTitle>
@@ -922,6 +933,7 @@ export function TicketDetailPage() {
                       { booking_id: ticket.id, note: noteText, customer_visible: noteVisible },
                       {
                         onSuccess: () => {
+                          toast({ title: t('ops.toast_note_added') });
                           setShowNote(false);
                           setNoteText('');
                         },
@@ -998,7 +1010,7 @@ function Timeline({ events, customerVisibleOnly }: { events: JobEventRow[]; cust
         <li key={event.id} className="relative">
           <div
             className={cn(
-              'absolute -left-[1.3rem] top-1 size-3 rounded-full border-2 border-white',
+              'absolute -left-[1.3rem] top-1 size-3 rounded-full border-2 border-surface',
               event.customer_visible ? 'bg-primary' : 'bg-text-subtle',
             )}
             aria-hidden="true"
@@ -1067,7 +1079,7 @@ function ConfirmBookingDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{t('ops.confirm_booking_title')}</CardTitle>
@@ -1120,7 +1132,7 @@ function RescheduleDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{t('ops.reschedule_title')}</CardTitle>
@@ -1166,7 +1178,7 @@ function FlagReviewDialog({
   const [reason, setReason] = useState('');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{t('ops.flag_needs_review')}</CardTitle>

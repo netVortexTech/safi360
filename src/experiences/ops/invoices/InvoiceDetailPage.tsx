@@ -1,7 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
+import { errorKey } from '@/lib/errors';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Banknote, Printer } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
+import { ArrowLeft, Banknote, Printer } from '@/components/ui/icons';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { useCurrentTenant } from '@/lib/tenant';
@@ -24,6 +26,7 @@ const stateTone = { paid: 'success', partial: 'warning', unpaid: 'error' } as co
 
 export default function InvoiceDetailPage() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const { id } = useParams<{ id: string }>();
   const { claims } = useAuth();
   const { data: invoice, isLoading, error, refetch } = useInvoice(id ?? '');
@@ -99,6 +102,7 @@ export default function InvoiceDetailPage() {
           </div>
 
           {/* Line items */}
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-text-subtle">
@@ -133,6 +137,7 @@ export default function InvoiceDetailPage() {
               )}
             </tfoot>
           </table>
+          </div>
 
           {/* Payments received */}
           <div>
@@ -179,13 +184,14 @@ export default function InvoiceDetailPage() {
       {showRecordPayment && (
         <ManualPaymentDialog
           busy={recordPayment.isPending}
-          error={recordPayment.error ? String(recordPayment.error) : null}
+          error={recordPayment.error ? t(errorKey(recordPayment.error)) : null}
           bookingId={invoice.id}
           bookingLabel={invoice.ticket_ref}
           suggestedAmount={balance}
           onClose={() => setShowRecordPayment(false)}
           onSubmit={(vars) => {
             void recordPayment.mutateAsync(vars).then(() => {
+              toast({ title: t('ops.toast_payment_recorded') });
               setShowRecordPayment(false);
               void refetch();
             });

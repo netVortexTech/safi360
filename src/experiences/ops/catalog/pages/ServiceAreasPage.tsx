@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { MapPin, Plus, Trash2 } from 'lucide-react';
+import { MapPin, Plus, Trash2 } from '@/components/ui/icons';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';

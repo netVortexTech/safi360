@@ -1,4 +1,4 @@
-import { MapPin, Phone } from 'lucide-react';
+import { MapPin, Phone } from '@/components/ui/icons';
 import { useId, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Field } from '@/components/shared/Field';

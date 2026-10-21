@@ -1,4 +1,4 @@
-import { AlertCircle, Ruler } from 'lucide-react';
+import { AlertCircle, Ruler } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import type { QuoteLine, QuoteResult } from '@shared/pricing/types';
 import { Badge } from '@/components/ui/badge';

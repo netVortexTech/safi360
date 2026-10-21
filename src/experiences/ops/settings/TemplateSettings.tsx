@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
@@ -131,7 +132,7 @@ export default function TemplateSettings() {
         <Skeleton className="h-64" />
       ) : templates.isError ? (
         <ErrorState
-          description={String(templates.error)}
+          description={t(errorKey(templates.error))}
           onRetry={() => void templates.refetch()}
           retrying={templates.isFetching}
         />

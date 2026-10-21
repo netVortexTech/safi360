@@ -208,6 +208,8 @@ export interface BookingDeps extends PublicDeps {
     phone: string,
   ): Promise<(BookingRow & { service_label_sw: string; service_label_en: string })[]>;
   /** Tenant id from the staff JWT claims — never from the request body. */
+  /** Proves the bearer token is genuine (signature + expiry). Throws Error('tenant_required'). */
+  verifyStaffAuth(): Promise<void>;
   staffTenantId(): string;
   /** Tenant role from the staff JWT claims: OWNER/MANAGER/DISPATCHER/CLEANER. */
   staffTenantRole(): string | undefined;

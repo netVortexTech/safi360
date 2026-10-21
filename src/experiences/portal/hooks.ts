@@ -122,26 +122,26 @@ export function useTrackingView(slug: string, bookingId: string | null, token: s
 }
 
 export function useOtpSend() {
-  return useMutation({ mutationFn: portalApi.otpSend });
+  return useMutation({ mutationFn: portalApi.otpSend, meta: { errorHandled: true } });
 }
 export function useOtpVerify() {
-  return useMutation({ mutationFn: portalApi.otpVerify });
+  return useMutation({ mutationFn: portalApi.otpVerify, meta: { errorHandled: true } });
 }
 export function useCreateBooking() {
-  return useMutation({ mutationFn: portalApi.createBooking });
+  return useMutation({ mutationFn: portalApi.createBooking, meta: { errorHandled: true } });
 }
 export function useTrackingStart() {
-  return useMutation({ mutationFn: portalApi.trackingStart });
+  return useMutation({ mutationFn: portalApi.trackingStart, meta: { errorHandled: true } });
 }
 export function useTrackingVerify() {
-  return useMutation({ mutationFn: portalApi.trackingVerify });
+  return useMutation({ mutationFn: portalApi.trackingVerify, meta: { errorHandled: true } });
 }
 export function useCustomerAction() {
-  return useMutation({ mutationFn: portalApi.customerAction });
+  return useMutation({ mutationFn: portalApi.customerAction, meta: { errorHandled: true } });
 }
 export function usePaymentStart() {
-  return useMutation({ mutationFn: portalApi.paymentStart });
+  return useMutation({ mutationFn: portalApi.paymentStart, meta: { errorHandled: true } });
 }
 export function usePaymentCallback() {
-  return useMutation({ mutationFn: portalApi.paymentCallback });
+  return useMutation({ mutationFn: portalApi.paymentCallback, meta: { errorHandled: true } });
 }

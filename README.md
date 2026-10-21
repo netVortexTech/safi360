@@ -180,5 +180,8 @@ supabase/
   (added by `public.custom_access_token_hook`). Never pass `tenant_id` from the client.
 - Customers never touch tables directly; public actions go through Edge Functions with the service
   role, zod validation (`supabase/functions/_shared/schemas.ts`) and rate limiting.
-- No hex colours in components — use Tailwind tokens (`bg-primary`, `text-success-text`, …).
+- No hex or raw palette colours in components — use Tailwind tokens (`bg-primary`,
+  `text-success-text`, `bg-navy/60`, …); ESLint enforces both.
+- Icons come only from `src/components/ui/icons.tsx` (Hugeicons stroke-rounded set); components
+  never import an icon vendor directly.
 - Every string goes through i18next; `sw.json` and `en.json` must have identical keys.

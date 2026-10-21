@@ -14,14 +14,14 @@ import {
   Truck,
   UserCheck,
   Users,
-  type LucideIcon,
-} from 'lucide-react';
+  type Icon,
+} from '@/components/ui/icons';
 
 export interface NavItem {
   /** i18n key under `nav.` */
   key: string;
   to: string;
-  icon: LucideIcon;
+  icon: Icon;
   /** Pending-count badge source, wired in later phases. */
   badge?: 'tickets' | 'exceptions' | 'payments';
 }
@@ -73,7 +73,7 @@ export const OPS_BOTTOM_NAV: NavItem[] = [
   { key: 'customers', to: '/ops/customers', icon: Users },
 ];
 
-import { Building2, FileClock, HeartPulse, LifeBuoy, ShieldCheck } from 'lucide-react';
+import { Building2, FileClock, HeartPulse, LifeBuoy, ShieldCheck } from '@/components/ui/icons';
 
 /** Control center sidebar groups. */
 export const CONTROL_NAV: NavGroup[] = [

@@ -1,4 +1,4 @@
-import { Clock, Users } from 'lucide-react';
+import { Clock, Users } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { parseDurationRule } from '@shared/pricing/rules';

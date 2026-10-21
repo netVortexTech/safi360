@@ -11,7 +11,7 @@ import {
   Users,
   Wifi,
   WifiOff,
-} from 'lucide-react';
+} from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import {
   useAssignmentCandidates,
@@ -23,6 +23,7 @@ import {
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -206,6 +207,7 @@ function DispatchCard({
 
 function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () => void }) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [selectedStaff, setSelectedStaff] = useState<string | null>(null);
 
   const { data: candidates, isLoading } = useAssignmentCandidates(
@@ -229,12 +231,20 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
         ends_at: item.scheduled_end,
         is_lead: item.assignee_ids.length === 0,
       },
-      { onSuccess: () => setSelectedStaff(null) },
+      {
+        onSuccess: () => {
+          toast({ title: t('ops.toast_assigned') });
+          setSelectedStaff(null);
+        },
+      },
     );
   };
 
   const handleTransition = (to: 'ASSIGNED' | 'EN_ROUTE' | 'ARRIVED' | 'IN_PROGRESS' | 'COMPLETED') => {
-    void transition.mutate({ booking_id: item.booking_id, to }, { onSuccess: () => {} });
+    void transition.mutate(
+      { booking_id: item.booking_id, to },
+      { onSuccess: () => toast({ title: t('ops.toast_status_updated') }) },
+    );
   };
 
   return (
@@ -270,7 +280,11 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
                     variant="ghost"
                     size="sm"
                     loading={cancelAssignment.isPending}
-                    onClick={() => cancelAssignment.mutate(assignee.assignment_id)}
+                    onClick={() =>
+                      cancelAssignment.mutate(assignee.assignment_id, {
+                        onSuccess: () => toast({ title: t('ops.toast_assignment_removed') }),
+                      })
+                    }
                   >
                     {t('common.remove')}
                   </Button>
@@ -330,7 +344,8 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
         <div className="flex gap-2 border-t border-border pt-4">
           <Button
             onClick={handleAssign}
-            disabled={!selectedStaff || createAssignment.isPending}
+            disabled={!selectedStaff}
+            loading={createAssignment.isPending}
             className="flex-1"
           >
             {t('ops.assign')}
@@ -347,7 +362,7 @@ function AssignmentDrawer({ item, onClose }: { item: DispatchItem; onClose: () =
             size="sm"
             className="w-full"
             onClick={() => handleTransition('ASSIGNED')}
-            disabled={transition.isPending}
+            loading={transition.isPending}
           >
             {t('ops.mark_assigned')}
           </Button>

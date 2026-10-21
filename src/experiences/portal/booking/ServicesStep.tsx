@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react';
+import { Plus } from '@/components/ui/icons';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '@/components/shared/EmptyState';

@@ -8,13 +8,13 @@ import {
   Phone,
   Share2,
   Store,
-  type LucideIcon,
-} from 'lucide-react';
+  type Icon,
+} from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import type { BookingSource } from '@shared/enums';
 import { Badge } from '@/components/ui/badge';
 
-const ICON: Record<BookingSource, LucideIcon> = {
+const ICON: Record<BookingSource, Icon> = {
   website: Globe,
   booking_widget: Code2,
   whatsapp: MessageCircle,

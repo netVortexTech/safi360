@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
@@ -127,7 +128,7 @@ export default function BrandingSettings() {
         <Skeleton className="h-72" />
       ) : detail.isError ? (
         <ErrorState
-          description={String(detail.error)}
+          description={t(errorKey(detail.error))}
           onRetry={() => void detail.refetch()}
           retrying={detail.isFetching}
         />
@@ -247,8 +248,8 @@ export default function BrandingSettings() {
             <CardBody>
               <div className="overflow-hidden rounded-lg border border-border">
                 <div className="px-4 py-3" style={{ backgroundColor: isHexColor(color) ? color : undefined }}>
-                  <p className="font-semibold text-white">{displayName || t('settings.preview_name')}</p>
-                  <p className="text-sm text-white/90">
+                  <p className="font-semibold text-brand-foreground">{displayName || t('settings.preview_name')}</p>
+                  <p className="text-sm text-brand-foreground/90">
                     {greetingSw || greetingEn || t('settings.preview_greeting')}
                   </p>
                 </div>

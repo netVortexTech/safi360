@@ -1,30 +1,27 @@
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/components/ui/icons';
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap rounded font-medium ' +
-    'transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-premium ' +
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface ' +
-    'active:scale-[0.985] ' +
-    'disabled:pointer-events-none disabled:opacity-50 disabled:active:scale-100 [&_svg]:size-4 [&_svg]:shrink-0',
+  'relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded font-medium ' +
+    'transition-[color,background-color,border-color,opacity,box-shadow,transform,filter] duration-150 active:scale-[0.97] ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ' +
+    'disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        primary:
-          'bg-primary text-primary-foreground shadow-xs hover:bg-primary-hover hover:shadow-sm',
-        brand: 'bg-brand text-brand-foreground shadow-xs hover:brightness-95 hover:shadow-sm',
-        secondary:
-          'border border-border bg-surface text-text shadow-xs hover:border-border-strong hover:bg-surface-muted',
-        tertiary: 'border border-primary/25 bg-primary-light/60 text-primary hover:bg-primary-light',
-        ghost: 'text-text-muted hover:bg-surface-muted hover:text-text',
-        link: 'h-auto px-0 text-primary underline-offset-4 hover:underline',
-        destructive: 'bg-error text-primary-foreground shadow-xs hover:bg-error-text hover:shadow-sm',
+        primary: 'bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-hover',
+        brand: 'bg-brand text-brand-foreground hover:brightness-95 active:brightness-90',
+        secondary: 'border border-border bg-surface text-text hover:bg-surface-muted',
+        tertiary: 'border border-primary/40 bg-surface text-primary hover:bg-primary-light',
+        ghost: 'text-text hover:bg-surface-muted',
+        link: 'h-auto px-0 text-primary underline-offset-4 hover:underline active:scale-100 active:opacity-70',
+        destructive: 'bg-error text-primary-foreground hover:bg-error-text',
       },
       size: {
-        sm: 'h-9 px-3 text-small',
+        sm: 'h-9 px-3 text-sm',
         md: 'h-touch px-4 text-sm',
         lg: 'h-12 px-6 text-base',
         field: 'h-touch-field px-6 text-base', // 56px targets in the cleaner app

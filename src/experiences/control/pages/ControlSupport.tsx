@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { errorKey } from '@/lib/errors';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
@@ -7,6 +8,7 @@ import { formatDay } from '@/lib/dates';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Field } from '@/components/shared/Field';
@@ -42,6 +44,7 @@ function isMissingTable(err: unknown): boolean {
 export default function ControlSupport() {
   const auth = useAuth();
   const { t, i18n } = useTranslation();
+  const { toast } = useToast();
   const locale = i18n.language === 'sw' ? 'sw' : 'en';
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -99,10 +102,11 @@ export default function ControlSupport() {
     }) => {
       const { error } = await supabase
         .from('support_messages')
-        .insert({ request_id: requestId, tenant_id: tenantId, body, is_staff: true });
+        .insert({ request_id: requestId, tenant_id: tenantId, body, is_staff: true, author_id: auth.userId });
       if (error) throw error;
     },
     onSuccess: () => {
+      toast({ title: t('control.toast_saved') });
       setReply('');
       void queryClient.invalidateQueries({ queryKey: ['control', 'support-messages', selectedId] });
     },
@@ -231,7 +235,7 @@ export default function ControlSupport() {
                   />
                 </Field>
                 {replyMutation.error ? (
-                  <p className="text-sm text-error">{String(replyMutation.error)}</p>
+                  <p className="text-sm text-error">{t(errorKey(replyMutation.error))}</p>
                 ) : null}
                 <div className="flex gap-2">
                   <Button

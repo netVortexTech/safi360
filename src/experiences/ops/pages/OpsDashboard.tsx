@@ -1,33 +1,22 @@
 import { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-  AlertTriangle,
-  ArrowRight,
-  Banknote,
-  Calendar,
-  CheckCircle2,
-  Ticket,
-  TrendingUp,
-} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, Banknote, Calendar, CheckCircle2, Plus, Ticket, TrendingUp } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../tickets/hooks';
-import type { TicketRow } from '../tickets/types';
 import { useCurrentTenant } from '@/lib/tenant';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { SourceChip } from '@/components/shared/SourceChip';
 import { TicketChip } from '@/components/shared/TicketChip';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { DataView, type DataColumn } from '@/components/shared/DataView';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { formatDay, formatTime } from '@/lib/dates';
 import { formatTzs } from '@/lib/money';
-import { cn } from '@/lib/utils';
 
 export function OpsDashboard() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { data: tenant } = useCurrentTenant();
   const { data, isLoading, error } = useDashboard();
 
@@ -38,62 +27,16 @@ export function OpsDashboard() {
 
   const maxSourceCount = useMemo(() => Math.max(...bySource.map((s) => s.count), 1), [bySource]);
 
-  const recentColumns: DataColumn<TicketRow>[] = [
-    {
-      key: 'ticket',
-      header: t('ops.col.ticket'),
-      cell: (row) => <TicketChip ticketRef={row.ticket_ref} to={`/ops/tickets/${row.id}`} size="sm" />,
-    },
-    {
-      key: 'customer',
-      header: t('ops.col.customer'),
-      cell: (row) => (
-        <div>
-          <div className="font-medium text-text">{row.customer_name}</div>
-          <div className="tabular text-caption text-text-subtle">{row.customer_phone}</div>
-        </div>
-      ),
-    },
-    {
-      key: 'status',
-      header: t('ops.col.status'),
-      cell: (row) => <StatusBadge status={row.status} />,
-    },
-    {
-      key: 'when',
-      header: t('ops.col.when'),
-      cell: (row) =>
-        row.scheduled_start ? (
-          <span className="text-text-muted">
-            {formatDay(row.scheduled_start, 'en')}, {formatTime(row.scheduled_start, 'en')}
-          </span>
-        ) : (
-          <span className="text-text-subtle">—</span>
-        ),
-    },
-    {
-      key: 'source',
-      header: t('ops.col.source'),
-      cell: (row) => <SourceChip source={row.source} />,
-    },
-    {
-      key: 'total',
-      header: t('ops.col.total'),
-      align: 'right',
-      cell: (row) => <span className="tabular font-semibold">{formatTzs(row.total_tzs)}</span>,
-    },
-  ];
-
   if (isLoading) {
     return (
       <div className="space-y-6" aria-busy="true">
-        <Skeleton className="h-12 w-64" />
+        <Skeleton className="h-10 w-64" />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => (
-            <Skeleton key={i} className="h-28 rounded-xl" />
+            <Skeleton key={i} className="h-24" />
           ))}
         </div>
-        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-64" />
       </div>
     );
   }
@@ -111,35 +54,42 @@ export function OpsDashboard() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={t('nav.overview')}
         title={t('ops.dashboard_title')}
         subtitle={t('ops.dashboard_subtitle', {
           date: formatDay(new Date(), 'en'),
         })}
+        actions={
+          <Button asChild>
+            <Link to="/ops/bookings/new">
+              <Plus aria-hidden="true" />
+              {t('nav.create_booking')}
+            </Link>
+          </Button>
+        }
       />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4" role="list" aria-label="Key metrics">
         <KpiCard
-          icon={<Calendar className="size-[18px]" aria-hidden="true" />}
+          icon={<Calendar className="size-5" aria-hidden="true" />}
           label={t('ops.kpi.todays_jobs')}
           value={String(kpis?.todays_jobs ?? 0)}
           tone="primary"
         />
         <KpiCard
-          icon={<TrendingUp className="size-[18px]" aria-hidden="true" />}
+          icon={<TrendingUp className="size-5" aria-hidden="true" />}
           label={t('ops.kpi.booked_value')}
           value={formatTzs(kpis?.booked_value_tzs ?? 0)}
           tone="info"
         />
         <KpiCard
-          icon={<Banknote className="size-[18px]" aria-hidden="true" />}
+          icon={<Banknote className="size-5" aria-hidden="true" />}
           label={t('ops.kpi.collected')}
           value={formatTzs(kpis?.collected_tzs ?? 0)}
           tone="success"
         />
         <KpiCard
-          icon={<AlertTriangle className="size-[18px]" aria-hidden="true" />}
+          icon={<AlertTriangle className="size-5" aria-hidden="true" />}
           label={t('ops.kpi.needs_action')}
           value={String(kpis?.needs_action ?? 0)}
           tone="warning"
@@ -152,30 +102,27 @@ export function OpsDashboard() {
           <CardHeader>
             <CardTitle>{t('ops.needs_action')}</CardTitle>
           </CardHeader>
-          <CardBody className="p-3 sm:p-4">
+          <CardBody>
             {needsAction.length === 0 ? (
-              <div className="flex flex-col items-center py-10 text-center">
-                <span className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-success-tint text-success">
-                  <CheckCircle2 className="size-6" aria-hidden="true" />
-                </span>
-                <p className="text-body text-text-muted">{t('ops.all_clear')}</p>
+              <div className="py-8 text-center text-text-subtle">
+                <CheckCircle2 className="mx-auto mb-2 size-8 text-success" aria-hidden="true" />
+                <p className="text-body">{t('ops.all_clear')}</p>
               </div>
             ) : (
-              <ul className="space-y-1.5" data-testid="needs-action-list">
+              <ul className="space-y-3" data-testid="needs-action-list">
                 {needsAction.map((item, i) => (
                   <li
                     key={`${item.booking_id}-${i}`}
-                    className="group flex items-center gap-3 rounded-lg border border-transparent p-3 transition-colors hover:border-border hover:bg-surface-muted/60"
+                    className="flex items-center gap-3 rounded-lg border border-border p-3"
                   >
-                    <span
-                      className={cn(
-                        'size-2 shrink-0 rounded-full',
-                        item.priority === 'high' ? 'bg-error' : 'bg-amber',
-                      )}
+                    <div
+                      className={`size-2 shrink-0 rounded-full ${
+                        item.priority === 'high' ? 'bg-error' : 'bg-warning'
+                      }`}
                       aria-hidden="true"
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex items-center gap-2">
                         <TicketChip
                           ticketRef={item.ticket_ref}
                           to={`/ops/tickets/${item.booking_id}`}
@@ -189,10 +136,9 @@ export function OpsDashboard() {
                     </div>
                     <Link
                       to={`/ops/tickets/${item.booking_id}`}
-                      className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary-light"
+                      className="shrink-0 text-sm text-primary hover:underline"
                     >
                       {t('common.view')}
-                      <ArrowRight className="size-3.5" aria-hidden="true" />
                     </Link>
                   </li>
                 ))}
@@ -208,18 +154,18 @@ export function OpsDashboard() {
           </CardHeader>
           <CardBody>
             {bySource.length === 0 ? (
-              <p className="py-6 text-center text-sm text-text-subtle">{t('ops.no_bookings_yet')}</p>
+              <p className="py-4 text-center text-sm text-text-subtle">{t('ops.no_bookings_yet')}</p>
             ) : (
-              <ul className="space-y-3.5" data-testid="source-chart">
+              <ul className="space-y-3" data-testid="source-chart">
                 {bySource.map((s) => (
                   <li key={s.source}>
-                    <div className="mb-1.5 flex items-center justify-between gap-2 text-sm">
+                    <div className="mb-1 flex items-center justify-between text-sm">
                       <SourceChip source={s.source} />
-                      <span className="tabular font-medium text-text">{s.count}</span>
+                      <span className="tabular text-text-muted">{s.count}</span>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-surface-muted">
+                    <div className="h-2 overflow-hidden rounded-full bg-surface-muted">
                       <div
-                        className="h-full rounded-full bg-primary transition-[width] duration-500 ease-premium"
+                        className="h-full rounded-full bg-primary transition-all"
                         style={{ width: `${(s.count / maxSourceCount) * 100}%` }}
                       />
                     </div>
@@ -236,19 +182,20 @@ export function OpsDashboard() {
         <CardHeader>
           <CardTitle>{t('ops.booked_vs_collected')}</CardTitle>
         </CardHeader>
-        <CardBody className="p-0">
-          <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            <MoneyBlock label={t('ops.kpi.booked_value')} value={formatTzs(kpis?.booked_value_tzs ?? 0)} />
-            <MoneyBlock
-              label={t('ops.kpi.collected')}
-              value={formatTzs(kpis?.collected_tzs ?? 0)}
-              tone="text-success"
-            />
-            <MoneyBlock
-              label={t('ops.kpi.pending')}
-              value={formatTzs(kpis?.pending_tzs ?? 0)}
-              tone="text-warning"
-            />
+        <CardBody>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p className="text-caption text-text-subtle">{t('ops.booked_value')}</p>
+              <p className="tabular mt-1 text-h2 text-text">{formatTzs(kpis?.booked_value_tzs ?? 0)}</p>
+            </div>
+            <div>
+              <p className="text-caption text-text-subtle">{t('ops.collected')}</p>
+              <p className="tabular mt-1 text-h2 text-success">{formatTzs(kpis?.collected_tzs ?? 0)}</p>
+            </div>
+            <div>
+              <p className="text-caption text-text-subtle">{t('ops.pending')}</p>
+              <p className="tabular mt-1 text-h2 text-warning">{formatTzs(kpis?.pending_tzs ?? 0)}</p>
+            </div>
           </div>
         </CardBody>
       </Card>
@@ -257,15 +204,8 @@ export function OpsDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>{t('ops.recent_tickets')}</CardTitle>
-          <Link
-            to="/ops/tickets"
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-          >
-            {t('ops.view_all_tickets')}
-            <ArrowRight className="size-3.5" aria-hidden="true" />
-          </Link>
         </CardHeader>
-        <CardBody className="p-0">
+        <CardBody>
           {recentTickets.length === 0 ? (
             <EmptyState
               icon={<Ticket aria-hidden="true" />}
@@ -273,34 +213,49 @@ export function OpsDashboard() {
               description={t('empty.tickets_body')}
             />
           ) : (
-            <DataView
-              state="data"
-              rows={recentTickets}
-              columns={recentColumns}
-              rowKey={(row) => row.id}
-              onRowClick={(row) => navigate(`/ops/tickets/${row.id}`)}
-              caption={t('ops.recent_tickets')}
-              renderCard={(row) => (
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <TicketChip ticketRef={row.ticket_ref} size="sm" />
-                    <StatusBadge status={row.status} />
-                  </div>
-                  <p className="mt-2 font-medium text-text">{row.customer_name}</p>
-                  <div className="mt-1 flex items-center justify-between">
-                    <SourceChip source={row.source} />
-                    <span className="tabular font-semibold">{formatTzs(row.total_tzs)}</span>
-                  </div>
-                  {row.scheduled_start && (
-                    <p className="mt-1.5 text-caption text-text-subtle">
-                      {formatDay(row.scheduled_start, 'en')} · {formatTime(row.scheduled_start, 'en')}
-                    </p>
-                  )}
-                </div>
-              )}
-              empty={null}
-              error={null}
-            />
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-text-subtle">
+                    <th className="pb-2 pr-4 font-medium">{t('ops.col.ticket')}</th>
+                    <th className="pb-2 pr-4 font-medium">{t('ops.col.customer')}</th>
+                    <th className="pb-2 pr-4 font-medium">{t('ops.col.status')}</th>
+                    <th className="pb-2 pr-4 font-medium">{t('ops.col.when')}</th>
+                    <th className="pb-2 pr-4 font-medium">{t('ops.col.source')}</th>
+                    <th className="pb-2 text-right font-medium">{t('ops.col.total')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentTickets.map((ticket) => (
+                    <tr key={ticket.id} className="border-b border-border/50 last:border-0">
+                      <td className="py-3 pr-4">
+                        <TicketChip
+                          ticketRef={ticket.ticket_ref}
+                          to={`/ops/tickets/${ticket.id}`}
+                          size="sm"
+                        />
+                      </td>
+                      <td className="py-3 pr-4">
+                        <div className="font-medium text-text">{ticket.customer_name}</div>
+                        <div className="text-xs text-text-subtle">{ticket.customer_phone}</div>
+                      </td>
+                      <td className="py-3 pr-4">
+                        <StatusBadge status={ticket.status} />
+                      </td>
+                      <td className="py-3 pr-4 text-text-subtle">
+                        {ticket.scheduled_start
+                          ? `${formatDay(ticket.scheduled_start, 'en')}, ${formatTime(ticket.scheduled_start, 'en')}`
+                          : '—'}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <SourceChip source={ticket.source} />
+                      </td>
+                      <td className="tabular py-3 text-right font-medium">{formatTzs(ticket.total_tzs)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </CardBody>
       </Card>
@@ -318,15 +273,6 @@ export function OpsDashboard() {
   );
 }
 
-function MoneyBlock({ label, value, tone }: { label: string; value: string; tone?: string }) {
-  return (
-    <div className="px-5 py-5 text-center sm:text-left">
-      <p className="text-caption uppercase tracking-eyebrow text-text-subtle">{label}</p>
-      <p className={cn('tabular mt-1.5 text-h1 text-text', tone)}>{value}</p>
-    </div>
-  );
-}
-
 function KpiCard({
   icon,
   label,
@@ -339,21 +285,17 @@ function KpiCard({
   tone: 'primary' | 'success' | 'warning' | 'info';
 }) {
   const tones = {
-    primary: 'bg-primary-light text-primary',
-    success: 'bg-success-tint text-success',
-    warning: 'bg-warning-tint text-warning',
-    info: 'bg-info-tint text-info',
+    primary: 'text-primary',
+    success: 'text-success',
+    warning: 'text-warning',
+    info: 'text-info',
   };
   return (
-    <Card interactive role="listitem">
-      <CardBody className="p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-caption uppercase tracking-eyebrow text-text-subtle">{label}</p>
-          <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', tones[tone])}>
-            {icon}
-          </span>
-        </div>
-        <p className="tabular mt-3 text-h1 text-text">{value}</p>
+    <Card role="listitem">
+      <CardBody className="p-4">
+        <div className={`mb-2 ${tones[tone]}`}>{icon}</div>
+        <p className="text-caption text-text-subtle">{label}</p>
+        <p className="tabular mt-1 text-h2 text-text">{value}</p>
       </CardBody>
     </Card>
   );
@@ -397,23 +339,22 @@ function SetupChecklist({ tenant }: { tenant: { settings?: Record<string, unknow
   ];
 
   return (
-    <ul className="space-y-1">
+    <ul className="space-y-2">
       {items.map((item) => (
-        <li key={item.key}>
+        <li key={item.key} className="flex items-center gap-3">
+          <div
+            className={`flex size-5 items-center justify-center rounded-full border-2 ${
+              item.done ? 'border-success bg-success text-primary-foreground' : 'border-border'
+            }`}
+            aria-hidden="true"
+          >
+            {item.done && <CheckCircle2 className="size-3" />}
+          </div>
           <Link
             to={item.to}
-            className="flex items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-surface-muted/60"
+            className={`text-sm ${item.done ? 'text-text-muted line-through' : 'text-text hover:underline'}`}
           >
-            <span
-              className={cn(
-                'flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-                item.done ? 'border-success bg-success text-white' : 'border-border',
-              )}
-              aria-hidden="true"
-            >
-              {item.done && <CheckCircle2 className="size-3" />}
-            </span>
-            <span className={item.done ? 'text-text-subtle line-through' : 'text-text'}>{item.label}</span>
+            {item.label}
           </Link>
         </li>
       ))}

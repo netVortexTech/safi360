@@ -1,4 +1,4 @@
-import { Plus, UserCheck, UserPlus } from 'lucide-react';
+import { Plus, UserCheck, UserPlus } from '@/components/ui/icons';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';

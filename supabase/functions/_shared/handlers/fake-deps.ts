@@ -289,6 +289,7 @@ export function fakeBookingDeps(world: FakeBookingWorld): BookingDeps {
 
   return {
     ...base,
+    verifyStaffAuth: async () => {},
     staffTenantId: () => world.staffSession.tenantId,
     staffTenantRole: () => world.staffSession.role,
     staffUserId: () => world.staffSession.userId,

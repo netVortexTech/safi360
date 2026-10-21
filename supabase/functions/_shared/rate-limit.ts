@@ -44,11 +44,15 @@ export async function enforceRateLimit(
   if (data !== true) throw new Error('rate_limited');
 }
 
-/** Best-effort client identifier for anonymous callers. */
+/**
+ * Best-effort client identifier for anonymous callers. The edge platform APPENDS the
+ * real connecting IP to x-forwarded-for, so only the LAST entry is trustworthy —
+ * anything earlier arrived in the request and lets an attacker rotate fake IPs
+ * around the per-IP limits.
+ */
 export function callerIdFrom(req: Request): string {
   const xff = req.headers.get('x-forwarded-for');
-  const ip = xff
-    ? (xff.split(',')[0]?.trim() ?? 'unknown')
-    : (req.headers.get('cf-connecting-ip') ?? 'unknown');
+  const hops = xff ? xff.split(',').map((p) => p.trim()).filter(Boolean) : [];
+  const ip = hops[hops.length - 1] ?? req.headers.get('cf-connecting-ip') ?? 'unknown';
   return `ip:${ip}`;
 }

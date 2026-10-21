@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Download } from 'lucide-react';
+import { Download } from '@/components/ui/icons';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { formatDay } from '@/lib/dates';

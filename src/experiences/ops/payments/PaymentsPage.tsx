@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react';
+import { errorKey } from '@/lib/errors';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/permissions';
 import { formatTzs } from '@/lib/money';
 import { formatDay } from '@/lib/dates';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -14,6 +17,8 @@ import { ManualPaymentDialog } from './ManualPaymentDialog';
 import type { PaymentLedgerRow } from './hooks';
 
 export default function PaymentsPage() {
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const auth = useAuth();
   const role = auth.claims.tenant_role;
   const canView = can(role, 'payment.view');
@@ -112,7 +117,7 @@ export default function PaymentsPage() {
             {canManual ? <Button onClick={() => setManualOpen(true)}>Record manual payment</Button> : null}
           </div>
           {ledger.isLoading ? <div className="h-40 animate-pulse rounded bg-surface-muted" /> : null}
-          {ledger.error ? <p className="text-error">{String(ledger.error)}</p> : null}
+          {ledger.error ? <p className="text-error">{t(errorKey(ledger.error))}</p> : null}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -150,7 +155,7 @@ export default function PaymentsPage() {
       </Card>
 
       {selected ? (
-        <div className="fixed inset-0 z-50 bg-black/50 p-4" onClick={() => setSelected(null)}>
+        <div className="fixed inset-0 z-50 bg-navy/60 p-4" onClick={() => setSelected(null)}>
           <div
             className="mx-auto mt-10 max-w-lg rounded-xl bg-surface p-5"
             onClick={(e) => e.stopPropagation()}
@@ -170,10 +175,13 @@ export default function PaymentsPage() {
       {manualOpen ? (
         <ManualPaymentDialog
           busy={recordManual.isPending}
-          error={recordManual.error ? String(recordManual.error) : null}
+          error={recordManual.error ? t(errorKey(recordManual.error)) : null}
           onClose={() => setManualOpen(false)}
           onSubmit={(vars) => {
-            void recordManual.mutateAsync(vars).then(() => setManualOpen(false));
+            void recordManual.mutateAsync(vars).then(() => {
+              toast({ title: t('ops.toast_payment_recorded') });
+              setManualOpen(false);
+            });
           }}
         />
       ) : null}

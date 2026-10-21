@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle } from 'lucide-react';
+import { CheckCircle2, Circle } from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import type { TrackingViewResponse } from '@shared/handlers/tracking';
 import { formatDateTime } from '@/lib/dates';

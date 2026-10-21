@@ -14,15 +14,15 @@ import {
   UserCheck,
   UserX,
   XCircle,
-  type LucideIcon,
-} from 'lucide-react';
+  type Icon,
+} from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import type { BookingFlag, BookingStatus } from '@shared/enums';
 import { Badge, type BadgeProps } from '@/components/ui/badge';
 
 type Tone = NonNullable<BadgeProps['tone']>;
 
-const STATUS_STYLE: Record<BookingStatus, { tone: Tone; icon: LucideIcon }> = {
+const STATUS_STYLE: Record<BookingStatus, { tone: Tone; icon: Icon }> = {
   REQUEST_RECEIVED: { tone: 'neutral', icon: Circle },
   AWAITING_REVIEW: { tone: 'warning', icon: Clock },
   AWAITING_CUSTOMER_APPROVAL: { tone: 'warning', icon: Clock },
@@ -57,7 +57,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   );
 }
 
-const FLAG_STYLE: Record<BookingFlag, { icon: LucideIcon }> = {
+const FLAG_STYLE: Record<BookingFlag, { icon: Icon }> = {
   RESCHEDULED: { icon: RotateCcw },
   NEEDS_REVIEW: { icon: Flag },
 };

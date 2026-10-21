@@ -1,8 +1,6 @@
-import { CalendarCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { EmptyState } from '@/components/shared/EmptyState';
-import { ErrorState } from '@/components/shared/ErrorState';
 import { dayKey } from '@/lib/dates';
+import { ErrorState } from '@/components/shared/ErrorState';
 import { useFieldJobs } from '../hooks';
 import { JobCard } from '../components/JobCard';
 
@@ -16,30 +14,18 @@ export default function FieldToday() {
   );
 
   if (jobs.isLoading) {
-    return (
-      <div className="space-y-3" aria-busy="true">
-        <div className="h-8 w-40 animate-pulse rounded-lg bg-surface-muted" />
-        <div className="h-32 animate-pulse rounded-xl bg-surface-muted" />
-        <div className="h-32 animate-pulse rounded-xl bg-surface-muted" />
-      </div>
-    );
+    return <div className="h-40 animate-pulse rounded-xl bg-surface-muted" aria-busy="true" />;
   }
   if (jobs.error) {
-    return (
-      <ErrorState
-        onRetry={() => void jobs.refetch()}
-        retrying={jobs.isFetching}
-        description={t('errors.generic_body')}
-      />
-    );
+    return <ErrorState onRetry={() => void jobs.refetch()} />;
   }
 
   const items = todaysJobs.length ? todaysJobs : activeJobs;
   return (
-    <div className="animate-fade-in space-y-5">
+    <div className="space-y-4">
       <header>
         <h1 className="text-h1">{t('field.today_title')}</h1>
-        <p className="mt-1 text-sm text-text-muted">{t('field.jobs_count', { count: items.length })}</p>
+        <p className="mt-1 text-sm text-text-muted">{items.length} jobs</p>
       </header>
       {items.length ? (
         <section className="space-y-3">
@@ -48,7 +34,9 @@ export default function FieldToday() {
           ))}
         </section>
       ) : (
-        <EmptyState icon={<CalendarCheck aria-hidden="true" />} title={t('field.no_jobs_today')} />
+        <div className="rounded-xl border border-border bg-surface p-6 text-center text-text-muted">
+          No jobs today.
+        </div>
       )}
     </div>
   );

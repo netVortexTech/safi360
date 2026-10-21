@@ -29,6 +29,22 @@ traffic goes through Edge Functions with the service role).
 | `customer_data_requests`                                       | Service-role only — no `authenticated` policies (deny by default)             |
 | `system_health`                                                | Super-admin SELECT/INSERT only                                                |
 
+## Hardening added by the 0031–0033 audit (2026-10-19)
+
+- [ ] `APP_ENV=production` is SET on every hosted function — an unset `APP_ENV` behaves
+      as sandbox, and with `OTP_PROVIDER=mock` every OTP would be 123456.
+- [ ] `LOAD_TEST_SECRET` is NOT set in production (it relaxes per-IP limits in sandbox).
+- [ ] seed.sql is never pushed to a project with real users: it seeds a super admin on a
+      phone whose test OTP (123456) is in config.toml.
+- [ ] `profiles.phone_e164` stays immutable to clients (0031); staff claiming reads
+      `auth.users.phone` only.
+- [ ] New tables revoke ALL from `public, anon, authenticated` before granting back
+      (RLS does not cover TRUNCATE; 0032 fixed eight tables that missed this).
+- [ ] The `job-evidence` bucket is private and its policies come from migration 0033,
+      not from dashboard clicks.
+- [ ] Access tokens expire in 1 hour (config.toml `jwt_expiry`) so revoked memberships
+      lapse quickly.
+
 ## Secrets & transport
 
 - [ ] No service-role key in client bundles — `VITE_*` exposes only URL + anon key.

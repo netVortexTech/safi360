@@ -1,4 +1,4 @@
-import { Plus, SlidersHorizontal, Tag } from 'lucide-react';
+import { Plus, SlidersHorizontal, Tag } from '@/components/ui/icons';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';

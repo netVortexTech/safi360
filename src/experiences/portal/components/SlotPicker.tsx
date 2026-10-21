@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from '@/components/ui/icons';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Slot } from '@shared/availability/slots';

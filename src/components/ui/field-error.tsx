@@ -1,4 +1,4 @@
-import { XCircle } from 'lucide-react';
+import { XCircle } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 
 export interface FieldErrorProps {

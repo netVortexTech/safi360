@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MessageSquareWarning, Star } from 'lucide-react';
+import { MessageSquareWarning, Star } from '@/components/ui/icons';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Card, CardBody } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

@@ -20,6 +20,7 @@ function assertQuote(q: OpsCreateBookingRequest['quote']): void {
 export async function handleOpsCreateBooking(rawBody: unknown, deps: BookingDeps): Promise<HandlerResult> {
   try {
     const input = opsCreateBookingRequest.parse(rawBody);
+    await deps.verifyStaffAuth();
     const role = deps.staffTenantRole();
     if (!roleAllowed(role)) throw Error('booking_forbidden');
     assertQuote(input.quote);

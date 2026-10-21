@@ -6,7 +6,9 @@ project_id = "safi360"
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "app"]
+# Only public is served over PostgREST; app.* is internal plumbing for policies and
+# triggers and nothing calls it over the API, so it stays off the surface.
+schemas = ["public"]
 extra_search_path = ["public", "app"]
 max_rows = 500
 
@@ -30,7 +32,9 @@ file_size_limit = "10MiB"
 enabled = true
 site_url = "http://127.0.0.1:5173"
 additional_redirect_urls = ["http://127.0.0.1:5173/**", "http://localhost:5173/**"]
-jwt_expiry = 2592000
+# 1 hour: role/tenant claims ride on the access token, so a revoked membership must
+# expire quickly; refresh tokens keep sessions alive transparently.
+jwt_expiry = 3600
 enable_refresh_token_rotation = true
 enable_signup = true
 enable_anonymous_sign_ins = false
