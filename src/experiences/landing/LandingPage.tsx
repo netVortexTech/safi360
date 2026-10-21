@@ -144,8 +144,11 @@ export default function LandingPage() {
           </nav>
           <div className="flex items-center gap-3">
             <LangToggle locale={locale} />
-            <Button asChild size="sm">
+            <Button asChild variant="secondary" size="sm">
               <Link to="/ops/login">{t('landing.nav_signin')}</Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/signup">{t('landing.nav_signup')}</Link>
             </Button>
           </div>
         </div>
@@ -166,9 +169,12 @@ export default function LandingPage() {
               <p className="mt-4 max-w-prose text-lg text-text-muted">{t('landing.hero_sub')}</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg">
-                  <Link to="/ops/login">
+                  <Link to="/signup">
                     {t('landing.hero_cta')} <ArrowRight aria-hidden="true" />
                   </Link>
+                </Button>
+                <Button asChild variant="secondary" size="lg">
+                  <Link to="/ops/login">{t('landing.hero_signin')}</Link>
                 </Button>
                 <Button asChild variant="secondary" size="lg">
                   <Link to="/usafi-bora">{t('landing.hero_demo')}</Link>

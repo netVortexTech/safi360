@@ -70,6 +70,8 @@ export default function OnboardingSignup() {
       if (error) throw error;
       setStep('code');
       setCode('');
+      // Store phone in signup data for later use
+      setSignupData(prev => ({ ...prev, phoneE164 }));
     } catch (err) {
       setError(t('auth.errors.generic'));
     } finally {
@@ -136,24 +138,58 @@ export default function OnboardingSignup() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData.user) throw new Error('User not authenticated');
 
-      const { error } = await supabase.from('tenants').insert({
-        name: signupData.name.trim(),
-        slug: signupData.slug.trim(),
+      // Insert tenant and get the ID back
+      const { data: tenant, error: tenantError } = await supabase
+        .from('tenants')
+        .insert({
+          name: signupData.name.trim(),
+          slug: signupData.slug.trim(),
+          phone_e164: phoneE164!,
+          city: signupData.city.trim() || null,
+          ticket_prefix: signupData.ticketPrefix.trim(),
+          plan_id: null,
+          status: 'TRIAL',
+          trial_ends_at: trialEndsAt,
+          branding: {
+            display_name: signupData.name.trim(),
+          },
+          settings: {
+            deposit_pct: 30,
+            cancel_hours: 4,
+            slot_hold_minutes: 15,
+            travel_buffer_min: 45,
+            quote_expiry_hours: 144,
+            languages: ['sw', 'en'],
+            default_locale: 'sw',
+            working_hours: {
+              mon: { open: '08:00', close: '18:00' },
+              tue: { open: '08:00', close: '18:00' },
+              wed: { open: '08:00', close: '18:00' },
+              thu: { open: '08:00', close: '18:00' },
+              fri: { open: '08:00', close: '18:00' },
+              sat: { open: '08:00', close: '16:00' },
+              sun: { open: '09:00', close: '13:00', closed: true },
+            },
+          },
+        })
+        .select('id')
+        .single();
+
+      if (tenantError || !tenant) throw tenantError ?? new Error('Failed to create tenant');
+
+      // Create profile for the user
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: userData.user.id,
         phone_e164: phoneE164!,
-        city: signupData.city.trim() || null,
-        ticket_prefix: signupData.ticketPrefix.trim(),
-        plan_id: null,
-        status: 'TRIAL',
-        trial_ends_at: trialEndsAt,
-        branding: {
-          display_name: signupData.name.trim(),
-        },
+        name: signupData.name.trim(),
+        locale: 'sw',
+        is_super_admin: false,
       });
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       // Create membership for the user as OWNER
       const { error: membershipError } = await supabase.from('memberships').insert({
-        tenant_id: (await supabase.from('tenants').select('id').eq('slug', signupData.slug.trim()).single()).data?.id,
+        tenant_id: tenant.id,
         user_id: userData.user.id,
         role: 'OWNER',
         active: true,
@@ -163,6 +199,7 @@ export default function OnboardingSignup() {
       await supabase.auth.refreshSession();
       navigate('/onboarding/plan', { replace: true });
     } catch (err) {
+      console.error('Signup error:', err);
       setError(t('onboarding.signup.error'));
       setBusy(false);
     }
