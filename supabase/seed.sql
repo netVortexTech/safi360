@@ -1,7 +1,8 @@
 -- Development seed. Applied by `supabase db reset` and by the db test harness.
 -- Sample tenant "Usafi Bora Cleaners" (prefix UBC) plus a second tenant so cross-tenant
 -- isolation is visible in local development. Phone OTP for every seeded user is 123456
--- (see config.toml [auth.sms.test_otp]). Never run against production.
+-- (see config.toml [auth.sms.test_otp]). **NEVER RUN AGAINST PRODUCTION.**
+-- For production, use supabase/seed.production.sql instead.
 
 insert into public.plans (id, name, price_tzs, limits) values
   ('starter', 'Starter', 45000,  '{"staff":5,"bookings_month":150,"reminders_month":100}'),
