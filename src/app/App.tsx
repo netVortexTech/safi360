@@ -8,6 +8,7 @@ import { AppProviders } from '@/app/providers';
 import { RouteError } from '@/app/RouteError';
 import { RouteLoading } from '@/app/RouteLoading';
 import { NotFoundPage } from '@/app/NotFoundPage';
+import { SubscriptionGate } from '@/components/shared/SubscriptionGate';
 
 // Each experience is a lazy chunk so the customer portal and the field PWA never
 // download the operations portal.
@@ -65,16 +66,35 @@ const OpsSettingsChannels = lazy(() => import('@/experiences/ops/settings/Channe
 const OpsSettingsTemplates = lazy(() => import('@/experiences/ops/settings/TemplateSettings'));
 const OpsSettingsTeam = lazy(() => import('@/experiences/ops/settings/TeamSettings'));
 const OpsSettingsOnboarding = lazy(() => import('@/experiences/ops/settings/OnboardingSettings'));
+const OnboardingSignup = lazy(() => import('@/experiences/onboarding/pages/OnboardingSignup'));
+const OnboardingPlan = lazy(() => import('@/experiences/onboarding/pages/OnboardingPlan'));
+
+// Wrapped layouts with subscription gate
+const GatedOpsLayout = () => (
+  <SubscriptionGate onboardingPath="/onboarding/plan">
+    <OpsLayout />
+  </SubscriptionGate>
+);
+
+const GatedFieldLayout = () => (
+  <SubscriptionGate onboardingPath="/onboarding/plan">
+    <FieldLayout />
+  </SubscriptionGate>
+);
 
 const withSuspense = (node: ReactNode) => <Suspense fallback={<RouteLoading />}>{node}</Suspense>;
 
 // Reserved first segments are matched before the tenant slug catch-all.
 export const routes: RouteObject[] = [
   { path: '/', element: withSuspense(<LandingPage />), errorElement: <RouteError /> },
+  // Public onboarding routes (no auth required)
+  { path: '/signup', element: withSuspense(<OnboardingSignup />), errorElement: <RouteError /> },
+  { path: '/onboarding/plan', element: withSuspense(<OnboardingPlan />), errorElement: <RouteError /> },
+  // Ops portal (gated by subscription)
   { path: '/ops/login', element: withSuspense(<OpsLogin />), errorElement: <RouteError /> },
   {
     path: '/ops',
-    element: <OpsLayout />,
+    element: <GatedOpsLayout />,
     errorElement: <RouteError />,
     children: [
       { index: true, element: withSuspense(<OpsDashboard />) },
@@ -108,10 +128,11 @@ export const routes: RouteObject[] = [
       { path: 'settings/onboarding', element: withSuspense(<OpsSettingsOnboarding />) },
     ],
   },
+  // Field app (gated by subscription)
   { path: '/field/login', element: withSuspense(<FieldLogin />), errorElement: <RouteError /> },
   {
     path: '/field',
-    element: <FieldLayout />,
+    element: <GatedFieldLayout />,
     errorElement: <RouteError />,
     children: [
       { index: true, element: withSuspense(<FieldToday />) },
@@ -121,6 +142,7 @@ export const routes: RouteObject[] = [
       { path: 'alerts', element: withSuspense(<FieldAlerts />) },
     ],
   },
+  // Control panel (super admin only - no subscription gate needed)
   { path: '/control/login', element: withSuspense(<ControlLogin />), errorElement: <RouteError /> },
   {
     path: '/control',
@@ -139,6 +161,7 @@ export const routes: RouteObject[] = [
       { path: 'impersonation', element: withSuspense(<ControlImpersonation />) },
     ],
   },
+  // Customer portal (public - no subscription gate)
   {
     path: '/:slug',
     element: <PortalLayout />,

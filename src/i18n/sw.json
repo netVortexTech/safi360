@@ -906,6 +906,63 @@
       "by_safi360": "Kwa nguvu ya Safi360"
     }
   },
+  "onboarding": {
+    "signup": {
+      "title": "Unda akaunti ya kampuni",
+      "subtitle": "Jiunge na Safi360 na uanze kuweka oda za usafi leo",
+      "body": "Tutumie nambari yako ya simu ya Tanzania (+255) kuingia. Tutakutumia msimbo wa uthibitisho.",
+      "details_title": "Maelezo ya kampuni",
+      "details_body": "Jaza taarifa za msingi za kampuni yako. Hizi zitaonekana kwenye ukurasa wako wa wateja.",
+      "name": "Jina la kampuni",
+      "name_invalid": "Jina la kampuni linahitaji angalau herufi 2",
+      "slug": "Jina la tovuti (slug)",
+      "slug_hint": "Hutatumika kwenye URL yako (mf. safi360.vercel.app/jina-lako). Herufi ndogo, namba na vistari pekee.",
+      "slug_invalid": "Slug haiwezi kuwa na viungo au herufi kubwa",
+      "slug_taken": "Jina hili limechukuliwa",
+      "city": "Jiji/Mji",
+      "ticket_prefix": "Kianzia cha tiketi",
+      "ticket_prefix_hint": "Herufi kubwa 2-5 (mf. SB, CLN, SF360). Kila tiketi itaanza na hiki.",
+      "ticket_prefix_invalid": "Kianzia kinapaswa kuwa herufi kubwa 2-5",
+      "ticket_prefix_taken": "Kianzia hiki kimeshatumika",
+      "already_have_account": "Tayari una akaunti?",
+      "sign_in": "Ingia",
+      "submit": "Unda kampuni",
+      "error": "Imeshindikana kuunda kampuni. Jaribu tena."
+    },
+    "plan": {
+      "title": "Chagua mpango wako",
+      "subtitle": "Kamilisha usakaji kwa kuchagua mpango unayofaa kwa bizara yako. Pata siku 7 za bure!",
+      "select": "Chagua",
+      "selecting": "Inachagua...",
+      "confirm": "Thibitisha na uanze",
+      "per_month": "/mwezi",
+      "no_plans": "Hakuna mpango ulioko kwa sasa. Wasiliana na msaada.",
+      "contact_support": "Wasiliana na msaada",
+      "sign_in_required": "Inahitaji kuingia",
+      "sign_in_body": "Tafadhali ingia ili kuchagua mpango wako.",
+      "go_signup": "Nenda kujiandikisha",
+      "load_error": "Imeshindikana kupakia mpango",
+      "error": "Imeshindikana kuhifadhi mpango. Jaribu tena.",
+      "success": "Mpango umechaguliwa! Karibu kwenye Safi360."
+    }
+  },
+  "subscription": {
+    "trial_banner_title": "Jaribio lako la siku 7 linabaki siku {{days}}",
+    "trial_banner_body": "Chagua mpango kabla ya siku za jaribio kukamilika ili kuendelea kutumia mfumo.",
+    "trial_banner_cta": "Chagua mpango sasa",
+    "expired_title": "Muda wa jaribio umeisha",
+    "expired_body": "Siku 7 za jaribio zimekwisha. Unahitaji kuchagua mpango ili kuendelea kutumia Safi360.",
+    "expired_cta_plan": "Chagua mpango",
+    "expired_cta_payment": "Lipa moja kwa moja",
+    "expired_note": "Pia unaweza kulipa moja kwa moja kwenye: {{url}}",
+    "suspended_title": "Akaunti imesitishwa",
+    "suspended_body": "Akaunti yako ya kampuni imesitishwa. Tafadhali wasiliana na msaada au lipa ili kurejesha huduma.",
+    "past_due_title": "Malipo yachelewa",
+    "past_due_body": "Malipo yako yamechelewa. Lipa sasa ili kurejesha huduma yako.",
+    "blocked_cta_plan": "Chagua mpango",
+    "blocked_cta_payment": "Lipa sasa",
+    "blocked_note": "Unaweza pia kulipa moja kwa moja kwenye: {{url}}"
+  },
   "ops": {
     "dashboard_title": "Dashibodi",
     "dashboard_subtitle": "Habari za asubuhi. Haya ndiyo yanayokuhitaji leo, {{date}}.",

@@ -906,6 +906,63 @@
       "by_safi360": "Powered by Safi360"
     }
   },
+  "onboarding": {
+    "signup": {
+      "title": "Create your company account",
+      "subtitle": "Join Safi360 and start taking cleaning bookings today",
+      "body": "Use your Tanzanian phone number (+255) to sign in. We'll send a verification code.",
+      "details_title": "Company details",
+      "details_body": "Fill in your company's basic information. This will appear on your customer-facing booking page.",
+      "name": "Company name",
+      "name_invalid": "Company name must be at least 2 characters",
+      "slug": "Website name (slug)",
+      "slug_hint": "Used in your URL (e.g. safi360.vercel.app/your-name). Lowercase, numbers, and hyphens only.",
+      "slug_invalid": "Slug can only contain lowercase letters, numbers, and hyphens",
+      "slug_taken": "This slug is already taken",
+      "city": "City",
+      "ticket_prefix": "Ticket prefix",
+      "ticket_prefix_hint": "2-5 uppercase letters (e.g. SB, CLN, SF360). Every ticket will start with this.",
+      "ticket_prefix_invalid": "Prefix must be 2-5 uppercase letters",
+      "ticket_prefix_taken": "This prefix is already in use",
+      "already_have_account": "Already have an account?",
+      "sign_in": "Sign in",
+      "submit": "Create company",
+      "error": "Failed to create company. Please try again."
+    },
+    "plan": {
+      "title": "Choose your plan",
+      "subtitle": "Complete setup by selecting the plan that fits your business. Get 7 days free!",
+      "select": "Select",
+      "selecting": "Selecting...",
+      "confirm": "Confirm & start",
+      "per_month": "/month",
+      "no_plans": "No plans available at the moment. Contact support.",
+      "contact_support": "Contact support",
+      "sign_in_required": "Sign in required",
+      "sign_in_body": "Please sign in to choose your plan.",
+      "go_signup": "Go to signup",
+      "load_error": "Failed to load plans",
+      "error": "Failed to save plan. Please try again.",
+      "success": "Plan selected! Welcome to Safi360."
+    }
+  },
+  "subscription": {
+    "trial_banner_title": "Your 7-day trial has {{days}} days left",
+    "trial_banner_body": "Choose a plan before your trial ends to continue using Safi360.",
+    "trial_banner_cta": "Choose plan now",
+    "expired_title": "Trial expired",
+    "expired_body": "Your 7-day trial has ended. You need to choose a plan to continue using Safi360.",
+    "expired_cta_plan": "Choose a plan",
+    "expired_cta_payment": "Pay directly",
+    "expired_note": "You can also pay directly at: {{url}}",
+    "suspended_title": "Account suspended",
+    "suspended_body": "Your company account has been suspended. Please contact support or make a payment to restore service.",
+    "past_due_title": "Payment overdue",
+    "past_due_body": "Your payment is overdue. Pay now to restore your service.",
+    "blocked_cta_plan": "Choose a plan",
+    "blocked_cta_payment": "Pay now",
+    "blocked_note": "You can also pay directly at: {{url}}"
+  },
   "ops": {
     "dashboard_title": "Dashboard",
     "dashboard_subtitle": "Good morning. Here is what needs you today, {{date}}.",
