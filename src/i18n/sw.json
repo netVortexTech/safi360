@@ -898,7 +898,12 @@
     },
     "footer": {
       "powered_by": "Oda za mtandaoni na Safi360",
-      "call": "Piga {{phone}}"
+      "call": "Piga {{phone}}",
+      "privacy": "Faragha",
+      "terms": "Masharti",
+      "support": "Msaada",
+      "copyright": "© {{year}} {{tenant}}. Haki zote zimehifadhiwa.",
+      "by_safi360": "Kwa nguvu ya Safi360"
     }
   },
   "ops": {

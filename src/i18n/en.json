@@ -898,7 +898,12 @@
     },
     "footer": {
       "powered_by": "Online booking by Safi360",
-      "call": "Call {{phone}}"
+      "call": "Call {{phone}}",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "support": "Support",
+      "copyright": "© {{year}} {{tenant}}. All rights reserved.",
+      "by_safi360": "Powered by Safi360"
     }
   },
   "ops": {

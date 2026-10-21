@@ -1,7 +1,7 @@
 import { Phone } from '@/components/ui/icons';
+import { Link, NavLink, Outlet, useLocation, useMatch, useParams } from 'react-router-dom';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NavLink, Outlet, useLocation, useMatch, useParams } from 'react-router-dom';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { isPortalApiError, portalErrorKey } from '@/experiences/portal/api';
@@ -124,15 +124,47 @@ export function PortalLayout() {
         </main>
         {!widget && (
           <footer className="border-t border-border bg-surface">
-            <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-sm text-text-muted">
-              <a
-                href={`tel:${tenant.phone_e164}`}
-                className="inline-flex items-center gap-2 text-primary hover:underline"
-              >
-                <Phone className="size-4" aria-hidden="true" />
-                {t('portal.footer.call', { phone: formatPhone(tenant.phone_e164) })}
-              </a>
-              <span className="text-xs text-text-subtle">{t('portal.footer.powered_by')}</span>
+            <div className="mx-auto max-w-2xl px-4 py-6">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div>
+                  <p className="font-medium text-text">{tenant.branding.display_name || tenant.name}</p>
+                  <p className="mt-1 text-sm text-text-muted">
+                    {t('portal.footer.by_safi360')}
+                  </p>
+                </div>
+                <nav className="flex flex-wrap gap-4" aria-label="Footer links">
+                  <Link
+                    to={`/${slug}/privacy`}
+                    className="text-sm text-text-muted hover:text-text transition-colors"
+                  >
+                    {t('portal.footer.privacy')}
+                  </Link>
+                  <Link
+                    to={`/${slug}/privacy`}
+                    className="text-sm text-text-muted hover:text-text transition-colors"
+                  >
+                    {t('portal.footer.terms')}
+                  </Link>
+                  <a
+                    href={`tel:${tenant.phone_e164}`}
+                    className="text-sm text-text-muted hover:text-text transition-colors"
+                  >
+                    {t('portal.footer.support')}
+                  </a>
+                </nav>
+                <div className="flex flex-col items-end text-sm text-text-muted">
+                  <a
+                    href={`tel:${tenant.phone_e164}`}
+                    className="inline-flex items-center gap-1.5 hover:text-text transition-colors"
+                  >
+                    <Phone className="size-4" aria-hidden="true" />
+                    {t('portal.footer.call', { phone: formatPhone(tenant.phone_e164) })}
+                  </a>
+                  <p className="mt-2 text-xs text-text-subtle">
+                    {t('portal.footer.copyright', { year: new Date().getFullYear(), tenant: tenant.branding.display_name || tenant.name })}
+                  </p>
+                </div>
+              </div>
             </div>
           </footer>
         )}
