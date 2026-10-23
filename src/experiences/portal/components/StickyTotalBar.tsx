@@ -45,7 +45,7 @@ export function StickyTotalBar({
     <>
       <div
         className={cn(
-          'safe-bottom sticky bottom-0 z-30 -mx-4 border-t border-border bg-surface/95 px-4 py-3 shadow-sheet backdrop-blur-md sm:-mx-6 sm:px-6 md:mx-0 md:rounded-xl md:border md:px-5 md:shadow-lifted',
+          'safe-bottom md:shadow-lifted sticky bottom-0 z-30 -mx-4 border-t border-border bg-surface/95 px-4 py-3 shadow-sheet backdrop-blur-md sm:-mx-6 sm:px-6 md:mx-0 md:rounded-xl md:border md:px-5',
           className,
         )}
         data-testid="sticky-total"
@@ -59,7 +59,7 @@ export function StickyTotalBar({
             className="min-w-0 rounded-lg text-left disabled:cursor-default"
             aria-label={quote ? t('portal.stepper.view_summary') : undefined}
           >
-            <span className="block text-caption uppercase tracking-eyebrow text-text-subtle">
+            <span className="text-caption tracking-eyebrow block uppercase text-text-subtle">
               {t('portal.stepper.total')}
             </span>
             {quote ? (
@@ -75,7 +75,7 @@ export function StickyTotalBar({
               <span className="text-sm text-text-muted">{t(reason ?? 'portal.stepper.no_price_yet')}</span>
             )}
             {quote && !review && quote.deposit_tzs > 0 && (
-              <span className="block text-caption text-text-muted">
+              <span className="text-caption block text-text-muted">
                 {t('portal.stepper.deposit')} {formatTzs(quote.deposit_tzs)}
               </span>
             )}

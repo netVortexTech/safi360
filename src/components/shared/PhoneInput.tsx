@@ -56,13 +56,13 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
         )}
         <div
           className={cn(
-            'flex h-touch w-full items-stretch overflow-hidden rounded border border-border-strong bg-surface shadow-xs',
-            'transition-[border-color,box-shadow] duration-200 ease-premium hover:border-text-subtle/60',
+            'border-border-strong shadow-xs flex h-touch w-full items-stretch overflow-hidden rounded border bg-surface',
+            'ease-premium transition-[border-color,box-shadow] duration-200 hover:border-text-subtle/60',
             'focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/25',
             message && 'border-error focus-within:border-error focus-within:ring-error/25 hover:border-error',
           )}
         >
-          <span className="flex select-none items-center border-r border-border-strong bg-surface-muted px-3 text-base text-text-muted">
+          <span className="border-border-strong flex select-none items-center border-r bg-surface-muted px-3 text-base text-text-muted">
             +255
           </span>
           <input

@@ -1,9 +1,13 @@
-import { useQuery, type QueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { useQuery } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { useAuth } from '@/lib/auth';
+import { asError } from '@/lib/errors';
+import { supabase } from '@/lib/supabase';
+
+export type TenantStatus = 'TRIAL' | 'ACTIVE' | 'PAST_DUE' | 'SUSPENDED';
 
 export interface SubscriptionStatus {
-  status: 'TRIAL' | 'ACTIVE' | 'PAST_DUE' | 'SUSPENDED' | 'NO_TENANT';
+  status: TenantStatus | 'NO_TENANT';
   planId: string | null;
   trialEndsAt: string | null;
   daysRemaining: number | null;
@@ -12,198 +16,102 @@ export interface SubscriptionStatus {
   paymentUrl: string;
 }
 
-/**
- * Check the current user's tenant subscription status.
- * Returns detailed status for access control decisions.
- */
-export function useSubscriptionStatus(): {
+/** Where a company pays until the payment callback (PRODUCTION_READINESS §4) activates it. */
+export const PAYMENT_URL = 'https://snippe.me/pay/safi360';
+
+export const subscriptionKeys = {
+  all: ['subscription'] as const,
+  status: (tenantId: string | null) => ['subscription', 'status', tenantId] as const,
+};
+
+/** The platform-managed columns of public.tenants the gate decides from. */
+export interface TenantSubscriptionRow {
+  status: TenantStatus;
+  plan_id: string | null;
+  trial_ends_at: string | null;
+  deleted_at: string | null;
+}
+
+const NO_TENANT: SubscriptionStatus = {
+  status: 'NO_TENANT',
+  planId: null,
+  trialEndsAt: null,
+  daysRemaining: null,
+  isTrialExpired: false,
+  canAccessSystem: false,
+  paymentUrl: PAYMENT_URL,
+};
+
+/** Pure: turn the tenant row into an access decision. Exported for tests. */
+export function deriveSubscriptionStatus(
+  row: TenantSubscriptionRow | null,
+  now = new Date(),
+): SubscriptionStatus {
+  if (!row || row.deleted_at) return NO_TENANT;
+  const trialEndsAt = row.trial_ends_at;
+  const trialEnd = trialEndsAt ? new Date(trialEndsAt) : null;
+  const isTrialExpired = trialEnd != null && trialEnd < now;
+  const daysRemaining =
+    trialEnd && !isTrialExpired ? Math.ceil((trialEnd.getTime() - now.getTime()) / 86_400_000) : null;
+  let canAccessSystem = false;
+  if (row.status === 'ACTIVE') canAccessSystem = row.plan_id != null;
+  else if (row.status === 'TRIAL') canAccessSystem = !isTrialExpired;
+  return {
+    status: row.status,
+    planId: row.plan_id,
+    trialEndsAt,
+    daysRemaining,
+    isTrialExpired,
+    canAccessSystem,
+    paymentUrl: PAYMENT_URL,
+  };
+}
+
+/** Reads the caller's own tenant through RLS (tenants_select shows exactly that one row). */
+export async function fetchSubscriptionStatus(tenantId: string): Promise<SubscriptionStatus> {
+  const res: { data: unknown; error: unknown } = await supabase
+    .from('tenants')
+    .select('status, plan_id, trial_ends_at, deleted_at')
+    .eq('id', tenantId)
+    .maybeSingle();
+  if (res.error) throw asError(res.error);
+  return deriveSubscriptionStatus(res.data as TenantSubscriptionRow | null);
+}
+
+export interface UseSubscriptionStatus {
+  /** null while loading, on error, or when the user has no tenant claim. */
   status: SubscriptionStatus | null;
   isLoading: boolean;
+  isFetching: boolean;
   error: Error | null;
   refetch: () => void;
-} {
+}
+
+/**
+ * The signed-in user's tenant subscription. Keyed on the tenant claim, so it is off for
+ * visitors and for accounts that have no company yet; a failed read is an error (never a
+ * silent "no tenant"), so a flaky network cannot bounce a paying company to /signup.
+ */
+export function useSubscriptionStatus(): UseSubscriptionStatus {
   const auth = useAuth();
-
-  const query = useQuery<SubscriptionStatus>({
-    queryKey: ['subscription', 'status', auth.userId],
-    queryFn: async (): Promise<SubscriptionStatus> => {
-      if (!auth.userId) {
-        return {
-          status: 'NO_TENANT',
-          planId: null,
-          trialEndsAt: null,
-          daysRemaining: null,
-          isTrialExpired: false,
-          canAccessSystem: false,
-          paymentUrl: 'https://snippe.me/pay/safi360',
-        };
-      }
-
-      // Get user's active membership
-      const { data: membership, error: memError } = await supabase
-        .from('memberships')
-        .select('tenant_id, role')
-        .eq('user_id', auth.userId)
-        .eq('active', true)
-        .single();
-
-      if (memError || !membership) {
-        return {
-          status: 'NO_TENANT',
-          planId: null,
-          trialEndsAt: null,
-          daysRemaining: null,
-          isTrialExpired: false,
-          canAccessSystem: false,
-          paymentUrl: 'https://snippe.me/pay/safi360',
-        };
-      }
-
-      // Get tenant details
-      const { data: tenant, error: tenantError } = await supabase
-        .from('tenants')
-        .select('id, name, status, plan_id, trial_ends_at, deleted_at')
-        .eq('id', membership.tenant_id)
-        .single();
-
-      if (tenantError || !tenant || tenant.deleted_at) {
-        return {
-          status: 'NO_TENANT',
-          planId: null,
-          trialEndsAt: null,
-          daysRemaining: null,
-          isTrialExpired: false,
-          canAccessSystem: false,
-          paymentUrl: 'https://snippe.me/pay/safi360',
-        };
-      }
-
-      const trialEndsAt = tenant.trial_ends_at;
-      const now = new Date();
-      const isTrialExpired = trialEndsAt ? new Date(trialEndsAt) < now : false;
-      let daysRemaining: number | null = null;
-
-      if (trialEndsAt && !isTrialExpired) {
-        const diffMs = new Date(trialEndsAt).getTime() - now.getTime();
-        daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-      }
-
-      // Determine access
-      let canAccessSystem = false;
-      switch (tenant.status) {
-        case 'ACTIVE':
-          canAccessSystem = Boolean(tenant.plan_id);
-          break;
-        case 'TRIAL':
-          canAccessSystem = !isTrialExpired; // Can access during trial, but will be prompted to select plan
-          break;
-        case 'PAST_DUE':
-        case 'SUSPENDED':
-          canAccessSystem = false;
-          break;
-        default:
-          canAccessSystem = false;
-      }
-
-      return {
-        status: tenant.status as SubscriptionStatus['status'],
-        planId: tenant.plan_id,
-        trialEndsAt,
-        daysRemaining,
-        isTrialExpired,
-        canAccessSystem,
-        paymentUrl: 'https://snippe.me/pay/safi360',
-      };
-    },
-    enabled: auth.status === 'signed_in',
-    staleTime: 30_000, // 30 seconds
+  const tenantId = auth.claims.tenant_id;
+  const query = useQuery({
+    queryKey: subscriptionKeys.status(tenantId),
+    queryFn: () => fetchSubscriptionStatus(tenantId as string),
+    enabled: auth.status === 'signed_in' && tenantId != null,
+    staleTime: 30_000,
     refetchOnWindowFocus: true,
   });
+  const { refetch: doRefetch } = query;
+  const refetch = useCallback(() => {
+    void doRefetch();
+  }, [doRefetch]);
 
   return {
     status: query.data ?? null,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     error: query.error,
-    refetch: () => void query.refetch(),
+    refetch,
   };
-}
-
-/**
- * Prefetch subscription status for SSR or early loading.
- */
-export async function prefetchSubscriptionStatus(queryClient: QueryClient, userId: string): Promise<void> {
-  await queryClient.prefetchQuery({
-    queryKey: ['subscription', 'status', userId],
-    queryFn: async () => {
-      const { data: membership } = await supabase
-        .from('memberships')
-        .select('tenant_id')
-        .eq('user_id', userId)
-        .eq('active', true)
-        .single();
-
-      if (!membership) {
-        return {
-          status: 'NO_TENANT' as const,
-          planId: null,
-          trialEndsAt: null,
-          daysRemaining: null,
-          isTrialExpired: false,
-          canAccessSystem: false,
-          paymentUrl: 'https://snippe.me/pay/safi360',
-        };
-      }
-
-      const { data: tenant } = await supabase
-        .from('tenants')
-        .select('id, name, status, plan_id, trial_ends_at, deleted_at')
-        .eq('id', membership.tenant_id)
-        .single();
-
-      if (!tenant || tenant.deleted_at) {
-        return {
-          status: 'NO_TENANT' as const,
-          planId: null,
-          trialEndsAt: null,
-          daysRemaining: null,
-          isTrialExpired: false,
-          canAccessSystem: false,
-          paymentUrl: 'https://snippe.me/pay/safi360',
-        };
-      }
-
-      const trialEndsAt = tenant.trial_ends_at;
-      const now = new Date();
-      const isTrialExpired = trialEndsAt ? new Date(trialEndsAt) < now : false;
-      let daysRemaining: number | null = null;
-
-      if (trialEndsAt && !isTrialExpired) {
-        const diffMs = new Date(trialEndsAt).getTime() - now.getTime();
-        daysRemaining = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-      }
-
-      let canAccessSystem = false;
-      switch (tenant.status) {
-        case 'ACTIVE':
-          canAccessSystem = Boolean(tenant.plan_id);
-          break;
-        case 'TRIAL':
-          canAccessSystem = !isTrialExpired;
-          break;
-        default:
-          canAccessSystem = false;
-      }
-
-      return {
-        status: tenant.status as SubscriptionStatus['status'],
-        planId: tenant.plan_id,
-        trialEndsAt,
-        daysRemaining,
-        isTrialExpired,
-        canAccessSystem,
-        paymentUrl: 'https://snippe.me/pay/safi360',
-      };
-    },
-    staleTime: 30_000,
-  });
 }

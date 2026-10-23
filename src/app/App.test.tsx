@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 import { AppProviders } from '@/app/providers';
 import { routes } from '@/app/App';
 import type { AuthState } from '@/lib/auth';
+import type * as SubscriptionModule from '@/lib/subscription';
 
 // The ops dashboard reads live Supabase queries; stub the data hooks so the
 // route test renders the real dashboard UI without a backend.
@@ -56,6 +57,29 @@ vi.mock('@/experiences/ops/tickets/hooks', () => {
     useAssignmentCandidates: query([]),
     useCreateAssignment: mutation(),
     useCancelAssignment: mutation(),
+  };
+});
+
+// The subscription gate reads the tenant row; stub it as an active, paid company.
+vi.mock('@/lib/subscription', async (importOriginal) => {
+  const actual = await importOriginal<typeof SubscriptionModule>();
+  return {
+    ...actual,
+    useSubscriptionStatus: () => ({
+      status: {
+        status: 'ACTIVE',
+        planId: 'growth',
+        trialEndsAt: null,
+        daysRemaining: null,
+        isTrialExpired: false,
+        canAccessSystem: true,
+        paymentUrl: actual.PAYMENT_URL,
+      },
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      refetch: () => {},
+    }),
   };
 });
 

@@ -24,7 +24,7 @@ export function StepIndicator({ labels, current, reachable, onSelect, className 
       <div className="md:hidden">
         <div className="flex items-center justify-between gap-3">
           <span className="truncate text-sm font-medium text-text">{labels[current]}</span>
-          <span className="shrink-0 text-caption text-text-subtle">
+          <span className="text-caption shrink-0 text-text-subtle">
             {t('portal.steps.step_of', { n: current + 1, total: labels.length })}
           </span>
         </div>
@@ -36,7 +36,7 @@ export function StepIndicator({ labels, current, reachable, onSelect, className 
           aria-valuenow={current + 1}
         >
           <div
-            className="h-full rounded-full bg-primary transition-[width] duration-500 ease-premium"
+            className="ease-premium h-full rounded-full bg-primary transition-[width] duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -55,13 +55,13 @@ export function StepIndicator({ labels, current, reachable, onSelect, className 
                 disabled={!canGo}
                 aria-current={active ? 'step' : undefined}
                 className={cn(
-                  'flex items-center gap-2 rounded-lg px-1.5 py-1 text-sm transition-colors duration-200 ease-premium disabled:cursor-default',
+                  'ease-premium flex items-center gap-2 rounded-lg px-1.5 py-1 text-sm transition-colors duration-200 disabled:cursor-default',
                   canGo && 'hover:bg-surface-muted',
                 )}
               >
                 <span
                   className={cn(
-                    'flex size-7 shrink-0 items-center justify-center rounded-full border text-caption font-semibold transition-colors',
+                    'text-caption flex size-7 shrink-0 items-center justify-center rounded-full border font-semibold transition-colors',
                     active && 'border-primary bg-primary text-primary-foreground',
                     done && 'border-primary bg-primary-light text-primary',
                     !active && !done && 'border-border-strong text-text-subtle',

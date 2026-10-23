@@ -1,34 +1,75 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { AuthCard } from '@/components/shared/AuthCard';
-import { PhoneInput } from '@/components/shared/PhoneInput';
 import { CodeInput } from '@/components/shared/CodeInput';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Field } from '@/components/shared/Field';
-import { supabase } from '@/lib/supabase';
-import { isSandbox } from '@/lib/env';
-import { formatPhone } from '@/lib/phone';
+import { PhoneInput } from '@/components/shared/PhoneInput';
 import { SandboxBadge } from '@/components/shared/SandboxBadge';
+import { Button } from '@/components/ui/button';
 import { AlertCircle } from '@/components/ui/icons';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/lib/auth';
+import { authErrorKey, requestOtp, verifyOtp } from '@/lib/auth-api';
+import { isSandbox } from '@/lib/env';
+import { asError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import { formatPhone } from '@/lib/phone';
+import { supabase } from '@/lib/supabase';
 
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])?$/;
 const PREFIX_RE = /^[A-Z]{2,5}$/;
 
 type Step = 'phone' | 'code' | 'details';
 
-interface SignupData {
-  phoneE164: string;
+interface CompanyForm {
   name: string;
   slug: string;
   city: string;
   ticketPrefix: string;
 }
 
+// Availability goes through SECURITY DEFINER functions (migration 0034): RLS hides every
+// other company from this user, so a plain select would always say "available".
+async function slugAvailable(slug: string): Promise<boolean> {
+  const res: { data: unknown; error: unknown } = await supabase.rpc('tenant_slug_available', {
+    p_slug: slug,
+  });
+  if (res.error) throw asError(res.error);
+  return res.data === true;
+}
+
+async function prefixAvailable(prefix: string): Promise<boolean> {
+  const res: { data: unknown; error: unknown } = await supabase.rpc('tenant_prefix_available', {
+    p_prefix: prefix,
+  });
+  if (res.error) throw asError(res.error);
+  return res.data === true;
+}
+
+type SignupFailure = 'slug_taken' | 'prefix_taken' | 'already_member' | 'generic';
+
+/** What signup_tenant() refused, from the Postgres error it raised. */
+function signupFailure(err: unknown): SignupFailure {
+  const e = asError(err) as Error & { code?: string };
+  if (e.message.includes('already_member')) return 'already_member';
+  if (e.code === '23505' || /duplicate key/i.test(e.message)) {
+    if (e.message.includes('ticket_prefix')) return 'prefix_taken';
+    if (e.message.includes('slug')) return 'slug_taken';
+  }
+  return 'generic';
+}
+
+/**
+ * Self-serve company signup: phone → one-time code → company details. The company,
+ * the owner's profile and the OWNER membership are created server-side by
+ * signup_tenant(); the phone is the one just verified by OTP.
+ */
 export default function OnboardingSignup() {
   const { t } = useTranslation();
+  const auth = useAuth();
   const navigate = useNavigate();
+
   const [step, setStep] = useState<Step>('phone');
   const [phoneRaw, setPhoneRaw] = useState('');
   const [phoneE164, setPhoneE164] = useState<string | null>(null);
@@ -36,25 +77,27 @@ export default function OnboardingSignup() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
-  const [signupData, setSignupData] = useState<SignupData>({
-    phoneE164: '',
-    name: '',
-    slug: '',
-    city: '',
-    ticketPrefix: '',
-  });
+  const [form, setForm] = useState<CompanyForm>({ name: '', slug: '', city: '', ticketPrefix: '' });
   const [slugTaken, setSlugTaken] = useState(false);
   const [prefixTaken, setPrefixTaken] = useState(false);
+  // Set once this page created the company, so the new tenant claims do not bounce the
+  // owner to /ops before they have seen the plan page.
+  const [created, setCreated] = useState(false);
 
-  const slugValid = SLUG_RE.test(signupData.slug.trim());
-  const prefixValid = PREFIX_RE.test(signupData.ticketPrefix.trim());
+  // Once a session exists (code just verified, or already signed in without a company)
+  // the only thing left is the company form.
+  useEffect(() => {
+    if (auth.status === 'signed_in') setStep('details');
+  }, [auth.status]);
 
-  const step2Ok =
-    signupData.name.trim().length >= 2 &&
-    slugValid &&
-    !slugTaken &&
-    prefixValid &&
-    !prefixTaken;
+  const slugValid = SLUG_RE.test(form.slug.trim());
+  const prefixValid = PREFIX_RE.test(form.ticketPrefix.trim());
+  const nameValid = form.name.trim().length >= 2;
+  const detailsOk = nameValid && slugValid && !slugTaken && prefixValid && !prefixTaken;
+
+  if (auth.status === 'signed_in' && auth.claims.tenant_id && !created) {
+    return <Navigate to="/ops" replace />;
+  }
 
   const sendCode = async (e: FormEvent) => {
     e.preventDefault();
@@ -63,17 +106,11 @@ export default function OnboardingSignup() {
     setBusy(true);
     setError(null);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: phoneE164,
-        options: { shouldCreateUser: true },
-      });
-      if (error) throw error;
+      await requestOtp(phoneE164, { shouldCreateUser: true });
       setStep('code');
       setCode('');
-      // Store phone in signup data for later use
-      setSignupData(prev => ({ ...prev, phoneE164 }));
     } catch (err) {
-      setError(t('auth.errors.generic'));
+      setError(t(authErrorKey(err as Error)));
     } finally {
       setBusy(false);
     }
@@ -84,45 +121,30 @@ export default function OnboardingSignup() {
     setBusy(true);
     setError(null);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone: phoneE164,
-        token: value,
-        type: 'sms',
-      });
-      if (error) throw error;
-      // Session created, now go to details step
+      await verifyOtp(phoneE164, value);
       setStep('details');
     } catch (err) {
-      setError(t('auth.errors.invalid_code'));
+      setError(t(authErrorKey(err as Error)));
+    } finally {
       setBusy(false);
     }
   };
 
   const checkSlug = async () => {
-    if (!slugValid) return;
+    const slug = form.slug.trim();
+    if (!SLUG_RE.test(slug)) return;
     try {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('id')
-        .eq('slug', signupData.slug.trim())
-        .limit(1);
-      if (error) throw error;
-      setSlugTaken((data ?? []).length > 0);
+      setSlugTaken(!(await slugAvailable(slug)));
     } catch {
-      setSlugTaken(false);
+      setSlugTaken(false); // the server re-checks on submit
     }
   };
 
   const checkPrefix = async () => {
-    if (!prefixValid) return;
+    const prefix = form.ticketPrefix.trim();
+    if (!PREFIX_RE.test(prefix)) return;
     try {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('id')
-        .eq('ticket_prefix', signupData.ticketPrefix.trim())
-        .limit(1);
-      if (error) throw error;
-      setPrefixTaken((data ?? []).length > 0);
+      setPrefixTaken(!(await prefixAvailable(prefix)));
     } catch {
       setPrefixTaken(false);
     }
@@ -130,77 +152,31 @@ export default function OnboardingSignup() {
 
   const submitDetails = async (e: FormEvent) => {
     e.preventDefault();
-    if (!step2Ok) return;
+    if (!detailsOk || busy) return;
     setBusy(true);
     setError(null);
     try {
-      const trialEndsAt = new Date(Date.now() + 7 * 86_400_000).toISOString(); // 7 days
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData.user) throw new Error('User not authenticated');
-
-      // Insert tenant and get the ID back
-      const { data: tenant, error: tenantError } = await supabase
-        .from('tenants')
-        .insert({
-          name: signupData.name.trim(),
-          slug: signupData.slug.trim(),
-          phone_e164: phoneE164!,
-          city: signupData.city.trim() || null,
-          ticket_prefix: signupData.ticketPrefix.trim(),
-          plan_id: null,
-          status: 'TRIAL',
-          trial_ends_at: trialEndsAt,
-          branding: {
-            display_name: signupData.name.trim(),
-          },
-          settings: {
-            deposit_pct: 30,
-            cancel_hours: 4,
-            slot_hold_minutes: 15,
-            travel_buffer_min: 45,
-            quote_expiry_hours: 144,
-            languages: ['sw', 'en'],
-            default_locale: 'sw',
-            working_hours: {
-              mon: { open: '08:00', close: '18:00' },
-              tue: { open: '08:00', close: '18:00' },
-              wed: { open: '08:00', close: '18:00' },
-              thu: { open: '08:00', close: '18:00' },
-              fri: { open: '08:00', close: '18:00' },
-              sat: { open: '08:00', close: '16:00' },
-              sun: { open: '09:00', close: '13:00', closed: true },
-            },
-          },
-        })
-        .select('id')
-        .single();
-
-      if (tenantError || !tenant) throw tenantError ?? new Error('Failed to create tenant');
-
-      // Create profile for the user
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: userData.user.id,
-        phone_e164: phoneE164!,
-        name: signupData.name.trim(),
-        locale: 'sw',
-        is_super_admin: false,
+      const res: { data: unknown; error: unknown } = await supabase.rpc('signup_tenant', {
+        p_name: form.name.trim(),
+        p_slug: form.slug.trim(),
+        p_ticket_prefix: form.ticketPrefix.trim(),
+        p_city: form.city.trim() || null,
       });
-      if (profileError) throw profileError;
-
-      // Create membership for the user as OWNER
-      const { error: membershipError } = await supabase.from('memberships').insert({
-        tenant_id: tenant.id,
-        user_id: userData.user.id,
-        role: 'OWNER',
-        active: true,
-      });
-      if (membershipError) throw membershipError;
-
+      if (res.error) throw asError(res.error);
+      setCreated(true);
+      // The access-token hook adds the new tenant claims to the next token.
       await supabase.auth.refreshSession();
       navigate('/onboarding/plan', { replace: true });
     } catch (err) {
-      console.error('Signup error:', err);
-      setError(t('onboarding.signup.error'));
+      const why = signupFailure(err);
+      if (why === 'slug_taken') setSlugTaken(true);
+      else if (why === 'prefix_taken') setPrefixTaken(true);
+      else {
+        logger.warn('signup_tenant failed', { reason: why, message: asError(err).message });
+        setError(
+          t(why === 'already_member' ? 'onboarding.signup.already_member' : 'onboarding.signup.error'),
+        );
+      }
       setBusy(false);
     }
   };
@@ -284,7 +260,10 @@ export default function OnboardingSignup() {
           <p className="mb-5 text-sm text-text-muted">{t('onboarding.signup.details_body')}</p>
 
           {error && (
-            <div className="mb-4 flex items-center gap-2 rounded border border-error/30 bg-error/5 p-3 text-sm text-error">
+            <div
+              role="alert"
+              className="mb-4 flex items-center gap-2 rounded border border-error/30 bg-error/5 p-3 text-sm text-error"
+            >
               <AlertCircle className="size-4 shrink-0" aria-hidden="true" />
               {error}
             </div>
@@ -294,12 +273,12 @@ export default function OnboardingSignup() {
             id="su-name"
             label={t('onboarding.signup.name')}
             required
-            error={signupData.name && signupData.name.trim().length < 2 ? t('onboarding.signup.name_invalid') : undefined}
+            error={form.name && !nameValid ? t('onboarding.signup.name_invalid') : undefined}
           >
             <Input
               id="su-name"
-              value={signupData.name}
-              onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
               autoFocus
             />
           </Field>
@@ -310,7 +289,7 @@ export default function OnboardingSignup() {
             required
             hint={t('onboarding.signup.slug_hint')}
             error={
-              signupData.slug && !slugValid
+              form.slug && !slugValid
                 ? t('onboarding.signup.slug_invalid')
                 : slugTaken
                   ? t('onboarding.signup.slug_taken')
@@ -319,21 +298,21 @@ export default function OnboardingSignup() {
           >
             <Input
               id="su-slug"
-              value={signupData.slug}
+              value={form.slug}
               onChange={(e) => {
-                setSignupData({ ...signupData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') });
-                checkSlug();
+                setSlugTaken(false);
+                setForm({ ...form, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') });
               }}
-              onBlur={checkSlug}
-              invalid={Boolean((signupData.slug && !slugValid) || slugTaken)}
+              onBlur={() => void checkSlug()}
+              invalid={Boolean((form.slug && !slugValid) || slugTaken)}
             />
           </Field>
 
           <Field id="su-city" label={t('onboarding.signup.city')}>
             <Input
               id="su-city"
-              value={signupData.city}
-              onChange={(e) => setSignupData({ ...signupData, city: e.target.value })}
+              value={form.city}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
             />
           </Field>
 
@@ -343,7 +322,7 @@ export default function OnboardingSignup() {
             required
             hint={t('onboarding.signup.ticket_prefix_hint')}
             error={
-              signupData.ticketPrefix && !prefixValid
+              form.ticketPrefix && !prefixValid
                 ? t('onboarding.signup.ticket_prefix_invalid')
                 : prefixTaken
                   ? t('onboarding.signup.ticket_prefix_taken')
@@ -352,34 +331,40 @@ export default function OnboardingSignup() {
           >
             <Input
               id="su-prefix"
-              value={signupData.ticketPrefix}
+              value={form.ticketPrefix}
               onChange={(e) => {
-                setSignupData({
-                  ...signupData,
-                  ticketPrefix: e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 5),
+                setPrefixTaken(false);
+                setForm({
+                  ...form,
+                  ticketPrefix: e.target.value
+                    .toUpperCase()
+                    .replace(/[^A-Z]/g, '')
+                    .slice(0, 5),
                 });
-                checkPrefix();
               }}
-              onBlur={checkPrefix}
-              invalid={Boolean((signupData.ticketPrefix && !prefixValid) || prefixTaken)}
+              onBlur={() => void checkPrefix()}
+              invalid={Boolean((form.ticketPrefix && !prefixValid) || prefixTaken)}
             />
           </Field>
 
-          <Button type="submit" className="mt-4 w-full" loading={busy} disabled={!step2Ok}>
+          <Button type="submit" className="mt-4 w-full" loading={busy} disabled={!detailsOk}>
             {t('onboarding.signup.submit')}
           </Button>
         </form>
       )}
 
       {isSandbox && (
-        <p className="mt-6 flex items-start gap-2 text-caption text-text-subtle">
+        <p className="text-caption mt-6 flex items-start gap-2 text-text-subtle">
           <SandboxBadge />
           <span>{t('auth.sandbox_hint')}</span>
         </p>
       )}
 
       <p className="mt-4 text-center text-sm text-text-muted">
-        {t('onboarding.signup.already_have_account')} <Link to="/ops/login" className="text-primary hover:underline">{t('onboarding.signup.sign_in')}</Link>
+        {t('onboarding.signup.already_have_account')}{' '}
+        <Link to="/ops/login" className="text-primary hover:underline">
+          {t('onboarding.signup.sign_in')}
+        </Link>
       </p>
     </AuthCard>
   );

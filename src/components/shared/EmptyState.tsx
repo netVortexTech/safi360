@@ -15,7 +15,7 @@ export function EmptyState({ icon, title, description, actions, className }: Emp
   return (
     <div
       className={cn(
-        'flex animate-fade-in flex-col items-center justify-center px-6 py-14 text-center',
+        'animate-fade-in flex flex-col items-center justify-center px-6 py-14 text-center',
         className,
       )}
       data-state="empty"

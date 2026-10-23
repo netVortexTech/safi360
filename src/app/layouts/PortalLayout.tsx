@@ -128,26 +128,24 @@ export function PortalLayout() {
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
                   <p className="font-medium text-text">{tenant.branding.display_name || tenant.name}</p>
-                  <p className="mt-1 text-sm text-text-muted">
-                    {t('portal.footer.by_safi360')}
-                  </p>
+                  <p className="mt-1 text-sm text-text-muted">{t('portal.footer.by_safi360')}</p>
                 </div>
                 <nav className="flex flex-wrap gap-4" aria-label="Footer links">
                   <Link
                     to={`/${slug}/privacy`}
-                    className="text-sm text-text-muted hover:text-text transition-colors"
+                    className="text-sm text-text-muted transition-colors hover:text-text"
                   >
                     {t('portal.footer.privacy')}
                   </Link>
                   <Link
                     to={`/${slug}/privacy`}
-                    className="text-sm text-text-muted hover:text-text transition-colors"
+                    className="text-sm text-text-muted transition-colors hover:text-text"
                   >
                     {t('portal.footer.terms')}
                   </Link>
                   <a
                     href={`tel:${tenant.phone_e164}`}
-                    className="text-sm text-text-muted hover:text-text transition-colors"
+                    className="text-sm text-text-muted transition-colors hover:text-text"
                   >
                     {t('portal.footer.support')}
                   </a>
@@ -155,13 +153,16 @@ export function PortalLayout() {
                 <div className="flex flex-col items-end text-sm text-text-muted">
                   <a
                     href={`tel:${tenant.phone_e164}`}
-                    className="inline-flex items-center gap-1.5 hover:text-text transition-colors"
+                    className="inline-flex items-center gap-1.5 transition-colors hover:text-text"
                   >
                     <Phone className="size-4" aria-hidden="true" />
                     {t('portal.footer.call', { phone: formatPhone(tenant.phone_e164) })}
                   </a>
                   <p className="mt-2 text-xs text-text-subtle">
-                    {t('portal.footer.copyright', { year: new Date().getFullYear(), tenant: tenant.branding.display_name || tenant.name })}
+                    {t('portal.footer.copyright', {
+                      year: new Date().getFullYear(),
+                      tenant: tenant.branding.display_name || tenant.name,
+                    })}
                   </p>
                 </div>
               </div>

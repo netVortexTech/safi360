@@ -926,6 +926,7 @@
       "ticket_prefix_taken": "This prefix is already in use",
       "already_have_account": "Already have an account?",
       "sign_in": "Sign in",
+      "already_member": "This phone number already belongs to a company. Sign in instead.",
       "submit": "Create company",
       "error": "Failed to create company. Please try again."
     },

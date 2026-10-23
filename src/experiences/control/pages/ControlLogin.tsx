@@ -142,7 +142,7 @@ export default function ControlLogin() {
       )}
 
       {isSandbox && (
-        <p className="mt-6 flex items-start gap-2 text-caption text-text-subtle">
+        <p className="text-caption mt-6 flex items-start gap-2 text-text-subtle">
           <SandboxBadge />
           <span>{t('auth.sandbox_hint')}</span>
         </p>

@@ -74,10 +74,10 @@ export function SettingsTabs({ className }: { className?: string }) {
           to={tab.to}
           className={({ isActive }) =>
             cn(
-              'whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors duration-200 ease-premium',
+              'ease-premium whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors duration-200',
               isActive
                 ? 'border-primary bg-primary-light text-primary'
-                : 'border-border bg-surface text-text-muted hover:border-border-strong hover:bg-surface-muted hover:text-text',
+                : 'hover:border-border-strong border-border bg-surface text-text-muted hover:bg-surface-muted hover:text-text',
             )
           }
         >

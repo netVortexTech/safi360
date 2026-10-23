@@ -25,7 +25,7 @@ export default function ServicesPage() {
   return (
     <div className="space-y-8">
       <header>
-        <p className="text-caption uppercase tracking-eyebrow text-text-subtle">{t('portal.nav.services')}</p>
+        <p className="text-caption tracking-eyebrow uppercase text-text-subtle">{t('portal.nav.services')}</p>
         <h1 className="mt-1.5 text-h1">{t('portal.services.title')}</h1>
         <p className="mt-1.5 max-w-2xl text-body text-text-muted">{t('portal.services.subtitle')}</p>
       </header>

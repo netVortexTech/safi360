@@ -82,8 +82,7 @@ export default function JobDetail() {
   }, [id]);
 
   if (jobQuery.isLoading) return <div className="h-48 animate-pulse rounded-xl bg-surface-muted" />;
-  if (jobQuery.error || !job)
-    return <ErrorState onRetry={() => void jobQuery.refetch()} />;
+  if (jobQuery.error || !job) return <ErrorState onRetry={() => void jobQuery.refetch()} />;
 
   const primaryLabel = () => {
     switch (job.status) {
@@ -258,7 +257,8 @@ export default function JobDetail() {
       </Link>
       <article className="space-y-4">
         <Link to="/field" className="inline-flex items-center gap-2 text-sm font-medium text-primary">
-          <ArrowLeft className="size-4" aria-hidden="true" /> {t('field.nav_today', { defaultValue: 'Today' })}
+          <ArrowLeft className="size-4" aria-hidden="true" />{' '}
+          {t('field.nav_today', { defaultValue: 'Today' })}
         </Link>
 
         <header className="rounded-xl bg-surface p-4 shadow-card">
@@ -379,7 +379,10 @@ export default function JobDetail() {
               <p className="text-xs text-text-muted">
                 {t('field.uploading_photo', { current: upload.current, total: upload.total })}
               </p>
-              <Progress value={upload.pct} label={t('field.uploading_photo', { current: upload.current, total: upload.total })} />
+              <Progress
+                value={upload.pct}
+                label={t('field.uploading_photo', { current: upload.current, total: upload.total })}
+              />
             </div>
           )}
           <p className="mt-2 text-xs text-text-muted">
@@ -448,7 +451,9 @@ export default function JobDetail() {
               onBlur={() => setIssueTouched(true)}
               rows={4}
               aria-invalid={issueTouched && issueReason.trim().length < 3 ? true : undefined}
-              aria-describedby={issueTouched && issueReason.trim().length < 3 ? 'issue-details-error' : undefined}
+              aria-describedby={
+                issueTouched && issueReason.trim().length < 3 ? 'issue-details-error' : undefined
+              }
               className={`mt-1 w-full rounded-lg border bg-surface p-3 ${issueTouched && issueReason.trim().length < 3 ? 'border-error' : 'border-border'}`}
               required
             />
@@ -458,7 +463,12 @@ export default function JobDetail() {
               </p>
             )}
             <div className="mt-4 flex gap-3">
-              <Button variant="secondary" size="field" className="flex-1 rounded-lg" onClick={() => setReportOpen(false)}>
+              <Button
+                variant="secondary"
+                size="field"
+                className="flex-1 rounded-lg"
+                onClick={() => setReportOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
