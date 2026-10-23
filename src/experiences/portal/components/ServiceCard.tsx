@@ -31,7 +31,7 @@ export function ServiceCard({ service, locale, bookTo, detailTo, compact }: Serv
   const review = service.pricing_type === 'INSPECTION_REQUIRED' || service.pricing_type === 'CUSTOM_QUOTE';
   return (
     <article
-      className="group flex h-full flex-col gap-3 rounded-xl border border-border bg-surface p-5 shadow-card transition-[box-shadow,border-color,transform] duration-300 ease-premium hover:-translate-y-0.5 hover:border-border-strong hover:shadow-lifted"
+      className="ease-premium hover:border-border-strong hover:shadow-lifted group flex h-full flex-col gap-3 rounded-xl border border-border bg-surface p-5 shadow-card transition-[box-shadow,border-color,transform] duration-300 hover:-translate-y-0.5"
       data-testid="service-card"
     >
       <div className="flex items-start justify-between gap-3">
@@ -51,7 +51,7 @@ export function ServiceCard({ service, locale, bookTo, detailTo, compact }: Serv
       </div>
       {!compact && description && <p className="text-pretty text-sm text-text-muted">{description}</p>}
       <p className="tabular text-base font-semibold text-text">{priceLabel(service, locale, t)}</p>
-      <p className="flex flex-wrap gap-x-4 gap-y-1 text-caption text-text-subtle">
+      <p className="text-caption flex flex-wrap gap-x-4 gap-y-1 text-text-subtle">
         {duration != null && (
           <span className="inline-flex items-center gap-1.5">
             <Clock className="size-3.5" aria-hidden="true" />

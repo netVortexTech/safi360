@@ -47,8 +47,7 @@ export default defineConfig({
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
           query: ['@tanstack/react-query'],
-          // TODO(phase-1): add `supabase: ['@supabase/supabase-js']` once a screen imports
-          // the client; until then Rollup emits (and warns about) an empty chunk.
+          supabase: ['@supabase/supabase-js'],
         },
       },
     },

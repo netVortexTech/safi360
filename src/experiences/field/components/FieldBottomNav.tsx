@@ -27,7 +27,7 @@ export function FieldBottomNav() {
                 to={tab.to}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'flex h-16 flex-col items-center justify-center gap-0.5 text-caption font-medium transition-colors',
+                  'text-caption flex h-16 flex-col items-center justify-center gap-0.5 font-medium transition-colors',
                   active ? 'text-primary' : 'text-text-subtle',
                 )}
               >

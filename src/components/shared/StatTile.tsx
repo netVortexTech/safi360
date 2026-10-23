@@ -28,13 +28,10 @@ export function StatTile({ label, value, icon, tone = 'primary', to, className }
   const body = (
     <CardBody className="p-4 sm:p-5">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-caption uppercase tracking-eyebrow text-text-subtle">{label}</p>
+        <p className="text-caption tracking-eyebrow uppercase text-text-subtle">{label}</p>
         {icon ? (
           <span
-            className={cn(
-              'flex size-9 shrink-0 items-center justify-center rounded-lg',
-              TONES[tone],
-            )}
+            className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', TONES[tone])}
             aria-hidden="true"
           >
             {icon}

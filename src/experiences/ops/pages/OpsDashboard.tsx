@@ -1,6 +1,14 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Banknote, Calendar, CheckCircle2, Plus, Ticket, TrendingUp } from '@/components/ui/icons';
+import {
+  AlertTriangle,
+  Banknote,
+  Calendar,
+  CheckCircle2,
+  Plus,
+  Ticket,
+  TrendingUp,
+} from '@/components/ui/icons';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../tickets/hooks';
 import { useCurrentTenant } from '@/lib/tenant';

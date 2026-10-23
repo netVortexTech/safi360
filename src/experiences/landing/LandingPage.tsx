@@ -97,12 +97,30 @@ export default function LandingPage() {
   }));
 
   const plans = [
-    { id: 'starter', name: 'Starter', price: '45,000', desc: t('landing.starter_desc'), popular: false,
-      limits: [t('landing.starter_l1'), t('landing.starter_l2'), t('landing.starter_l3')] },
-    { id: 'growth', name: 'Growth', price: '95,000', desc: t('landing.growth_desc'), popular: true,
-      limits: [t('landing.growth_l1'), t('landing.growth_l2'), t('landing.growth_l3')] },
-    { id: 'pro', name: 'Pro', price: '180,000', desc: t('landing.pro_desc'), popular: false,
-      limits: [t('landing.pro_l1'), t('landing.pro_l2'), t('landing.pro_l3')] },
+    {
+      id: 'starter',
+      name: 'Starter',
+      price: '45,000',
+      desc: t('landing.starter_desc'),
+      popular: false,
+      limits: [t('landing.starter_l1'), t('landing.starter_l2'), t('landing.starter_l3')],
+    },
+    {
+      id: 'growth',
+      name: 'Growth',
+      price: '95,000',
+      desc: t('landing.growth_desc'),
+      popular: true,
+      limits: [t('landing.growth_l1'), t('landing.growth_l2'), t('landing.growth_l3')],
+    },
+    {
+      id: 'pro',
+      name: 'Pro',
+      price: '180,000',
+      desc: t('landing.pro_desc'),
+      popular: false,
+      limits: [t('landing.pro_l1'), t('landing.pro_l2'), t('landing.pro_l3')],
+    },
   ];
 
   const faqs = [1, 2, 3, 4].map((n) => ({
@@ -135,7 +153,10 @@ export default function LandingPage() {
             </span>
             <span className="text-lg font-bold">Safi360</span>
           </Link>
-          <nav aria-label="Main" className="hidden items-center gap-6 text-sm font-medium text-text-muted md:flex">
+          <nav
+            aria-label="Main"
+            className="hidden items-center gap-6 text-sm font-medium text-text-muted md:flex"
+          >
             {navLinks.map(([href, label]) => (
               <a key={href} href={href} className="hover:text-text">
                 {label}
@@ -157,7 +178,10 @@ export default function LandingPage() {
       <main id="main">
         {/* ---- Hero ---- */}
         <section className="relative overflow-hidden">
-          <div className="pointer-events-none absolute -right-40 -top-40 size-[480px] rounded-full bg-primary-light" aria-hidden="true" />
+          <div
+            className="pointer-events-none absolute -right-40 -top-40 size-[480px] rounded-full bg-primary-light"
+            aria-hidden="true"
+          />
           <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:py-20">
             <div className="relative">
               <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary-light px-3 py-1 text-sm font-medium text-primary">
@@ -363,7 +387,10 @@ export default function LandingPage() {
                 <details key={f.q} className="group rounded-xl border border-border bg-surface-page p-4">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-medium [&::-webkit-details-marker]:hidden">
                     {f.q}
-                    <ChevronDown className="size-5 shrink-0 text-text-subtle transition-transform group-open:rotate-180" aria-hidden="true" />
+                    <ChevronDown
+                      className="size-5 shrink-0 text-text-subtle transition-transform group-open:rotate-180"
+                      aria-hidden="true"
+                    />
                   </summary>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{f.a}</p>
                 </details>

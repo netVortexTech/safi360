@@ -23,12 +23,12 @@ export function ErrorState({ title, description, onRetry, retrying, offline, cla
     <div
       role="alert"
       className={cn(
-        'flex animate-fade-in flex-col items-center justify-center rounded-2xl border border-error/20 bg-error-tint/50 px-6 py-12 text-center',
+        'animate-fade-in flex flex-col items-center justify-center rounded-2xl border border-error/20 bg-error-tint/50 px-6 py-12 text-center',
         className,
       )}
       data-state="error"
     >
-      <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-surface text-error shadow-xs">
+      <div className="shadow-xs mb-4 flex size-14 items-center justify-center rounded-2xl bg-surface text-error">
         <Icon className="size-6" aria-hidden="true" />
       </div>
       <h3 className="text-h3 text-text">

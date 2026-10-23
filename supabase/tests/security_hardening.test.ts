@@ -60,10 +60,10 @@ describe('claim_staff_invite uses the verified auth phone (0031)', () => {
     );
     expect(res.ok).toBe(true);
     expect(res.rows[0]?.id).toBeNull();
-    const member = await db.sql(
-      `select 1 from public.memberships where user_id = $1 and tenant_id = $2`,
-      [attacker, SEED.tenantB],
-    );
+    const member = await db.sql(`select 1 from public.memberships where user_id = $1 and tenant_id = $2`, [
+      attacker,
+      SEED.tenantB,
+    ]);
     expect(member).toHaveLength(0);
   });
 
@@ -171,10 +171,10 @@ describe('the OWNER row is untouchable below OWNER (0032)', () => {
 
   beforeAll(async () => {
     await db.sql(`insert into auth.users (id, phone) values ($1, '255754100073')`, [manager]);
-    await db.sql(
-      `insert into public.memberships (tenant_id, user_id, role) values ($1, $2, 'MANAGER')`,
-      [SEED.tenantA, manager],
-    );
+    await db.sql(`insert into public.memberships (tenant_id, user_id, role) values ($1, $2, 'MANAGER')`, [
+      SEED.tenantA,
+      manager,
+    ]);
   });
 
   it('a MANAGER cannot demote the OWNER', async () => {

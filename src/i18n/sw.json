@@ -926,6 +926,7 @@
       "ticket_prefix_taken": "Kianzia hiki kimeshatumika",
       "already_have_account": "Tayari una akaunti?",
       "sign_in": "Ingia",
+      "already_member": "Namba hii ya simu tayari imesajiliwa kwenye kampuni. Ingia badala yake.",
       "submit": "Unda kampuni",
       "error": "Imeshindikana kuunda kampuni. Jaribu tena."
     },

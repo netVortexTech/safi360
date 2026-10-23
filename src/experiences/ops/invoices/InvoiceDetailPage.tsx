@@ -103,40 +103,40 @@ export default function InvoiceDetailPage() {
 
           {/* Line items */}
           <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-text-subtle">
-                <th className="pb-2 font-medium">{t('ops.col.service')}</th>
-                <th className="pb-2 text-right font-medium">{t('ops.col.qty')}</th>
-                <th className="pb-2 text-right font-medium">{t('ops.col.amount')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoice.items.map((item, i) => (
-                <tr key={i} className="border-b border-border/50 last:border-0">
-                  <td className="py-2">{item.label}</td>
-                  <td className="tabular py-2 text-right">{item.qty}</td>
-                  <td className="tabular py-2 text-right">
-                    {item.amount_tzs != null ? formatTzs(item.amount_tzs) : '—'}
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-text-subtle">
+                  <th className="pb-2 font-medium">{t('ops.col.service')}</th>
+                  <th className="pb-2 text-right font-medium">{t('ops.col.qty')}</th>
+                  <th className="pb-2 text-right font-medium">{t('ops.col.amount')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoice.items.map((item, i) => (
+                  <tr key={i} className="border-b border-border/50 last:border-0">
+                    <td className="py-2">{item.label}</td>
+                    <td className="tabular py-2 text-right">{item.qty}</td>
+                    <td className="tabular py-2 text-right">
+                      {item.amount_tzs != null ? formatTzs(item.amount_tzs) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-border font-semibold">
+                  <td className="pt-2" colSpan={2}>
+                    {t('ops.total')}
                   </td>
+                  <td className="tabular pt-2 text-right">{formatTzs(invoice.total_tzs)}</td>
                 </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="border-t-2 border-border font-semibold">
-                <td className="pt-2" colSpan={2}>
-                  {t('ops.total')}
-                </td>
-                <td className="tabular pt-2 text-right">{formatTzs(invoice.total_tzs)}</td>
-              </tr>
-              {invoice.deposit_tzs > 0 && (
-                <tr className="text-text-muted">
-                  <td colSpan={2}>{t('quote.summary.deposit')}</td>
-                  <td className="tabular text-right">{formatTzs(invoice.deposit_tzs)}</td>
-                </tr>
-              )}
-            </tfoot>
-          </table>
+                {invoice.deposit_tzs > 0 && (
+                  <tr className="text-text-muted">
+                    <td colSpan={2}>{t('quote.summary.deposit')}</td>
+                    <td className="tabular text-right">{formatTzs(invoice.deposit_tzs)}</td>
+                  </tr>
+                )}
+              </tfoot>
+            </table>
           </div>
 
           {/* Payments received */}

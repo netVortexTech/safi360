@@ -305,56 +305,56 @@ export function TicketDetailPage() {
             </CardHeader>
             <CardBody>
               <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-left text-text-subtle">
-                    <th className="pb-2 font-medium">{t('ops.col.service')}</th>
-                    <th className="pb-2 text-right font-medium">{t('ops.col.qty')}</th>
-                    <th className="pb-2 text-right font-medium">{t('ops.col.amount')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item, i) => (
-                    <tr key={i} className="border-b border-border/50 last:border-0">
-                      <td className="py-2">
-                        {item.label_en || item.label_sw}
-                        {item.requires_review && (
-                          <Badge tone="warning" className="ml-2">
-                            <AlertTriangle className="size-3" aria-hidden="true" />
-                            {t('ops.on_review')}
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="tabular py-2 text-right">{item.qty}</td>
-                      <td className="tabular py-2 text-right">
-                        {item.amount_tzs != null ? formatTzs(item.amount_tzs) : '—'}
-                      </td>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-left text-text-subtle">
+                      <th className="pb-2 font-medium">{t('ops.col.service')}</th>
+                      <th className="pb-2 text-right font-medium">{t('ops.col.qty')}</th>
+                      <th className="pb-2 text-right font-medium">{t('ops.col.amount')}</th>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr className="border-t-2 border-border font-semibold">
-                    <td className="pt-2" colSpan={2}>
-                      {t('quote.summary.total')}
-                    </td>
-                    <td className="tabular pt-2 text-right">{formatTzs(ticket.total_tzs)}</td>
-                  </tr>
-                  {ticket.deposit_tzs > 0 && (
-                    <>
-                      <tr className="text-text-muted">
-                        <td colSpan={2}>{t('quote.summary.deposit')}</td>
-                        <td className="tabular text-right">{formatTzs(ticket.deposit_tzs)}</td>
-                      </tr>
-                      <tr className="text-text-muted">
-                        <td colSpan={2}>{t('quote.summary.balance')}</td>
-                        <td className="tabular text-right">
-                          {formatTzs(ticket.total_tzs - ticket.deposit_tzs)}
+                  </thead>
+                  <tbody>
+                    {items.map((item, i) => (
+                      <tr key={i} className="border-b border-border/50 last:border-0">
+                        <td className="py-2">
+                          {item.label_en || item.label_sw}
+                          {item.requires_review && (
+                            <Badge tone="warning" className="ml-2">
+                              <AlertTriangle className="size-3" aria-hidden="true" />
+                              {t('ops.on_review')}
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="tabular py-2 text-right">{item.qty}</td>
+                        <td className="tabular py-2 text-right">
+                          {item.amount_tzs != null ? formatTzs(item.amount_tzs) : '—'}
                         </td>
                       </tr>
-                    </>
-                  )}
-                </tfoot>
-              </table>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-border font-semibold">
+                      <td className="pt-2" colSpan={2}>
+                        {t('quote.summary.total')}
+                      </td>
+                      <td className="tabular pt-2 text-right">{formatTzs(ticket.total_tzs)}</td>
+                    </tr>
+                    {ticket.deposit_tzs > 0 && (
+                      <>
+                        <tr className="text-text-muted">
+                          <td colSpan={2}>{t('quote.summary.deposit')}</td>
+                          <td className="tabular text-right">{formatTzs(ticket.deposit_tzs)}</td>
+                        </tr>
+                        <tr className="text-text-muted">
+                          <td colSpan={2}>{t('quote.summary.balance')}</td>
+                          <td className="tabular text-right">
+                            {formatTzs(ticket.total_tzs - ticket.deposit_tzs)}
+                          </td>
+                        </tr>
+                      </>
+                    )}
+                  </tfoot>
+                </table>
               </div>
 
               {/* Quotes */}

@@ -52,7 +52,12 @@ export async function enforceRateLimit(
  */
 export function callerIdFrom(req: Request): string {
   const xff = req.headers.get('x-forwarded-for');
-  const hops = xff ? xff.split(',').map((p) => p.trim()).filter(Boolean) : [];
+  const hops = xff
+    ? xff
+        .split(',')
+        .map((p) => p.trim())
+        .filter(Boolean)
+    : [];
   const ip = hops[hops.length - 1] ?? req.headers.get('cf-connecting-ip') ?? 'unknown';
   return `ip:${ip}`;
 }

@@ -19,17 +19,17 @@ export function AuthCard({ subtitle, children, className }: AuthCardProps) {
     <main className="canvas-wash flex min-h-dvh items-center justify-center bg-surface-page p-4 sm:p-6">
       <div
         className={cn(
-          'w-full max-w-[400px] animate-fade-up rounded-2xl border border-border bg-surface p-7 shadow-lifted sm:p-8',
+          'animate-fade-up shadow-lifted w-full max-w-[400px] rounded-2xl border border-border bg-surface p-7 sm:p-8',
           className,
         )}
       >
         <div className="mb-7 flex items-center gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-xs">
+          <span className="shadow-xs flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">
             S
           </span>
           <div className="min-w-0">
             <div className="text-base font-semibold leading-tight text-text">{t('app.name')}</div>
-            {subtitle && <div className="truncate text-caption text-text-subtle">{subtitle}</div>}
+            {subtitle && <div className="text-caption truncate text-text-subtle">{subtitle}</div>}
           </div>
         </div>
         {children}

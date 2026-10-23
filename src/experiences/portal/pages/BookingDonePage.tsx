@@ -62,13 +62,13 @@ export default function BookingDonePage() {
         <p className="mx-auto mt-2 max-w-prose text-pretty text-body text-text-muted">
           {t(`portal.done.${variant}_body`)}
         </p>
-        <p className="mt-7 text-caption uppercase tracking-eyebrow text-text-subtle">
+        <p className="text-caption tracking-eyebrow mt-7 uppercase text-text-subtle">
           {t('portal.done.ticket')}
         </p>
         <div className="mt-1.5 flex justify-center">
           <TicketChip ticketRef={last.ticket_ref} size="display" />
         </div>
-        <p className="mt-1.5 text-caption text-text-subtle">{t('portal.done.ticket_hint')}</p>
+        <p className="text-caption mt-1.5 text-text-subtle">{t('portal.done.ticket_hint')}</p>
         <div className="mt-5 flex justify-center">
           <StatusBadge status={status} />
         </div>

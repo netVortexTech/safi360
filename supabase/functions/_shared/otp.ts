@@ -39,7 +39,8 @@ export function randomCode(): string {
   const space = 10 ** OTP_LENGTH;
   const limit = 2 ** 32 - (2 ** 32 % space);
   const buf = new Uint32Array(1);
-  do crypto.getRandomValues(buf); while ((buf[0] ?? 0) >= limit);
+  do crypto.getRandomValues(buf);
+  while ((buf[0] ?? 0) >= limit);
   return String((buf[0] ?? 0) % space).padStart(OTP_LENGTH, '0');
 }
 
