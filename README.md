@@ -35,7 +35,7 @@ supabase start                  # applies supabase/migrations + seed.sql
 supabase status                 # copy the anon key into .env.local
 ```
 
-Seeded logins (local only, OTP `123456`): owner of _Usafi Bora Cleaners_ `+255 754 000 001`,
+Seeded logins (local only, password `safi360`; signup and password-reset codes are `123456`): owner of _Usafi Bora Cleaners_ `+255 754 000 001`,
 owner of _Pwani Fresh Cleaning_ `+255 754 000 002`, super admin `+255 754 000 003`. Sign in at
 `/ops/login`; the ops portal requires an OWNER, MANAGER or DISPATCHER membership.
 
@@ -77,8 +77,9 @@ to a personal access token instead and add `--yes` to `db push` and `config push
 do not auto-decline. The functions share `supabase/functions/deno.json` as their import map; the
 `[functions.*]` sections in `config.toml` point at it, which hosted bundling needs.
 
-The seeded owner `+255 754 000 001` then signs in with code `123456` (test OTP, no SMS provider
-needed). Never run `db push --include-seed` against a project with real customers.
+Never run `db push --include-seed` against production: it loads demo companies and test
+numbers. Production loads plans only from `seed.production.sql`. Staff sign in with phone +
+password; SMS codes (signup and password reset) go through the `send_sms_hook` function and Briq.
 
 ## Edge Functions
 

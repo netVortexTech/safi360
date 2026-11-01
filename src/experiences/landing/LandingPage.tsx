@@ -370,7 +370,7 @@ export default function LandingPage() {
                     ))}
                   </ul>
                   <Button asChild variant={p.popular ? 'primary' : 'secondary'} className="mt-6 w-full">
-                    <Link to="/ops/login">{t('landing.plan_cta')}</Link>
+                    <Link to="/signup">{t('landing.plan_cta')}</Link>
                   </Button>
                 </article>
               ))}
@@ -405,7 +405,7 @@ export default function LandingPage() {
             <h2 className="text-h1">{t('landing.cta_title')}</h2>
             <p className="mx-auto mt-3 max-w-xl text-primary-foreground/85">{t('landing.cta_sub')}</p>
             <Button asChild size="lg" className="mt-8 bg-surface text-primary hover:bg-surface-muted">
-              <Link to="/ops/login">
+              <Link to="/signup">
                 {t('landing.cta_button')} <ArrowRight aria-hidden="true" />
               </Link>
             </Button>

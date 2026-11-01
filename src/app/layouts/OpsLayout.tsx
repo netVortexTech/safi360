@@ -40,6 +40,9 @@ function NoAccess() {
   const { t } = useTranslation();
   const auth = useAuth();
   const isCleaner = auth.claims.tenant_role === 'CLEANER';
+  // Signed in but not linked to any company: most likely a new owner who verified their
+  // phone here instead of on /signup, so offer to finish creating the company.
+  const noCompany = auth.claims.tenant_id == null && !auth.claims.is_super_admin;
   return (
     <main className="mx-auto max-w-lg p-4 md:p-8">
       <ErrorState
@@ -50,6 +53,11 @@ function NoAccess() {
         {isCleaner && (
           <Button asChild>
             <NavLink to="/field">{t('auth.go_to_field')}</NavLink>
+          </Button>
+        )}
+        {noCompany && (
+          <Button asChild>
+            <NavLink to="/signup">{t('auth.create_company')}</NavLink>
           </Button>
         )}
         <Button variant="secondary" onClick={() => void auth.signOut()}>

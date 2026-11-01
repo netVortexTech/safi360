@@ -28,8 +28,8 @@
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | **Auth → Providers → Phone**      | Enable SMS provider (Twilio/MessageBird)                                                                                         |
 | **Auth → SMS Template**           | Custom OTP template with brand name                                                                                              |
-| **Auth → Site URL**               | `https://safi360.vercel.app`                                                                                                     |
-| **Auth → Redirect URLs**          | `https://safi360.vercel.app/**`, `https://safi360.vercel.app/ops/**`, etc.                                                       |
+| **Auth → Site URL**               | `https://safi360.netvortex.tech`                                                                                                 |
+| **Auth → Redirect URLs**          | `https://safi360.netvortex.tech/**`, `https://safi360.netvortex.tech/ops/**`, etc.                                               |
 | **Database → Connection Pooling** | Enable for production                                                                                                            |
 | **Edge Functions**                | Deploy all functions (`supabase functions deploy`)                                                                               |
 | **Secrets**                       | Set in Supabase Dashboard: `SELCOM_VENDOR_ID`, `SELCOM_API_KEY`, `SELCOM_SECRET_KEY`, `WHATSAPP_TOKEN`, `WHATSAPP_WABA_ID`, etc. |

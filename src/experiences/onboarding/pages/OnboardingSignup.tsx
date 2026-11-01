@@ -1,26 +1,22 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { AuthCard } from '@/components/shared/AuthCard';
-import { CodeInput } from '@/components/shared/CodeInput';
 import { Field } from '@/components/shared/Field';
-import { PhoneInput } from '@/components/shared/PhoneInput';
-import { SandboxBadge } from '@/components/shared/SandboxBadge';
+import { PhoneSignup } from '@/components/shared/PhoneSignup';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from '@/components/ui/icons';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/lib/auth';
-import { authErrorKey, requestOtp, verifyOtp } from '@/lib/auth-api';
-import { isSandbox } from '@/lib/env';
 import { asError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
-import { formatPhone } from '@/lib/phone';
 import { supabase } from '@/lib/supabase';
 
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])?$/;
 const PREFIX_RE = /^[A-Z]{2,5}$/;
 
-type Step = 'phone' | 'code' | 'details';
+/** Account (phone, password, code), company details, then the plan page. */
+const ONBOARDING_STEPS = 3;
 
 interface CompanyForm {
   name: string;
@@ -53,6 +49,7 @@ type SignupFailure = 'slug_taken' | 'prefix_taken' | 'already_member' | 'generic
 function signupFailure(err: unknown): SignupFailure {
   const e = asError(err) as Error & { code?: string };
   if (e.message.includes('already_member')) return 'already_member';
+  if (e.message.includes('tenants_slug_not_reserved')) return 'slug_taken';
   if (e.code === '23505' || /duplicate key/i.test(e.message)) {
     if (e.message.includes('ticket_prefix')) return 'prefix_taken';
     if (e.message.includes('slug')) return 'slug_taken';
@@ -61,22 +58,17 @@ function signupFailure(err: unknown): SignupFailure {
 }
 
 /**
- * Self-serve company signup: phone → one-time code → company details. The company,
+ * Self-serve company signup: phone + password → SMS code → company details. The company,
  * the owner's profile and the OWNER membership are created server-side by
- * signup_tenant(); the phone is the one just verified by OTP.
+ * signup_tenant(); the phone is the one just verified by the code.
  */
 export default function OnboardingSignup() {
   const { t } = useTranslation();
   const auth = useAuth();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState<Step>('phone');
-  const [phoneRaw, setPhoneRaw] = useState('');
-  const [phoneE164, setPhoneE164] = useState<string | null>(null);
-  const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [phoneTouched, setPhoneTouched] = useState(false);
   const [form, setForm] = useState<CompanyForm>({ name: '', slug: '', city: '', ticketPrefix: '' });
   const [slugTaken, setSlugTaken] = useState(false);
   const [prefixTaken, setPrefixTaken] = useState(false);
@@ -86,9 +78,7 @@ export default function OnboardingSignup() {
 
   // Once a session exists (code just verified, or already signed in without a company)
   // the only thing left is the company form.
-  useEffect(() => {
-    if (auth.status === 'signed_in') setStep('details');
-  }, [auth.status]);
+  const step = auth.status === 'signed_in' ? 'details' : 'account';
 
   const slugValid = SLUG_RE.test(form.slug.trim());
   const prefixValid = PREFIX_RE.test(form.ticketPrefix.trim());
@@ -98,37 +88,6 @@ export default function OnboardingSignup() {
   if (auth.status === 'signed_in' && auth.claims.tenant_id && !created) {
     return <Navigate to="/ops" replace />;
   }
-
-  const sendCode = async (e: FormEvent) => {
-    e.preventDefault();
-    setPhoneTouched(true);
-    if (!phoneE164) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await requestOtp(phoneE164, { shouldCreateUser: true });
-      setStep('code');
-      setCode('');
-    } catch (err) {
-      setError(t(authErrorKey(err as Error)));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const verify = async (value: string) => {
-    if (!phoneE164 || value.length < 6 || busy) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await verifyOtp(phoneE164, value);
-      setStep('details');
-    } catch (err) {
-      setError(t(authErrorKey(err as Error)));
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const checkSlug = async () => {
     const slug = form.slug.trim();
@@ -166,7 +125,7 @@ export default function OnboardingSignup() {
       setCreated(true);
       // The access-token hook adds the new tenant claims to the next token.
       await supabase.auth.refreshSession();
-      navigate('/onboarding/plan', { replace: true });
+      navigate('/onboarding/plan', { replace: true, state: { onboarding: true } });
     } catch (err) {
       const why = signupFailure(err);
       if (why === 'slug_taken') setSlugTaken(true);
@@ -183,75 +142,11 @@ export default function OnboardingSignup() {
 
   return (
     <AuthCard subtitle={t('onboarding.signup.subtitle')}>
-      {step === 'phone' && (
-        <form onSubmit={(e) => void sendCode(e)} noValidate>
-          <h1 className="mb-1 text-h1">{t('onboarding.signup.title')}</h1>
-          <p className="mb-5 text-sm text-text-muted">{t('onboarding.signup.body')}</p>
-          <PhoneInput
-            label={t('phone.label')}
-            value={phoneRaw}
-            onChange={(raw, e164) => {
-              setPhoneRaw(raw);
-              setPhoneE164(e164);
-            }}
-            error={phoneTouched && !phoneE164 ? t('phone.errors.too_short') : (error ?? undefined)}
-            required
-            autoFocus
-          />
-          <Button type="submit" className="mt-2 w-full" loading={busy} loadingLabel={t('auth.sending_code')}>
-            {t('auth.send_code')}
-          </Button>
-        </form>
-      )}
-
-      {step === 'code' && (
-        <div>
-          <button
-            type="button"
-            onClick={() => {
-              setStep('phone');
-              setError(null);
-            }}
-            className="mb-3 inline-flex items-center gap-1 text-sm text-primary hover:underline"
-          >
-            <span>{t('auth.change_number')}</span>
-          </button>
-          <h1 className="mb-1 text-h1">{t('auth.enter_code_title')}</h1>
-          <p className="mb-5 text-sm text-text-muted">
-            {t('auth.enter_code_body', { phone: phoneE164 ? formatPhone(phoneE164) : '' })}
-          </p>
-          <CodeInput
-            label={t('auth.code_label')}
-            value={code}
-            onChange={(v) => {
-              setCode(v);
-              setError(null);
-            }}
-            onComplete={(v) => void verify(v)}
-            error={error ?? undefined}
-            disabled={busy}
-            autoFocus
-          />
-          <Button
-            type="button"
-            className="mt-2 w-full"
-            onClick={() => void verify(code)}
-            loading={busy}
-            loadingLabel={t('auth.verifying')}
-            disabled={code.length < 6}
-          >
-            {t('auth.verify')}
-          </Button>
-          <Button
-            type="button"
-            variant="link"
-            className="mt-3 w-full"
-            onClick={(e) => void sendCode(e)}
-            disabled={busy}
-          >
-            {t('auth.resend_code')}
-          </Button>
-        </div>
+      <p className="mb-2 text-xs font-medium uppercase tracking-wide text-text-subtle">
+        {t('onboarding.step', { current: step === 'details' ? 2 : 1, total: ONBOARDING_STEPS })}
+      </p>
+      {step === 'account' && (
+        <PhoneSignup title={t('onboarding.signup.title')} body={t('onboarding.signup.body')} />
       )}
 
       {step === 'details' && (
@@ -353,19 +248,14 @@ export default function OnboardingSignup() {
         </form>
       )}
 
-      {isSandbox && (
-        <p className="text-caption mt-6 flex items-start gap-2 text-text-subtle">
-          <SandboxBadge />
-          <span>{t('auth.sandbox_hint')}</span>
+      {step === 'account' && (
+        <p className="mt-4 text-center text-sm text-text-muted">
+          {t('onboarding.signup.already_have_account')}{' '}
+          <Link to="/ops/login" className="text-primary hover:underline">
+            {t('onboarding.signup.sign_in')}
+          </Link>
         </p>
       )}
-
-      <p className="mt-4 text-center text-sm text-text-muted">
-        {t('onboarding.signup.already_have_account')}{' '}
-        <Link to="/ops/login" className="text-primary hover:underline">
-          {t('onboarding.signup.sign_in')}
-        </Link>
-      </p>
     </AuthCard>
   );
 }

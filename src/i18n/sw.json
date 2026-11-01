@@ -73,7 +73,7 @@
     "ops_subtitle": "Mfumo wa ofisi",
     "field_app": "Programu ya wasafishaji",
     "sign_in_title": "Ingia",
-    "sign_in_body": "Weka namba yako ya simu ya kazi. Tutakutumia msimbo wa mara moja.",
+    "sign_in_body": "Weka namba yako ya simu na nenosiri.",
     "send_code": "Tuma msimbo",
     "sending_code": "Inatuma msimbo…",
     "change_number": "Tumia namba nyingine",
@@ -89,16 +89,39 @@
     "cleaner_body": "Akaunti yako ni ya msafishaji. Fungua programu ya wasafishaji kuona kazi zako.",
     "go_to_field": "Fungua programu ya wasafishaji",
     "no_access_title": "Bado huna kampuni",
-    "no_access_body": "Namba yako ya simu haijaunganishwa na kampuni yoyote kwenye Safi360. Mwambie mmiliki akuongeze chini ya Wafanyakazi.",
+    "no_access_body": "Namba yako ya simu bado haijaunganishwa na kampuni. Unaanzisha biashara mpya? Unda kampuni yako. Unajiunga na timu? Mwambie mmiliki akuongeze chini ya Wafanyakazi.",
     "errors": {
       "rate_limited": "Majaribio mengi mno. Subiri dakika moja kisha jaribu tena.",
       "expired": "Msimbo huo umeisha muda. Omba mpya.",
       "invalid_code": "Msimbo huo si sahihi. Angalia SMS kisha jaribu tena.",
-      "generic": "Hatukuweza kukuingiza. Tafadhali jaribu tena."
+      "generic": "Hatukuweza kukuingiza. Tafadhali jaribu tena.",
+      "no_account": "Hakuna akaunti yenye namba hii bado. Unda akaunti kwanza.",
+      "wrong_credentials": "Namba ya simu au nenosiri si sahihi.",
+      "already_registered": "Namba hii tayari ina akaunti. Ingia badala yake.",
+      "weak_password": "Chagua nenosiri refu zaidi.",
+      "not_confirmed": "Namba hii bado haijathibitishwa. Unda akaunti tena kupata msimbo mpya."
     },
-    "field_sign_in_body": "Ingia kwa nambari ya simu ya mfanyakazi.",
+    "field_sign_in_body": "Ingia kwa namba yako ya simu na nenosiri.",
     "field_pending_hint": "Hatua moja zaidi: ofisi yako ikuongeze kwenye Mipangilio → Wafanyakazi, kisha uonyeshe upya ili kuona kazi zako.",
-    "check_again": "Angalia tena"
+    "check_again": "Angalia tena",
+    "new_here": "Mgeni kwenye Safi360?",
+    "create_company": "Unda kampuni yako",
+    "password_label": "Nenosiri",
+    "password_confirm_label": "Thibitisha nenosiri",
+    "password_hint": "Angalau herufi {{min}}.",
+    "password_too_short": "Nenosiri liwe na angalau herufi {{min}}.",
+    "password_mismatch": "Manenosiri hayalingani.",
+    "show_password": "Onyesha",
+    "hide_password": "Ficha",
+    "sign_in": "Ingia",
+    "signing_in": "Inaingia…",
+    "forgot_password": "Umesahau nenosiri?",
+    "create_account": "Unda akaunti",
+    "creating_account": "Inaunda akaunti…",
+    "new_cleaner": "Msafishaji mpya?",
+    "have_account": "Tayari una akaunti?",
+    "field_signup_title": "Unda akaunti yako ya msafishaji",
+    "field_signup_body": "Tumia namba ya simu ambayo ofisi yako inayo na uchague nenosiri. Tutakutumia msimbo kuthibitisha namba."
   },
   "weekday": {
     "0": "Jumapili",
@@ -910,7 +933,7 @@
     "signup": {
       "title": "Unda akaunti ya kampuni",
       "subtitle": "Jiunge na Safi360 na uanze kuweka oda za usafi leo",
-      "body": "Tutumie nambari yako ya simu ya Tanzania (+255) kuingia. Tutakutumia msimbo wa uthibitisho.",
+      "body": "Weka namba yako ya simu ya Tanzania (+255) na uchague nenosiri. Tutakutumia msimbo kuthibitisha namba.",
       "details_title": "Maelezo ya kampuni",
       "details_body": "Jaza taarifa za msingi za kampuni yako. Hizi zitaonekana kwenye ukurasa wako wa wateja.",
       "name": "Jina la kampuni",
@@ -933,22 +956,29 @@
     "plan": {
       "title": "Chagua mpango wako",
       "subtitle": "Kamilisha usakaji kwa kuchagua mpango unayofaa kwa bizara yako. Pata siku 7 za bure!",
-      "select": "Chagua",
-      "selecting": "Inachagua...",
-      "confirm": "Thibitisha na uanze",
+      "select": "Chagua mpango huu",
       "per_month": "/mwezi",
       "no_plans": "Hakuna mpango ulioko kwa sasa. Wasiliana na msaada.",
-      "contact_support": "Wasiliana na msaada",
       "sign_in_required": "Inahitaji kuingia",
       "sign_in_body": "Tafadhali ingia ili kuchagua mpango wako.",
       "go_signup": "Nenda kujiandikisha",
       "load_error": "Imeshindikana kupakia mpango",
       "error": "Imeshindikana kuhifadhi mpango. Jaribu tena.",
-      "success": "Mpango umechaguliwa! Karibu kwenye Safi360."
-    }
+      "success": "Mpango umechaguliwa! Karibu kwenye Safi360.",
+      "current": "Mpango wa sasa",
+      "trial_note": "Kuchagua mpango ni bure wakati wa jaribio. Unalipa tu unapouwasha.",
+      "continue_trial": "Endelea na jaribio la bure",
+      "saved": "Mpango umehifadhiwa.",
+      "payment_title": "Mpango umehifadhiwa. Kamilisha malipo ili kuendelea",
+      "payment_body": "Tumehifadhi mpango wako wa {{plan}}. Akaunti yako itafunguliwa mara malipo yako yatakapothibitishwa.",
+      "pay_now": "Lipa sasa",
+      "check_again": "Nimelipa, angalia tena",
+      "still_pending": "Malipo bado hayajathibitishwa. Inaweza kuchukua dakika chache.",
+      "change_plan": "Chagua mpango mwingine"
+    },
+    "step": "Hatua {{current}} kati ya {{total}}"
   },
   "subscription": {
-    "trial_banner_title": "Jaribio lako la siku 7 linabaki siku {{days}}",
     "trial_banner_body": "Chagua mpango kabla ya siku za jaribio kukamilika ili kuendelea kutumia mfumo.",
     "trial_banner_cta": "Chagua mpango sasa",
     "expired_title": "Muda wa jaribio umeisha",
@@ -962,7 +992,9 @@
     "past_due_body": "Malipo yako yamechelewa. Lipa sasa ili kurejesha huduma yako.",
     "blocked_cta_plan": "Chagua mpango",
     "blocked_cta_payment": "Lipa sasa",
-    "blocked_note": "Unaweza pia kulipa moja kwa moja kwenye: {{url}}"
+    "blocked_note": "Unaweza pia kulipa moja kwa moja kwenye: {{url}}",
+    "trial_banner_title_one": "Jaribio lako la siku 7 linabaki siku {{count}}",
+    "trial_banner_title_other": "Jaribio lako la siku 7 linabaki siku {{count}}"
   },
   "ops": {
     "dashboard_title": "Dashibodi",
@@ -1739,7 +1771,12 @@
     "onboarding_booking_desc": "Pokea oda yako ya kwanza.",
     "done": "Imekamilika",
     "pending": "Inasubiri",
-    "open": "Fungua"
+    "open": "Fungua",
+    "password_title": "Badilisha nenosiri",
+    "password_body": "Unaingia kwa namba yako ya simu na nenosiri hili.",
+    "password_new": "Nenosiri jipya",
+    "password_save": "Sasisha nenosiri",
+    "password_saved": "Nenosiri limebadilishwa."
   },
   "landing": {
     "doc_title": "Safi360 — Mfumo wa makampuni ya usafi",
@@ -1834,5 +1871,14 @@
     "footer_rights": "© {{year}} Safi360",
     "footer_made": "Imetengenezwa Tanzania",
     "photo_credit": "Picha: Pexels"
+  },
+  "reset": {
+    "title": "Weka upya nenosiri",
+    "body": "Weka namba yako ya simu. Tutakutumia msimbo kuthibitisha kuwa ni wewe.",
+    "new_title": "Chagua nenosiri jipya",
+    "new_body": "Namba yako imethibitishwa. Chagua nenosiri jipya kumaliza.",
+    "submit": "Hifadhi nenosiri jipya",
+    "done": "Nenosiri limesasishwa.",
+    "back_to_sign_in": "Rudi kuingia"
   }
 }

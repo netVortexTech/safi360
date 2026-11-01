@@ -9,7 +9,7 @@ vi.mock('@/lib/supabase', () => ({
   supabase: { rpc, auth: { refreshSession } },
 }));
 
-import { claimStaffInvite, refreshSessionClaims } from './auth-api';
+import { authErrorKey, claimStaffInvite, refreshSessionClaims } from './auth-api';
 
 describe('claimStaffInvite', () => {
   beforeEach(() => {
@@ -40,5 +40,20 @@ describe('claimStaffInvite', () => {
     await refreshSessionClaims();
     expect(refreshSession).toHaveBeenCalledTimes(1);
     expect(rpc).not.toHaveBeenCalled();
+  });
+});
+
+describe('authErrorKey', () => {
+  it.each([
+    ['invalid_credentials', 'Invalid login credentials', 'auth.errors.wrong_credentials'],
+    ['user_already_exists', 'User already registered', 'auth.errors.already_registered'],
+    ['weak_password', 'Password should be at least 6 characters.', 'auth.errors.weak_password'],
+    ['phone_not_confirmed', 'Phone not confirmed', 'auth.errors.not_confirmed'],
+  ])('maps the %s auth error', (code, message, key) => {
+    expect(authErrorKey(Object.assign(new Error(message), { code }))).toBe(key);
+  });
+
+  it('points an unknown number on an office portal to signup', () => {
+    expect(authErrorKey(new Error('Signups not allowed for otp'))).toBe('auth.errors.no_account');
   });
 });

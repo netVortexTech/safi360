@@ -4,16 +4,19 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth';
+import { authErrorKey, MIN_PASSWORD_LENGTH, updatePassword } from '@/lib/auth-api';
 import { can } from '@/lib/permissions';
 import { supabase } from '@/lib/supabase';
 import { useCurrentTenant } from '@/lib/tenant';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { Field } from '@/components/shared/Field';
+import { PasswordInput } from '@/components/shared/PasswordInput';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/toast';
 import { SettingsTabs } from './SettingsPage';
 
 type TenantRow = Record<string, unknown>;
@@ -180,6 +183,78 @@ export default function ProfileSettings() {
           </CardBody>
         </Card>
       )}
+      <PasswordCard />
     </div>
+  );
+}
+
+/** Every staff member's own sign-in password; not tied to the company or to settings.edit. */
+function PasswordCard() {
+  const { t } = useTranslation();
+  const { toast } = useToast();
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [touched, setTouched] = useState(false);
+
+  const change = useMutation({
+    mutationFn: () => updatePassword(password),
+    // Shown under the field instead of the global toast.
+    meta: { errorHandled: true },
+    onSuccess: () => {
+      toast({ title: t('settings.password_saved') });
+      setPassword('');
+      setConfirm('');
+      setTouched(false);
+    },
+  });
+
+  const tooShort = password.length < MIN_PASSWORD_LENGTH;
+  const mismatch = confirm !== password;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('settings.password_title')}</CardTitle>
+      </CardHeader>
+      <CardBody>
+        <form
+          className="max-w-sm space-y-4"
+          noValidate
+          onSubmit={(e) => {
+            e.preventDefault();
+            setTouched(true);
+            if (!tooShort && !mismatch) change.mutate();
+          }}
+        >
+          <p className="text-sm text-text-muted">{t('settings.password_body')}</p>
+          <PasswordInput
+            id="settings-password"
+            label={t('settings.password_new')}
+            value={password}
+            onChange={setPassword}
+            autoComplete="new-password"
+            hint={t('auth.password_hint', { min: MIN_PASSWORD_LENGTH })}
+            error={
+              change.error
+                ? t(authErrorKey(change.error))
+                : touched && tooShort
+                  ? t('auth.password_too_short', { min: MIN_PASSWORD_LENGTH })
+                  : undefined
+            }
+          />
+          <PasswordInput
+            id="settings-password-confirm"
+            label={t('auth.password_confirm_label')}
+            value={confirm}
+            onChange={setConfirm}
+            autoComplete="new-password"
+            error={touched && mismatch ? t('auth.password_mismatch') : undefined}
+          />
+          <Button type="submit" loading={change.isPending}>
+            {t('settings.password_save')}
+          </Button>
+        </form>
+      </CardBody>
+    </Card>
   );
 }

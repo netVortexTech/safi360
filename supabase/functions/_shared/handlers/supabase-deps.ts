@@ -156,6 +156,8 @@ export interface FunctionEnv {
   APP_ENV?: string | undefined;
   OTP_TOKEN_SECRET?: string | undefined;
   OTP_PROVIDER?: string | undefined;
+  BRIQ_API_KEY?: string | undefined;
+  BRIQ_SENDER_ID?: string | undefined;
   PAYMENT_PROVIDER?: string | undefined;
   MOCK_PAYMENT_SECRET?: string | undefined;
   SUPABASE_SERVICE_ROLE_KEY?: string | undefined;

@@ -1,11 +1,24 @@
 import type { AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
+/** Supabase refuses anything shorter (Auth → minimum password length). */
+export const MIN_PASSWORD_LENGTH = 6;
+
 /** i18n key for a Supabase auth failure. Never surfaces the raw provider message. */
 export function authErrorKey(error: AuthError | Error | null | undefined): string {
   const msg = (error?.message ?? '').toLowerCase();
   const status = (error as AuthError | undefined)?.status;
+  const code = (error as AuthError | undefined)?.code;
   if (status === 429 || msg.includes('rate limit')) return 'auth.errors.rate_limited';
+  if (code === 'invalid_credentials' || msg.includes('invalid login credentials'))
+    return 'auth.errors.wrong_credentials';
+  if (code === 'user_already_exists' || msg.includes('already registered'))
+    return 'auth.errors.already_registered';
+  if (code === 'weak_password' || msg.includes('password should be')) return 'auth.errors.weak_password';
+  if (code === 'phone_not_confirmed' || msg.includes('phone not confirmed'))
+    return 'auth.errors.not_confirmed';
+  // Reset codes never create accounts, so an unknown number is refused here.
+  if (msg.includes('signups not allowed')) return 'auth.errors.no_account';
   if (msg.includes('expired')) return 'auth.errors.expired';
   if (msg.includes('invalid') || msg.includes('token')) return 'auth.errors.invalid_code';
   if (msg.includes('network') || msg.includes('fetch')) return 'errors.generic_body';
@@ -13,20 +26,46 @@ export function authErrorKey(error: AuthError | Error | null | undefined): strin
 }
 
 /**
- * Step 1: send a one-time code to a staff phone.
- * `shouldCreateUser` is false for office portals (a tenant must have added you first).
- * The cleaner app passes true so a new employee can create their account, then the
- * office links them to the company under Settings → Staff.
+ * Send a one-time sign-in code to an existing account (password reset). Never creates
+ * an account: new users go through signUpWithPassword so they choose a password.
  */
-export async function requestOtp(phoneE164: string, options?: { shouldCreateUser?: boolean }): Promise<void> {
+export async function requestOtp(phoneE164: string): Promise<void> {
   const { error } = await supabase.auth.signInWithOtp({
     phone: phoneE164,
-    options: { shouldCreateUser: options?.shouldCreateUser ?? false },
+    options: { shouldCreateUser: false },
   });
   if (error) throw error;
 }
 
-/** Step 2: exchange the code for a session. The access-token hook adds tenant claims. */
+/** Everyday sign-in: phone + password, no SMS. The access-token hook adds tenant claims. */
+export async function signInWithPassword(phoneE164: string, password: string): Promise<void> {
+  const { error } = await supabase.auth.signInWithPassword({ phone: phoneE164, password });
+  if (error) throw error;
+}
+
+/**
+ * New account: phone + password. Phone confirmations are on, so Supabase texts a code
+ * (through the send-SMS hook) and the account only signs in after verifyOtp().
+ * Calling it again for an unconfirmed number re-sends the code.
+ */
+export async function signUpWithPassword(phoneE164: string, password: string): Promise<void> {
+  const { error } = await supabase.auth.signUp({ phone: phoneE164, password });
+  if (error) throw error;
+}
+
+/** Re-send the confirmation code of a signup that has not been verified yet. */
+export async function resendSignupCode(phoneE164: string): Promise<void> {
+  const { error } = await supabase.auth.resend({ type: 'sms', phone: phoneE164 });
+  if (error) throw error;
+}
+
+/** Set a new password for the signed-in user (after a reset code, or from Settings). */
+export async function updatePassword(password: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+}
+
+/** Exchange an SMS code for a session: signup confirmation and password reset both use it. */
 export async function verifyOtp(phoneE164: string, code: string): Promise<void> {
   const { error } = await supabase.auth.verifyOtp({ phone: phoneE164, token: code, type: 'sms' });
   if (error) throw error;

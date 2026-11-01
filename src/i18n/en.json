@@ -73,7 +73,7 @@
     "ops_subtitle": "Operations portal",
     "field_app": "Cleaner app",
     "sign_in_title": "Sign in",
-    "sign_in_body": "Enter your work phone number. We will send a one-time code.",
+    "sign_in_body": "Enter your phone number and password.",
     "send_code": "Send code",
     "sending_code": "Sending code…",
     "change_number": "Use a different number",
@@ -89,16 +89,39 @@
     "cleaner_body": "Your account is a cleaner account. Open the cleaner app to see your jobs.",
     "go_to_field": "Open the cleaner app",
     "no_access_title": "No workspace yet",
-    "no_access_body": "Your phone number is not linked to a company on Safi360. Ask your owner to add you under Staff.",
+    "no_access_body": "Your phone number is not linked to a company yet. Starting a new business? Create your company. Joining a team? Ask your owner to add you under Staff.",
     "errors": {
       "rate_limited": "Too many attempts. Wait a minute and try again.",
       "expired": "That code has expired. Request a new one.",
       "invalid_code": "That code is not right. Check the SMS and try again.",
-      "generic": "We could not sign you in. Please try again."
+      "generic": "We could not sign you in. Please try again.",
+      "no_account": "No account uses this number yet. Create one first.",
+      "wrong_credentials": "Wrong phone number or password.",
+      "already_registered": "This number already has an account. Sign in instead.",
+      "weak_password": "Choose a longer password.",
+      "not_confirmed": "This number is not verified yet. Create your account again to get a new code."
     },
-    "field_sign_in_body": "Sign in with your cleaner phone number.",
+    "field_sign_in_body": "Sign in with your phone number and password.",
     "field_pending_hint": "One more step: your office adds you under Settings → Staff, then you refresh and see your jobs.",
-    "check_again": "Check again"
+    "check_again": "Check again",
+    "new_here": "New to Safi360?",
+    "create_company": "Create your company",
+    "password_label": "Password",
+    "password_confirm_label": "Confirm password",
+    "password_hint": "At least {{min}} characters.",
+    "password_too_short": "Password must be at least {{min}} characters.",
+    "password_mismatch": "Passwords do not match.",
+    "show_password": "Show",
+    "hide_password": "Hide",
+    "sign_in": "Sign in",
+    "signing_in": "Signing in…",
+    "forgot_password": "Forgot password?",
+    "create_account": "Create account",
+    "creating_account": "Creating account…",
+    "new_cleaner": "New cleaner?",
+    "have_account": "Already have an account?",
+    "field_signup_title": "Create your cleaner account",
+    "field_signup_body": "Use the phone number your office has for you and choose a password. We will text you a code to verify the number."
   },
   "weekday": {
     "0": "Sunday",
@@ -910,7 +933,7 @@
     "signup": {
       "title": "Create your company account",
       "subtitle": "Join Safi360 and start taking cleaning bookings today",
-      "body": "Use your Tanzanian phone number (+255) to sign in. We'll send a verification code.",
+      "body": "Enter your Tanzanian phone number (+255) and choose a password. We will text you a code to verify the number.",
       "details_title": "Company details",
       "details_body": "Fill in your company's basic information. This will appear on your customer-facing booking page.",
       "name": "Company name",
@@ -933,22 +956,29 @@
     "plan": {
       "title": "Choose your plan",
       "subtitle": "Complete setup by selecting the plan that fits your business. Get 7 days free!",
-      "select": "Select",
-      "selecting": "Selecting...",
-      "confirm": "Confirm & start",
+      "select": "Choose this plan",
       "per_month": "/month",
       "no_plans": "No plans available at the moment. Contact support.",
-      "contact_support": "Contact support",
       "sign_in_required": "Sign in required",
       "sign_in_body": "Please sign in to choose your plan.",
       "go_signup": "Go to signup",
       "load_error": "Failed to load plans",
       "error": "Failed to save plan. Please try again.",
-      "success": "Plan selected! Welcome to Safi360."
-    }
+      "success": "Plan selected! Welcome to Safi360.",
+      "current": "Current plan",
+      "trial_note": "Choosing a plan is free during your trial. You only pay when you activate it.",
+      "continue_trial": "Continue with free trial",
+      "saved": "Plan saved.",
+      "payment_title": "Plan saved. Complete payment to continue",
+      "payment_body": "We recorded your {{plan}} plan. Your account reopens as soon as your payment is confirmed.",
+      "pay_now": "Pay now",
+      "check_again": "I've paid, check again",
+      "still_pending": "Payment not confirmed yet. It can take a few minutes.",
+      "change_plan": "Choose a different plan"
+    },
+    "step": "Step {{current}} of {{total}}"
   },
   "subscription": {
-    "trial_banner_title": "Your 7-day trial has {{days}} days left",
     "trial_banner_body": "Choose a plan before your trial ends to continue using Safi360.",
     "trial_banner_cta": "Choose plan now",
     "expired_title": "Trial expired",
@@ -962,7 +992,9 @@
     "past_due_body": "Your payment is overdue. Pay now to restore your service.",
     "blocked_cta_plan": "Choose a plan",
     "blocked_cta_payment": "Pay now",
-    "blocked_note": "You can also pay directly at: {{url}}"
+    "blocked_note": "You can also pay directly at: {{url}}",
+    "trial_banner_title_one": "Your 7-day trial has {{count}} day left",
+    "trial_banner_title_other": "Your 7-day trial has {{count}} days left"
   },
   "ops": {
     "dashboard_title": "Dashboard",
@@ -1739,7 +1771,12 @@
     "onboarding_booking_desc": "Take your first order.",
     "done": "Done",
     "pending": "Pending",
-    "open": "Open"
+    "open": "Open",
+    "password_title": "Change password",
+    "password_body": "You sign in with your phone number and this password.",
+    "password_new": "New password",
+    "password_save": "Update password",
+    "password_saved": "Password changed."
   },
   "landing": {
     "doc_title": "Safi360 — The system for cleaning companies",
@@ -1834,5 +1871,14 @@
     "footer_rights": "© {{year}} Safi360",
     "footer_made": "Made in Tanzania",
     "photo_credit": "Photos: Pexels"
+  },
+  "reset": {
+    "title": "Reset your password",
+    "body": "Enter your phone number. We will text you a code to confirm it is you.",
+    "new_title": "Choose a new password",
+    "new_body": "Your number is confirmed. Pick a new password to finish.",
+    "submit": "Save new password",
+    "done": "Password updated.",
+    "back_to_sign_in": "Back to sign in"
   }
 }
