@@ -66,9 +66,9 @@ describe('<PasswordSignIn>', () => {
     expect(await screen.findByText('Wrong phone number or password.')).toBeInTheDocument();
   });
 
-  it('links to the reset page', () => {
+  it('hides "Forgot password?" while SMS codes cannot be sent (Briq sender pending)', () => {
     renderWithShell(<PasswordSignIn reset={{ back: '/ops/login', next: '/ops' }} />);
-    expect(screen.getByRole('link', { name: 'Forgot password?' })).toHaveAttribute('href', '/reset-password');
+    expect(screen.queryByRole('link', { name: 'Forgot password?' })).not.toBeInTheDocument();
   });
 });
 
@@ -88,11 +88,31 @@ describe('<PhoneSignup>', () => {
     expect(api.signUpWithPassword).not.toHaveBeenCalled();
   });
 
-  it('creates the account, then verifies the SMS code and runs onVerified', async () => {
+  it('signs a new account straight in when no code is needed, passing the optional email', async () => {
+    api.signUpWithPassword.mockResolvedValue({ needsCode: false });
+    const onVerified = vi.fn().mockResolvedValue(undefined);
+    renderWithShell(<PhoneSignup title="Create" body="Body" onVerified={onVerified} />);
+    await userEvent.type(screen.getByLabelText(/^Email/), 'neema@example.com');
+    await fillAccount('siri123', 'siri123');
+    expect(api.signUpWithPassword).toHaveBeenCalledWith('+255763594105', 'siri123', 'neema@example.com');
+    expect(onVerified).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('heading', { name: 'Enter the code' })).not.toBeInTheDocument();
+  });
+
+  it('refuses a malformed email but accepts none', async () => {
+    renderWithShell(<PhoneSignup title="Create" body="Body" />);
+    await userEvent.type(screen.getByLabelText(/^Email/), 'not-an-email');
+    await fillAccount('siri123', 'siri123');
+    expect(screen.getByText('Enter a valid email address.')).toBeInTheDocument();
+    expect(api.signUpWithPassword).not.toHaveBeenCalled();
+  });
+
+  it('asks for the SMS code when Supabase requires one, then runs onVerified', async () => {
+    api.signUpWithPassword.mockResolvedValue({ needsCode: true });
     const onVerified = vi.fn().mockResolvedValue(undefined);
     renderWithShell(<PhoneSignup title="Create" body="Body" onVerified={onVerified} />);
     await fillAccount('siri123', 'siri123');
-    expect(api.signUpWithPassword).toHaveBeenCalledWith('+255763594105', 'siri123');
+    expect(api.signUpWithPassword).toHaveBeenCalledWith('+255763594105', 'siri123', undefined);
 
     expect(await screen.findByRole('heading', { name: 'Enter the code' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Send the code again' }));

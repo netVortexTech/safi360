@@ -16,6 +16,8 @@ import type { QuoteResult } from '../../supabase/functions/_shared/pricing/types
 
 export const LIVE = process.env.E2E_LIVE === '1';
 export const SANDBOX_CODE = '123456';
+/** The fake backend's client-account password (customer_auth). */
+export const PASSWORD = 'siri123';
 export const PHONE_NATIONAL = '715880342';
 export const PHONE = '+255715880342';
 
@@ -161,6 +163,19 @@ export function seededBooking(
     ],
     address: { area: 'Mbezi Beach' },
     ...over,
+  };
+}
+
+function summary(b: StoredBooking) {
+  return {
+    id: b.id,
+    ticket_ref: b.ticket_ref,
+    status: b.status,
+    scheduled_start: b.slot?.start ?? null,
+    service_label_sw: 'Usafi wa sofa',
+    service_label_en: 'Sofa cleaning',
+    total_tzs: b.quote.total_tzs,
+    created_at: b.events[0]?.at,
   };
 }
 
@@ -332,6 +347,23 @@ export async function installFakeBackend(page: Page): Promise<FakeBackend> {
           schedule: booking.slot,
         });
       }
+      case 'customer_auth': {
+        if (body.password !== PASSWORD) {
+          return json(route, 401, {
+            code: 'wrong_credentials',
+            message: 'auth.errors.wrong_credentials',
+            retryable: false,
+          });
+        }
+        const mine = state.bookings.filter((b) => b.phone === body.phone).reverse();
+        const matched = body.ticket_ref ? (mine.find((b) => b.ticket_ref === body.ticket_ref) ?? null) : null;
+        return json(route, 200, {
+          token: tokenFor(String(body.phone), 'booking'),
+          expires_at: exp(),
+          booking_id: matched?.id ?? null,
+          bookings: mine.map(summary),
+        });
+      }
       case 'tracking_start':
         return json(route, 200, { status: 'code_sent' });
       case 'tracking_verify': {
@@ -349,16 +381,7 @@ export async function installFakeBackend(page: Page): Promise<FakeBackend> {
           token: tokenFor(String(body.phone), 'tracking'),
           expires_at: exp(),
           booking_id: matched?.id ?? null,
-          bookings: mine.map((b) => ({
-            id: b.id,
-            ticket_ref: b.ticket_ref,
-            status: b.status,
-            scheduled_start: b.slot?.start ?? null,
-            service_label_sw: 'Usafi wa sofa',
-            service_label_en: 'Sofa cleaning',
-            total_tzs: b.quote.total_tzs,
-            created_at: b.events[0]?.at,
-          })),
+          bookings: mine.map(summary),
         });
       }
       case 'tracking_view': {

@@ -7,8 +7,7 @@ import { renderPortal } from '../test-utils';
 import TrackPage from './TrackPage';
 
 const api = vi.hoisted(() => ({
-  trackingStart: vi.fn(),
-  trackingVerify: vi.fn(),
+  customerAuth: vi.fn(),
   trackingView: vi.fn(),
 }));
 
@@ -20,18 +19,14 @@ vi.mock('../api', async (importOriginal) => {
 describe('<TrackPage>', () => {
   beforeEach(() => {
     window.sessionStorage.clear();
-    api.trackingStart.mockReset();
-    api.trackingVerify.mockReset();
+    api.customerAuth.mockReset();
     api.trackingView.mockReset();
   });
 
-  it('shows no booking data before the phone is verified, and none on a wrong code', async () => {
+  it('shows no booking data before sign-in, and none on a wrong password', async () => {
     const user = userEvent.setup();
-    api.trackingStart.mockResolvedValue({ status: 'code_sent' });
-    api.trackingVerify.mockRejectedValue(
-      new PortalApiError('otp_invalid', 'auth.errors.invalid_code', 401, true, {
-        code: 'auth.errors.invalid_code',
-      }),
+    api.customerAuth.mockRejectedValue(
+      new PortalApiError('wrong_credentials', 'auth.errors.wrong_credentials', 401, false, {}),
     );
     renderPortal(<TrackPage />, {
       path: '/usafi-bora/track',
@@ -41,25 +36,26 @@ describe('<TrackPage>', () => {
     expect(screen.queryByTestId('timeline')).not.toBeInTheDocument();
     await user.type(screen.getByLabelText(/Ticket number/), 'ubc-2026-00042');
     await user.type(screen.getByLabelText(/Phone number/), '715880342');
-    await user.click(screen.getByRole('button', { name: /Send code/ }));
+    await user.type(screen.getByLabelText(/^Password/), 'wrong-pw');
+    await user.click(screen.getByRole('button', { name: 'Sign in' }));
     await waitFor(() =>
-      expect(api.trackingStart).toHaveBeenCalledWith(
-        expect.objectContaining({ ticket_ref: 'UBC-2026-00042', phone: '+255715880342' }),
-      ),
+      expect(api.customerAuth).toHaveBeenCalledWith({
+        action: 'login',
+        slug: 'usafi-bora',
+        phone: '+255715880342',
+        password: 'wrong-pw',
+        ticket_ref: 'UBC-2026-00042',
+      }),
     );
-    expect(await screen.findByText(/Enter the code/)).toBeInTheDocument();
-
-    await user.type(screen.getByLabelText(/Verification code 1\/6/), '000000');
-    expect(await screen.findByText(/That code is not right/)).toBeInTheDocument();
+    expect(await screen.findByText('Wrong phone number or password.')).toBeInTheDocument();
     expect(api.trackingView).not.toHaveBeenCalled();
     expect(screen.queryByText(/UBC-2026-00042/)).not.toBeInTheDocument();
     expect(screen.queryByTestId('track-list')).not.toBeInTheDocument();
   });
 
-  it('lists every booking on the phone after a lost-ticket verification', async () => {
+  it('lists every booking on the phone after a lost-ticket sign-in', async () => {
     const user = userEvent.setup();
-    api.trackingStart.mockResolvedValue({ status: 'code_sent' });
-    api.trackingVerify.mockResolvedValue({
+    api.customerAuth.mockResolvedValue({
       token: 'tok',
       expires_at: new Date(Date.now() + 15 * 60_000).toISOString(),
       booking_id: null,
@@ -92,9 +88,8 @@ describe('<TrackPage>', () => {
     });
     expect(screen.queryByLabelText(/Ticket number/)).not.toBeInTheDocument();
     await user.type(screen.getByLabelText(/Phone number/), '715880342');
-    await user.click(screen.getByRole('button', { name: /Send code/ }));
-    await screen.findByText(/Enter the code/);
-    await user.type(screen.getByLabelText(/Verification code 1\/6/), '123456');
+    await user.type(screen.getByLabelText(/^Password/), 'siri123');
+    await user.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByTestId('track-list')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /UBC-2026-00042/ })).toHaveAttribute(
       'href',

@@ -80,6 +80,10 @@ const KNOWN_CODES: Record<
   phone_not_verified: { code: 'phone_not_verified', message: 'errors.phone_not_verified', status: 401 },
   token_purpose_mismatch: { code: 'token_invalid', message: 'errors.token_invalid', status: 401 },
   otp_invalid: { code: 'otp_invalid', message: 'auth.errors.invalid_code', status: 401 },
+  // Client accounts (customer_auth). One message for unknown phone and wrong password.
+  wrong_credentials: { code: 'wrong_credentials', message: 'auth.errors.wrong_credentials', status: 401 },
+  already_registered: { code: 'already_registered', message: 'auth.errors.already_registered', status: 409 },
+  name_required: { code: 'name_required', message: 'validation.name.too_short', status: 422 },
   otp_expired: { code: 'otp_expired', message: 'auth.errors.expired', status: 401 },
   otp_exhausted: { code: 'otp_exhausted', message: 'auth.errors.rate_limited', status: 429 },
   sms_not_configured: { code: 'sms_not_configured', message: 'errors.sms_not_configured', status: 503 },

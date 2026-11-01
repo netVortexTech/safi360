@@ -32,7 +32,11 @@ export interface OtpVerifyProps {
 
 type Stage = 'phone' | 'code';
 
-/** Phone → 6-digit code → token. Shared by the booking contact step and Track my booking. */
+/**
+ * Phone → 6-digit code → token. Not mounted while SMS is unavailable (Briq sender ID
+ * pending): CustomerAccount (phone + password) stands in on the booking and tracking pages.
+ * Kept so the code flow can come back once SMS works (PRODUCTION_READINESS §5).
+ */
 export function OtpVerify({
   slug,
   purpose,

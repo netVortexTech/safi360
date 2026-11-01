@@ -11,6 +11,7 @@ import type { CatalogAddon, CatalogService, CatalogZone } from '../pricing/types
 import { callerIdFrom, enforceRateLimit, RATE_LIMITS } from '../rate-limit.ts';
 import { smsProviderFromEnv } from '../sms/provider.ts';
 import { resolveTenantBySlug, resolveTenantById } from '../tenant.ts';
+import type { CustomerAccountStore } from './customer-auth.ts';
 import type {
   BookingDeps,
   BookingDetail,
@@ -487,6 +488,34 @@ export function bookingDeps(admin: SupabaseClient, req: Request, env: FunctionEn
       const result: { changed: boolean; booking_status?: BookingStatus } = { changed: out.changed };
       if (out.booking?.status) result.booking_status = out.booking.status;
       return result;
+    },
+  };
+}
+
+/** Client accounts (customer_auth): the two service-role functions from migration 0039. */
+export function customerAccountStore(admin: SupabaseClient): CustomerAccountStore {
+  return {
+    async register(input) {
+      const res: { error: { message: string } | null } = await admin.rpc('customer_register', {
+        p_tenant_id: input.tenant_id,
+        p_phone: input.phone,
+        p_name: input.name,
+        p_email: input.email,
+        p_locale: input.locale,
+        p_password_hash: input.password_hash,
+      });
+      if (res.error) throw new Error(res.error.message);
+    },
+    async passwordHash(tenantId, phone) {
+      const res: { data: unknown; error: { message: string } | null } = await admin.rpc(
+        'customer_password_hash',
+        {
+          p_tenant_id: tenantId,
+          p_phone: phone,
+        },
+      );
+      if (res.error) throw new Error(res.error.message);
+      return typeof res.data === 'string' ? res.data : null;
     },
   };
 }
