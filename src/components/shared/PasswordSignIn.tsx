@@ -37,7 +37,8 @@ export function PasswordSignIn({ reset, onSignedIn }: PasswordSignInProps) {
       await onSignedIn?.();
     } catch (err) {
       setError(t(authErrorKey(err as Error)));
-      setBusy(false);
+    } finally {
+      if (busy) setBusy(false);
     }
   };
 
