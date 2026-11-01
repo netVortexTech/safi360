@@ -59,6 +59,11 @@ describe('migrations', () => {
       'tenants', // tenants is keyed by id
       'impersonation_sessions', // super-admin tool; references the tenant as target_tenant_id
       'system_health', // platform-wide metrics, no tenant scope
+      // control center (20261020000034): Safi360's own books and switches, not a tenant's
+      'platform_costs',
+      'platform_settings',
+      'platform_incidents',
+      'feature_flags',
     ]);
     const nullableAllowed = new Set(['audit_logs']); // platform-level actions have no tenant
     const tables = await db.sql<{ relname: string }>(

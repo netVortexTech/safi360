@@ -38,6 +38,8 @@ jwt_expiry = 3600
 enable_refresh_token_rotation = true
 enable_signup = true
 enable_anonymous_sign_ins = false
+# Staff sign in with phone + password; Supabase refuses anything below 6.
+minimum_password_length = 6
 
 [auth.email]
 enable_signup = false
@@ -97,6 +99,11 @@ import_map = "./functions/deno.json"
 
 # Provider webhooks carry their own signature; no Supabase JWT on the request.
 [functions.payment_callback]
+import_map = "./functions/deno.json"
+verify_jwt = false
+
+# Supabase Auth's Send SMS hook; signed with SEND_SMS_HOOK_SECRET, no Supabase JWT.
+[functions.send_sms_hook]
 import_map = "./functions/deno.json"
 verify_jwt = false
 

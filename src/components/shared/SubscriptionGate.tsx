@@ -106,7 +106,7 @@ function TrialBanner({ daysRemaining, planPath }: { daysRemaining: number; planP
           <Clock className="size-5 text-amber" aria-hidden="true" />
           <div>
             <p className="text-sm font-medium text-amber-foreground">
-              {t('subscription.trial_banner_title', { days: daysRemaining })}
+              {t('subscription.trial_banner_title', { count: daysRemaining })}
             </p>
             <p className="text-xs text-amber-foreground/80">{t('subscription.trial_banner_body')}</p>
           </div>

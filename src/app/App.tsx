@@ -68,6 +68,7 @@ const OpsSettingsTeam = lazy(() => import('@/experiences/ops/settings/TeamSettin
 const OpsSettingsOnboarding = lazy(() => import('@/experiences/ops/settings/OnboardingSettings'));
 const OnboardingSignup = lazy(() => import('@/experiences/onboarding/pages/OnboardingSignup'));
 const OnboardingPlan = lazy(() => import('@/experiences/onboarding/pages/OnboardingPlan'));
+const ResetPasswordPage = lazy(() => import('@/experiences/auth/ResetPasswordPage'));
 
 // Wrapped layouts with subscription gate
 const GatedOpsLayout = () => (
@@ -84,12 +85,14 @@ const GatedFieldLayout = () => (
 
 const withSuspense = (node: ReactNode) => <Suspense fallback={<RouteLoading />}>{node}</Suspense>;
 
-// Reserved first segments are matched before the tenant slug catch-all.
+// Reserved first segments are matched before the tenant slug catch-all. Adding one?
+// Also add it to app.is_reserved_slug() (migration 0037) so no company can take it.
 export const routes: RouteObject[] = [
   { path: '/', element: withSuspense(<LandingPage />), errorElement: <RouteError /> },
   // Public onboarding routes (no auth required)
   { path: '/signup', element: withSuspense(<OnboardingSignup />), errorElement: <RouteError /> },
   { path: '/onboarding/plan', element: withSuspense(<OnboardingPlan />), errorElement: <RouteError /> },
+  { path: '/reset-password', element: withSuspense(<ResetPasswordPage />), errorElement: <RouteError /> },
   // Ops portal (gated by subscription)
   { path: '/ops/login', element: withSuspense(<OpsLogin />), errorElement: <RouteError /> },
   {

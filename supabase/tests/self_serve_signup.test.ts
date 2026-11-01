@@ -310,3 +310,35 @@ describe('select_plan', () => {
     expect(anon.error).toMatch(/permission denied/i);
   });
 });
+
+describe('reserved slugs (0037)', () => {
+  let rdb: TestDb;
+  const owner = 'dddddddd-0000-4000-8000-000000000009';
+  const asOwner: Claims = { sub: owner, tenant_id: null, tenant_role: null };
+
+  beforeAll(async () => {
+    rdb = await TestDb.create({ seed: true });
+    await rdb.sql(`insert into auth.users (id, phone) values ($1, '255754300009')`, [owner]);
+  });
+  afterAll(() => rdb.close());
+
+  it.each(['ops', 'signup', 'reset-password', 'Control'])(
+    'reports %s as unavailable and refuses it',
+    async (slug) => {
+      const avail = await rdb.attempt<{ ok: boolean }>(
+        'authenticated',
+        asOwner,
+        'select public.tenant_slug_available($1) as ok',
+        [slug],
+      );
+      expect(avail.rows[0]?.ok).toBe(false);
+      const r = await rdb.attempt('authenticated', asOwner, 'select public.signup_tenant($1, $2, $3, null)', [
+        'Ops Cleaners',
+        slug,
+        'OPC',
+      ]);
+      expect(r.ok).toBe(false);
+      expect(r.error).toMatch(/tenants_slug_not_reserved/);
+    },
+  );
+});

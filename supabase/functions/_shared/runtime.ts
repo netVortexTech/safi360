@@ -15,6 +15,8 @@ function readEnv(): FunctionEnv {
     APP_ENV: Deno.env.get('APP_ENV'),
     OTP_TOKEN_SECRET: Deno.env.get('OTP_TOKEN_SECRET'),
     OTP_PROVIDER: Deno.env.get('OTP_PROVIDER'),
+    BRIQ_API_KEY: Deno.env.get('BRIQ_API_KEY'),
+    BRIQ_SENDER_ID: Deno.env.get('BRIQ_SENDER_ID'),
     PAYMENT_PROVIDER: Deno.env.get('PAYMENT_PROVIDER'),
     MOCK_PAYMENT_SECRET: Deno.env.get('MOCK_PAYMENT_SECRET'),
     SUPABASE_SERVICE_ROLE_KEY: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),

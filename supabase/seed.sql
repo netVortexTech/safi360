@@ -53,6 +53,23 @@ values
   ('aaaaaaaa-0000-4000-8000-000000000003', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', '255754000003', now(), '{"provider":"phone","providers":["phone"]}', '{"name":"Safi360 Admin"}', '', '', '', '', '', '', '', '', now(), now())
 on conflict (id) do nothing;
 
+-- Local stack: the seeded accounts sign in with password "safi360" (staff use phone +
+-- password). Skipped where pgcrypto or the GoTrue column is missing (the PGlite test DB).
+do $$
+begin
+  if exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+             where n.nspname = 'extensions' and p.proname = 'crypt')
+     and exists (select 1 from information_schema.columns
+                 where table_schema = 'auth' and table_name = 'users' and column_name = 'encrypted_password') then
+    execute $q$
+      update auth.users set encrypted_password = extensions.crypt('safi360', extensions.gen_salt('bf'))
+      where id in ('aaaaaaaa-0000-4000-8000-000000000001', 'aaaaaaaa-0000-4000-8000-000000000002',
+                   'aaaaaaaa-0000-4000-8000-000000000003')
+    $q$;
+  end if;
+end;
+$$;
+
 insert into public.profiles (id, phone_e164, name, locale, is_super_admin) values
   ('aaaaaaaa-0000-4000-8000-000000000001', '+255754000001', 'Bahati Mwakyusa', 'sw', false),
   ('aaaaaaaa-0000-4000-8000-000000000002', '+255754000002', 'Zuhura Khamis',   'sw', false),
