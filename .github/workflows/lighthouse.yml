@@ -28,8 +28,10 @@ jobs:
           VITE_APP_ENV: staging
       - name: Serve preview
         run: |
-          pnpm exec vite preview --port 4173 --strictPort &
-          npx wait-on http://127.0.0.1:4173
+          # Bind IPv4 explicitly: on Node 22 "localhost" resolves to ::1, so a default
+          # preview never answers on 127.0.0.1 and wait-on (no timeout) hung the job.
+          pnpm exec vite preview --host 127.0.0.1 --port 4173 --strictPort &
+          npx --yes wait-on --timeout 60000 http://127.0.0.1:4173
       - name: Audit portal pages
         uses: treosh/lighthouse-ci-action@v12
         with:
