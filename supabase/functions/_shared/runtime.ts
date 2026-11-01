@@ -2,7 +2,13 @@
 // JSON body, service-role client, dependency wiring, structured error logging.
 // Deno-only (uses Deno.serve / Deno.env); never imported by the Vitest suites.
 import { adminClient } from './admin-client.ts';
-import { bookingDeps, supabaseDeps, type FunctionEnv } from './handlers/supabase-deps.ts';
+import type { CustomerAuthDeps } from './handlers/customer-auth.ts';
+import {
+  bookingDeps,
+  customerAccountStore,
+  supabaseDeps,
+  type FunctionEnv,
+} from './handlers/supabase-deps.ts';
 import type { BookingDeps, HandlerResult, PublicDeps } from './handlers/types.ts';
 import { error, json, preflight } from './http.ts';
 import { log } from './log.ts';
@@ -57,4 +63,15 @@ export function servePublic(name: string, handler: PublicHandler): void {
 /** Everything that touches bookings, OTPs or payments. */
 export function serveBooking(name: string, handler: BookingHandler): void {
   serve(name, (req, body) => handler(body, bookingDeps(adminClient(), req, readEnv())));
+}
+
+/** customer_auth: booking deps plus the client account store. */
+export function serveCustomerAuth(
+  name: string,
+  handler: (body: unknown, deps: CustomerAuthDeps) => Promise<HandlerResult>,
+): void {
+  serve(name, (req, body) => {
+    const admin = adminClient();
+    return handler(body, { ...bookingDeps(admin, req, readEnv()), accounts: customerAccountStore(admin) });
+  });
 }

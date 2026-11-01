@@ -250,7 +250,9 @@ export function projectBooking(
   };
 }
 
-function summarise(b: BookingRow & { service_label_sw: string; service_label_en: string }): BookingSummary {
+export function summarise(
+  b: BookingRow & { service_label_sw: string; service_label_en: string },
+): BookingSummary {
   return {
     id: b.id,
     ticket_ref: b.ticket_ref,

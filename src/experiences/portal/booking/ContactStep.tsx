@@ -4,7 +4,8 @@ import { Field } from '@/components/shared/Field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { usePortal } from '../context';
-import { OtpVerify } from '../components/OtpVerify';
+import { CustomerAccount } from '../components/CustomerAccount';
+import { saveTrackingSession } from '../session';
 import type { BookingDraft, DraftAction } from './state';
 
 export interface ContactStepProps {
@@ -16,7 +17,7 @@ export interface ContactStepProps {
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-/** Step 4: name, verified phone, optional email and notes. */
+/** Step 4: name, optional email, client account (phone + password) and notes. */
 export function ContactStep({ draft, dispatch, sessionExpired }: ContactStepProps) {
   const { t } = useTranslation();
   const { slug, locale } = usePortal();
@@ -68,9 +69,8 @@ export function ContactStep({ draft, dispatch, sessionExpired }: ContactStepProp
         </Field>
       </div>
       <div className="rounded-lg border border-border bg-surface p-4">
-        <OtpVerify
+        <CustomerAccount
           slug={slug}
-          purpose="booking"
           locale={locale}
           phoneRaw={contact.phoneRaw}
           phoneE164={contact.phoneE164}
@@ -78,7 +78,22 @@ export function ContactStep({ draft, dispatch, sessionExpired }: ContactStepProp
             dispatch({ type: 'set_contact', patch: { phoneRaw: raw, phoneE164: e164 } })
           }
           verifiedPhone={verify?.phone ?? null}
-          onVerified={(v) => dispatch({ type: 'set_verify', verify: v })}
+          profile={{ name: contact.name, email: contact.email }}
+          onAuthenticated={(res) => {
+            dispatch({
+              type: 'set_verify',
+              verify: { phone: res.phone, token: res.token, expires_at: res.expires_at },
+            });
+            // Same tab: "Track my booking" opens already signed in.
+            saveTrackingSession({
+              slug,
+              token: res.token,
+              expires_at: res.expires_at,
+              phone: res.phone,
+              booking_id: null,
+              bookings: res.bookings,
+            });
+          }}
         />
       </div>
       <Field id={`${id}-notes`} label={t('portal.contact.notes')} hint={t('common.optional')}>

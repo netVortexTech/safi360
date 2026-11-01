@@ -121,7 +121,10 @@
     "new_cleaner": "New cleaner?",
     "have_account": "Already have an account?",
     "field_signup_title": "Create your cleaner account",
-    "field_signup_body": "Use the phone number your office has for you and choose a password. We will text you a code to verify the number."
+    "field_signup_body": "Use the phone number your office has for you and choose a password. We will text you a code to verify the number.",
+    "email_optional_label": "Email (optional)",
+    "email_hint": "For receipts and updates. You sign in with your phone number.",
+    "email_invalid": "Enter a valid email address."
   },
   "weekday": {
     "0": "Sunday",
@@ -927,6 +930,13 @@
       "support": "Support",
       "copyright": "© {{year}} {{tenant}}. All rights reserved.",
       "by_safi360": "Powered by Safi360"
+    },
+    "account": {
+      "title_login": "Sign in to continue",
+      "title_signup": "Create your account",
+      "body": "Use your phone number and a password to book and to track your bookings.",
+      "signed_in_as": "Signed in as",
+      "new_here": "First time here?"
     }
   },
   "onboarding": {

@@ -102,6 +102,9 @@ import_map = "./functions/deno.json"
 import_map = "./functions/deno.json"
 verify_jwt = false
 
+[functions.customer_auth]
+import_map = "./functions/deno.json"
+
 # Supabase Auth's Send SMS hook; signed with SEND_SMS_HOOK_SECRET, no Supabase JWT.
 [functions.send_sms_hook]
 import_map = "./functions/deno.json"

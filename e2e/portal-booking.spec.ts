@@ -1,4 +1,4 @@
-import { expect, LIVE, PHONE_NATIONAL, SANDBOX_CODE, test } from './fixtures/booking-api';
+import { expect, LIVE, PASSWORD, PHONE_NATIONAL, test } from './fixtures/booking-api';
 import type { Page } from '@playwright/test';
 
 const SLUG = 'usafi-bora';
@@ -31,14 +31,15 @@ async function pickFirstSlot(page: Page) {
   return start as string;
 }
 
+/** New client: name on the form, then create an account (phone + password, no SMS). */
 async function verifyPhone(page: Page, name = 'Daudi Lyimo') {
   await page.getByLabel(/Full name/).fill(name);
+  await page.getByRole('button', { name: 'Create account' }).click();
   await page.getByLabel(/Phone number/).fill(PHONE_NATIONAL);
-  await page.getByRole('button', { name: 'Send code' }).click();
-  await expect(page.getByTestId('otp-code')).toBeVisible();
-  await page.getByLabel('Verification code 1/6').focus();
-  await page.keyboard.type(SANDBOX_CODE);
-  await expect(page.getByTestId('otp-verified')).toBeVisible();
+  await page.getByLabel(/^Password/).fill(PASSWORD);
+  await page.getByLabel(/^Confirm password/).fill(PASSWORD);
+  await page.getByTestId('account-signup').getByRole('button', { name: 'Create account' }).click();
+  await expect(page.getByTestId('account-signed-in')).toBeVisible();
 }
 
 const next = (page: Page) =>

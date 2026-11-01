@@ -273,6 +273,43 @@ export const trackingStartRequest = z
   .strict();
 export type TrackingStartRequest = z.infer<typeof trackingStartRequest>;
 
+/** Client account (customer_auth): sign up or sign in with phone + password at one business. */
+const customerPassword = z
+  .string()
+  .min(6, { message: 'auth.errors.weak_password' })
+  .max(72, { message: 'validation.failed' });
+
+export const customerAuthRequest = z.discriminatedUnion('action', [
+  z
+    .object({
+      action: z.literal('signup'),
+      slug: tenantSlug,
+      phone: phoneE164,
+      password: customerPassword,
+      name: z.string().trim().max(120).optional(),
+      email: z
+        .string()
+        .trim()
+        .toLowerCase()
+        .email({ message: 'validation.email.invalid' })
+        .max(254)
+        .optional(),
+      locale: locale.default('sw'),
+      ticket_ref: ticketRef.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal('login'),
+      slug: tenantSlug,
+      phone: phoneE164,
+      password: customerPassword,
+      ticket_ref: ticketRef.optional(),
+    })
+    .strict(),
+]);
+export type CustomerAuthRequest = z.infer<typeof customerAuthRequest>;
+
 export const trackingVerifyRequest = z
   .object({
     slug: tenantSlug,

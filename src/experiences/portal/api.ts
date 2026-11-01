@@ -111,6 +111,21 @@ export const portalApi = {
     invoke<TrackingStartResponse>('tracking_start', args),
   trackingVerify: (args: { slug: string; phone: string; code: string; ticket_ref?: string }) =>
     invoke<TrackingVerifyResponse>('tracking_verify', args),
+  /** Client account at this business (phone + password); answers like trackingVerify. */
+  customerAuth: (
+    args:
+      | {
+          action: 'signup';
+          slug: string;
+          phone: string;
+          password: string;
+          name?: string;
+          email?: string;
+          locale: 'sw' | 'en';
+          ticket_ref?: string;
+        }
+      | { action: 'login'; slug: string; phone: string; password: string; ticket_ref?: string },
+  ) => invoke<TrackingVerifyResponse>('customer_auth', args),
   trackingView: (args: { slug: string; token: string; booking_id: string }) =>
     invoke<TrackingViewResponse>('tracking_view', args),
   customerAction: (args: {

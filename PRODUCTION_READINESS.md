@@ -52,12 +52,28 @@
 - [ ] Create Edge Function to handle payment callbacks → update tenant status/plan
 - [ ] Test full flow: trial expired → payment → plan activated
 
-### 5. **SMS/OTP Provider**
+### 5. **SMS/OTP Provider (Briq), BLOCKED on sender ID**
 
-- [ ] Production Twilio/MessageBird account
-- [ ] Verify sender ID registration for Tanzania (+255)
-- [ ] Update `supabase/config.toml` test OTP map → remove test numbers
-- [ ] Set SMS provider credentials in Supabase secrets
+SMS goes through Briq (karibu.briq.tz). The code is live: `send_sms_hook` (staff codes) and
+`BriqSmsProvider` (customer codes), with `BRIQ_API_KEY` set. **Briq refuses every send**
+("Sender ID is not available for this workspace"): the workspace has no active sender ID, and
+`SAFI360` shows as a pending request. Until a sender is active the app runs **without SMS**:
+
+- Businesses and cleaners sign up and sign in with phone + password (+ optional email); phone
+  confirmation is off (`sms_autoconfirm = true`), so a number is not proven to belong to whoever
+  registers it.
+- Clients create an account per business (phone + password + optional email) through
+  `customer_auth` instead of the SMS code step.
+- "Forgot password?" is hidden (`SMS_AVAILABLE = false` in `src/lib/auth-api.ts`).
+
+To switch SMS on once Briq approves the sender:
+
+- [ ] Briq sender ID active (`GET /v1/sender-ids` lists it with `status: active`)
+- [ ] `supabase secrets set BRIQ_SENDER_ID=<sender>` (currently `BRIQ`, which Briq refuses)
+- [ ] Auth → `sms_autoconfirm = false` (signup asks for the SMS code again)
+- [ ] `SMS_AVAILABLE = true` (shows "Forgot password?")
+- [ ] Optional: `OTP_PROVIDER=briq` + redeploy the customer OTP functions if clients should
+      verify their phone again
 
 ### 6. **WhatsApp Business API**
 

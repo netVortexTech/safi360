@@ -121,7 +121,10 @@
     "new_cleaner": "Msafishaji mpya?",
     "have_account": "Tayari una akaunti?",
     "field_signup_title": "Unda akaunti yako ya msafishaji",
-    "field_signup_body": "Tumia namba ya simu ambayo ofisi yako inayo na uchague nenosiri. Tutakutumia msimbo kuthibitisha namba."
+    "field_signup_body": "Tumia namba ya simu ambayo ofisi yako inayo na uchague nenosiri. Tutakutumia msimbo kuthibitisha namba.",
+    "email_optional_label": "Barua pepe (si lazima)",
+    "email_hint": "Kwa risiti na taarifa. Unaingia kwa namba yako ya simu.",
+    "email_invalid": "Weka barua pepe sahihi."
   },
   "weekday": {
     "0": "Jumapili",
@@ -927,6 +930,13 @@
       "support": "Msaada",
       "copyright": "© {{year}} {{tenant}}. Haki zote zimehifadhiwa.",
       "by_safi360": "Kwa nguvu ya Safi360"
+    },
+    "account": {
+      "title_login": "Ingia ili kuendelea",
+      "title_signup": "Fungua akaunti yako",
+      "body": "Tumia namba yako ya simu na nenosiri kuweka oda na kufuatilia oda zako.",
+      "signed_in_as": "Umeingia kama",
+      "new_here": "Mara ya kwanza hapa?"
     }
   },
   "onboarding": {

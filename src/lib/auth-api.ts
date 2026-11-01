@@ -4,6 +4,15 @@ import { supabase } from '@/lib/supabase';
 /** Supabase refuses anything shorter (Auth → minimum password length). */
 export const MIN_PASSWORD_LENGTH = 6;
 
+/**
+ * Whether the app can text codes right now. FALSE until Briq approves our SMS sender ID:
+ * Briq refuses every send ("Sender ID is not available for this workspace"), so signup
+ * skips phone confirmation and "Forgot password?" stays hidden. When the sender is
+ * active: set BRIQ_SENDER_ID on the functions, turn phone confirmations back on
+ * (Auth → sms_autoconfirm = false), and flip this to true.
+ */
+export const SMS_AVAILABLE = false;
+
 /** i18n key for a Supabase auth failure. Never surfaces the raw provider message. */
 export function authErrorKey(error: AuthError | Error | null | undefined): string {
   const msg = (error?.message ?? '').toLowerCase();
@@ -44,13 +53,26 @@ export async function signInWithPassword(phoneE164: string, password: string): P
 }
 
 /**
- * New account: phone + password. Phone confirmations are on, so Supabase texts a code
- * (through the send-SMS hook) and the account only signs in after verifyOtp().
- * Calling it again for an unconfirmed number re-sends the code.
+ * New account: phone + password, with an optional contact email (stored on the profile,
+ * never verified). Resolves `needsCode: false` when Supabase signs the account straight
+ * in (phone confirmations off), `true` when it texted a confirmation code instead.
+ *
+ * Phone confirmations are OFF on the live project until Briq approves our SMS sender ID:
+ * a number is not proven to belong to whoever registers it. Turning them back on
+ * (Auth → sms_autoconfirm = false) brings the code step back with no code change.
  */
-export async function signUpWithPassword(phoneE164: string, password: string): Promise<void> {
-  const { error } = await supabase.auth.signUp({ phone: phoneE164, password });
+export async function signUpWithPassword(
+  phoneE164: string,
+  password: string,
+  contactEmail?: string,
+): Promise<{ needsCode: boolean }> {
+  const { data, error } = await supabase.auth.signUp({
+    phone: phoneE164,
+    password,
+    options: contactEmail ? { data: { contact_email: contactEmail } } : {},
+  });
   if (error) throw error;
+  return { needsCode: data.session == null };
 }
 
 /** Re-send the confirmation code of a signup that has not been verified yet. */

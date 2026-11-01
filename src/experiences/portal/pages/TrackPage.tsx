@@ -8,15 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatDateTime } from '@/lib/dates';
 import { formatTzs } from '@/lib/money';
-import { portalApi } from '../api';
-import { OtpVerify } from '../components/OtpVerify';
+import { CustomerAccount } from '../components/CustomerAccount';
 import { usePortal } from '../context';
 import { loadTrackingSession, saveTrackingSession } from '../session';
-import type { BookingSummary, TrackingSession } from '../types';
+import type { BookingSummary, TrackingSession, TrackingVerifyResponse } from '../types';
 
 const TICKET = /^[A-Za-z]{2,5}-\d{4}-\d{5}$/;
 
-/** Track my booking (/track) and lost-ticket recovery (/track/recover): phone → code → bookings. */
+/** Track my booking (/track) and lost-ticket recovery (/track/recover): client sign-in → bookings. */
 export default function TrackPage() {
   const { t } = useTranslation();
   const { slug, locale } = usePortal();
@@ -32,31 +31,18 @@ export default function TrackPage() {
   const ticketError =
     !recover && ticketRaw.length > 0 && !TICKET.test(ticket) ? t('validation.ticket_ref.format') : undefined;
 
-  const onSend = async (phone: string) => {
-    if (!recover && !TICKET.test(ticket)) throw new Error('validation.ticket_ref.format');
-    await portalApi.trackingStart({ slug, phone, locale, ...(recover ? {} : { ticket_ref: ticket }) });
-    return { sandbox: true };
-  };
-
-  const onVerify = async (phone: string, code: string) => {
-    const res = await portalApi.trackingVerify({
-      slug,
-      phone,
-      code,
-      ...(recover ? {} : { ticket_ref: ticket }),
-    });
+  const onAuthenticated = (res: TrackingVerifyResponse & { phone: string }) => {
     const s: TrackingSession = {
       slug,
       token: res.token,
       expires_at: res.expires_at,
-      phone,
+      phone: res.phone,
       booking_id: res.booking_id,
       bookings: res.bookings,
     };
     saveTrackingSession(s);
     setSession(s);
     if (res.booking_id) navigate(`/${slug}/track/${res.booking_id}`);
-    return { token: res.token, expires_at: res.expires_at };
   };
 
   if (session) {
@@ -123,9 +109,8 @@ export default function TrackPage() {
         </p>
       </header>
       <div className="rounded-lg border border-border bg-surface p-4">
-        <OtpVerify
+        <CustomerAccount
           slug={slug}
-          purpose="tracking"
           locale={locale}
           phoneRaw={phoneRaw}
           phoneE164={phoneE164}
@@ -133,14 +118,17 @@ export default function TrackPage() {
             setPhoneRaw(raw);
             setPhoneE164(e164);
           }}
-          onVerified={() => undefined}
-          onSend={onSend}
-          onVerify={onVerify}
-          sendLabel={t('portal.track.send_code')}
+          onAuthenticated={onAuthenticated}
+          ticketRef={!recover && TICKET.test(ticket) ? ticket : undefined}
           autoFocus={recover}
           before={
             recover ? null : (
-              <Field id={`${id}-ticket`} label={t('portal.track.ticket')} required error={ticketError}>
+              <Field
+                id={`${id}-ticket`}
+                label={t('portal.track.ticket')}
+                hint={t('common.optional')}
+                error={ticketError}
+              >
                 <Input
                   id={`${id}-ticket`}
                   value={ticketRaw}

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { PasswordInput } from '@/components/shared/PasswordInput';
 import { PhoneInput } from '@/components/shared/PhoneInput';
 import { Button } from '@/components/ui/button';
-import { authErrorKey, MIN_PASSWORD_LENGTH, signInWithPassword } from '@/lib/auth-api';
+import { authErrorKey, MIN_PASSWORD_LENGTH, signInWithPassword, SMS_AVAILABLE } from '@/lib/auth-api';
 
 export interface PasswordSignInProps {
   /** Where "Forgot password?" returns the user: their login page and where to go after. */
@@ -69,11 +69,14 @@ export function PasswordSignIn({ reset, onSignedIn }: PasswordSignInProps) {
           (touched && !password ? t('auth.password_too_short', { min: MIN_PASSWORD_LENGTH }) : undefined)
         }
       />
-      <div className="flex justify-end">
-        <Link to="/reset-password" state={reset} className="text-sm text-primary hover:underline">
-          {t('auth.forgot_password')}
-        </Link>
-      </div>
+      {/* Reset needs an SMS code; hidden until the Briq sender ID is approved. */}
+      {SMS_AVAILABLE && (
+        <div className="flex justify-end">
+          <Link to="/reset-password" state={reset} className="text-sm text-primary hover:underline">
+            {t('auth.forgot_password')}
+          </Link>
+        </div>
+      )}
       <Button type="submit" className="w-full" loading={busy} loadingLabel={t('auth.signing_in')}>
         {t('auth.sign_in')}
       </Button>

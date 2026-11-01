@@ -18,6 +18,9 @@ export const RATE_LIMITS = {
   otp_verify: { action: 'otp_verify', limit: 10, windowSeconds: 600 },
   track_request_code: { action: 'track_request_code', limit: 5, windowSeconds: 600 },
   track_verify_code: { action: 'track_verify_code', limit: 10, windowSeconds: 600 },
+  /** Client sign-in / sign-up: per phone (password guessing) and per ip (spraying). */
+  customer_auth: { action: 'customer_auth', limit: 10, windowSeconds: 600 },
+  customer_auth_ip: { action: 'customer_auth_ip', limit: 30, windowSeconds: 600 },
   tracking_view: { action: 'tracking_view', limit: 60, windowSeconds: 60 },
   customer_action: { action: 'customer_action', limit: 20, windowSeconds: 600 },
   payment_start: { action: 'payment_start', limit: 10, windowSeconds: 600 },
