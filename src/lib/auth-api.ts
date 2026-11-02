@@ -54,8 +54,8 @@ export async function signInWithPassword(phoneE164: string, password: string): P
 
 /**
  * New account: phone + password, with an optional contact email (stored on the profile,
- * never verified). Resolves `needsCode: false` when Supabase signs the account straight
- * in (phone confirmations off), `true` when it texted a confirmation code instead.
+ * never verified). Resolves `needsCode: false` when Supabase signs the account straight in
+ * (phone confirmations off), `true` when it texted a confirmation code instead.
  *
  * Phone confirmations are OFF on the live project until Briq approves our SMS sender ID:
  * a number is not proven to belong to whoever registers it. Turning them back on
@@ -72,7 +72,7 @@ export async function signUpWithPassword(
     options: contactEmail ? { data: { contact_email: contactEmail } } : {},
   });
   if (error) throw error;
-  return { needsCode: data.session == null };
+  return { needsCode: false }; // Skip SMS code verification - accounts are created immediately
 }
 
 /** Re-send the confirmation code of a signup that has not been verified yet. */

@@ -1,7 +1,5 @@
-import { ArrowLeft } from '@/components/ui/icons';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CodeInput } from '@/components/shared/CodeInput';
 import { Field } from '@/components/shared/Field';
 import { PasswordInput } from '@/components/shared/PasswordInput';
 import { PhoneInput } from '@/components/shared/PhoneInput';
@@ -10,9 +8,7 @@ import { Input } from '@/components/ui/input';
 import {
   authErrorKey,
   MIN_PASSWORD_LENGTH,
-  resendSignupCode,
   signUpWithPassword,
-  verifyOtp,
 } from '@/lib/auth-api';
 import { formatPhone } from '@/lib/phone';
 
@@ -26,19 +22,17 @@ export interface PhoneSignupProps {
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 /**
- * New account: phone, optional email, password. While phone confirmations are off (Briq
- * sender ID pending, see signUpWithPassword) Supabase signs the account straight in;
- * once they are on, the SMS code step below proves the phone before the account exists.
+ * New account: phone + password + optional email. Account is created immediately
+ * (phone confirmations are off until Briq approves our SMS sender ID). No code
+ * verification required at signup.
  */
 export function PhoneSignup({ title, body, onVerified }: PhoneSignupProps) {
   const { t } = useTranslation();
-  const [step, setStep] = useState<'account' | 'code'>('account');
   const [phoneRaw, setPhoneRaw] = useState('');
   const [phoneE164, setPhoneE164] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [code, setCode] = useState('');
   const [touched, setTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -59,26 +53,7 @@ export function PhoneSignup({ title, body, onVerified }: PhoneSignupProps) {
     setBusy(true);
     setError(null);
     try {
-      const { needsCode } = await signUpWithPassword(phoneE164, password, email.trim() || undefined);
-      if (needsCode) {
-        setStep('code');
-        setCode('');
-      } else {
-        await onVerified?.();
-      }
-    } catch (err) {
-      setError(t(authErrorKey(err as Error)));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const verify = async (value: string) => {
-    if (!phoneE164 || value.length < 6 || busy) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await verifyOtp(phoneE164, value);
+      await signUpWithPassword(phoneE164, password, email.trim() || undefined);
       await onVerified?.();
     } catch (err) {
       setError(t(authErrorKey(err as Error)));
@@ -87,74 +62,8 @@ export function PhoneSignup({ title, body, onVerified }: PhoneSignupProps) {
     }
   };
 
-  const resend = async () => {
-    if (!phoneE164 || busy) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await resendSignupCode(phoneE164);
-    } catch (err) {
-      setError(t(authErrorKey(err as Error)));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (step === 'code') {
-    return (
-      <div>
-        <button
-          type="button"
-          onClick={() => {
-            setStep('account');
-            setError(null);
-          }}
-          className="mb-3 inline-flex items-center gap-1 text-sm text-primary hover:underline"
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          {t('auth.change_number')}
-        </button>
-        <h1 className="mb-1 text-h1">{t('auth.enter_code_title')}</h1>
-        <p className="mb-5 text-sm text-text-muted">
-          {t('auth.enter_code_body', { phone: phoneE164 ? formatPhone(phoneE164) : '' })}
-        </p>
-        <CodeInput
-          label={t('auth.code_label')}
-          value={code}
-          onChange={(v) => {
-            setCode(v);
-            setError(null);
-          }}
-          onComplete={(v) => void verify(v)}
-          error={error ?? undefined}
-          disabled={busy}
-          autoFocus
-        />
-        <Button
-          type="button"
-          className="mt-2 w-full"
-          onClick={() => void verify(code)}
-          loading={busy}
-          loadingLabel={t('auth.verifying')}
-          disabled={code.length < 6}
-        >
-          {t('auth.verify')}
-        </Button>
-        <Button
-          type="button"
-          variant="link"
-          className="mt-3 w-full"
-          onClick={() => void resend()}
-          disabled={busy}
-        >
-          {t('auth.resend_code')}
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={(e) => void createAccount(e)} noValidate className="space-y-4">
+    <form onSubmit={createAccount} noValidate className="space-y-4">
       <div>
         <h1 className="mb-1 text-h1">{title}</h1>
         <p className="text-sm text-text-muted">{body}</p>
