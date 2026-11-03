@@ -95,28 +95,26 @@ export default function ControlCreateCompany() {
     mutationFn: async () => {
       const trialEndsAt =
         trialDaysNum > 0 ? new Date(Date.now() + trialDaysNum * 86_400_000).toISOString() : null;
-      const { data, error } = await supabase
-        .from('tenants')
-        .insert({
-          name: name.trim(),
-          slug: slug.trim(),
-          phone_e164: phone.trim(),
-          city: city.trim() || null,
-          ticket_prefix: ticketPrefix.trim(),
-          plan_id: planId,
-          trial_ends_at: trialEndsAt,
-          branding: {
-            display_name: displayName.trim() || name.trim(),
-            logo_url: logoUrl.trim() || null,
-            brand_color: brandColor,
-            greeting_sw: greetingSw.trim() || null,
-            greeting_en: greetingEn.trim() || null,
-          },
-        })
-        .select('id')
-        .single();
-      if (error) throw new Error(error.message);
-      return String(data.id);
+      const branding = {
+        display_name: displayName.trim() || name.trim(),
+        logo_url: logoUrl.trim() || null,
+        brand_color: brandColor,
+        greeting_sw: greetingSw.trim() || null,
+        greeting_en: greetingEn.trim() || null,
+      };
+      const rpcRes = await supabase.rpc('control_create_company', {
+        p_name: name.trim(),
+        p_slug: slug.trim(),
+        p_phone_e164: phone.trim(),
+        p_city: city.trim() || null,
+        p_ticket_prefix: ticketPrefix.trim(),
+        p_plan_id: planId || null,
+        p_trial_ends_at: trialEndsAt,
+        p_branding: branding,
+        p_settings: {},
+      }) as { data: unknown; error: { message: string } | null };
+      if (rpcRes.error) throw new Error(rpcRes.error.message);
+      return String(rpcRes.data);
     },
     onSuccess: (newId) => setCreatedId(newId),
   });
