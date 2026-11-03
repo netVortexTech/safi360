@@ -10,8 +10,13 @@ describe('normalizeTzPhone', () => {
     ['+255754123456', '+255754123456'],
     ['00255754123456', '+255754123456'],
     ['(0754) 123-456', '+255754123456'],
+    // Tanzanian mobile prefixes starting with 6 must also be accepted.
+    ['0655123456', '+255655123456'],
+    ['0684123456', '+255684123456'],
+    ['255655123456', '+255655123456'],
+    ['+255684 123 456', '+255684123456'],
   ])('normalises %s → %s', (input, expected) => {
-    expect(normalizeTzPhone(input)).toEqual({ ok: true, e164: expected, national: '754123456' });
+    expect(normalizeTzPhone(input)).toEqual({ ok: true, e164: expected, national: expected.slice(4) });
   });
 
   it('rejects short input with a field-level reason', () => {
