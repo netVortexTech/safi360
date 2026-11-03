@@ -66,7 +66,7 @@ export async function signUpWithPassword(
   password: string,
   contactEmail?: string,
 ): Promise<{ needsCode: boolean }> {
-  const { data, error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     phone: phoneE164,
     password,
     options: contactEmail ? { data: { contact_email: contactEmail } } : {},

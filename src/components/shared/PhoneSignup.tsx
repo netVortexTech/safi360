@@ -10,7 +10,6 @@ import {
   MIN_PASSWORD_LENGTH,
   signUpWithPassword,
 } from '@/lib/auth-api';
-import { formatPhone } from '@/lib/phone';
 
 export interface PhoneSignupProps {
   title: string;

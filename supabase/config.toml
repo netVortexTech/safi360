@@ -46,8 +46,10 @@ enable_signup = false
 
 [auth.sms]
 enable_signup = true
-enable_confirmations = true
-# Local dev: use the test OTP map below instead of a real SMS provider.
+# Phone confirmations are OFF: accounts are created and signed in with phone +
+# password alone — no SMS verification code ever. Keep test_otp only as a dev
+# reference; it is unused while confirmations are disabled.
+enable_confirmations = false
 [auth.sms.test_otp]
 "255754000001" = "123456"
 "255754000002" = "123456"

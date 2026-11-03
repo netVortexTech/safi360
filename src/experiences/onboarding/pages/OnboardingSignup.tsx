@@ -1,9 +1,7 @@
-import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { AuthCard } from '@/components/shared/AuthCard';
 import { PhoneSignup } from '@/components/shared/PhoneSignup';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
@@ -32,13 +30,11 @@ export default function OnboardingSignup() {
       <PhoneSignup
         title={t('onboarding.signup.title')}
         body={t('onboarding/signup.body')}
-        onVerified={() => {
-          // After phone verification, refresh session to pick up tenant claims
-          // and navigate to the plan page where the user can select a plan
-          void supabase.auth.refreshSession().then(() => {
+        onVerified={() =>
+          supabase.auth.refreshSession().then(() => {
             navigate('/onboarding/plan', { replace: true });
-          });
-        }}
+          })
+        }
       />
 
       <p className="mt-4 text-center text-sm text-text-muted">

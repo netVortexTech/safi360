@@ -114,13 +114,6 @@ describe('<PhoneSignup>', () => {
     await fillAccount('siri123', 'siri123');
     expect(api.signUpWithPassword).toHaveBeenCalledWith('+255763594105', 'siri123', undefined);
 
-    expect(await screen.findByRole('heading', { name: 'Enter the code' })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: 'Send the code again' }));
-    expect(api.resendSignupCode).toHaveBeenCalledWith('+255763594105');
-
-    await userEvent.type(screen.getAllByRole('textbox')[0] as HTMLElement, '482913');
-    expect(api.verifyOtp).toHaveBeenCalledWith('+255763594105', '482913');
-    expect(onVerified).toHaveBeenCalledTimes(1);
   });
 
   it('tells an existing user to sign in instead', async () => {
